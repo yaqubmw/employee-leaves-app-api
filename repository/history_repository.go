@@ -7,7 +7,7 @@ import (
 
 type HistoryRepository interface {
 	Create(payload model.HistoryLeave) error
-	GetHistory(historyName string) (model.HistoryLeave, error)
+	GetHistory(id string) (model.HistoryLeave, error)
 	List() ([]model.HistoryLeave, error)
 }
 

@@ -3,9 +3,9 @@ package model
 import "time"
 
 type HistoryLeave struct {
-	ID            string
-	EmployeeID    string
-	TransactionID string
+	Id            string
+	EmployeeId    string
+	TransactionId string
 	DateStart     time.Time
 	DateEnd       time.Time
 	LeaveDuration string

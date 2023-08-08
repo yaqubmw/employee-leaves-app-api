@@ -13,7 +13,7 @@ type authUseCase struct {
 	usecase UserUseCase
 }
 
-func (a *authUseCase) Login(username string, password string) (string, error) {
+func (a *authUseCase) Login(username, password string) (string, error) {
 	user, err := a.usecase.FindByUsernamePassword(username, password)
 	if err != nil {
 		return "", fmt.Errorf("invalid username and password")

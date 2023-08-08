@@ -1,6 +1,6 @@
 package model
 
 type Role struct {
-	Id       string
-	RoleName string
+	Id       string `json:"id"`
+	RoleName string `json:"role_name"`
 }

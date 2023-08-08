@@ -4,7 +4,10 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"strconv"
+	"time"
 
+	"github.com/golang-jwt/jwt/v5"
 	"github.com/joho/godotenv"
 )
 
@@ -22,9 +25,17 @@ type DbConfig struct {
 	Driver   string
 }
 
+type TokenConfig struct {
+	ApplicationName     string
+	JwtSignatureKey     []byte
+	JwtSigningMethod    *jwt.SigningMethodHMAC
+	AccessTokenLifeTime time.Duration
+}
+
 type Config struct {
 	DbConfig
 	ApiConfig
+	TokenConfig
 }
 
 // Method
@@ -46,6 +57,15 @@ func (c *Config) ReadConfig() error {
 	c.ApiConfig = ApiConfig{
 		ApiHost: os.Getenv("API_HOST"),
 		ApiPort: os.Getenv("API_PORT"),
+	}
+
+	appTokenExpire, err := strconv.Atoi(os.Getenv("APP_TOKEN_EXPIRE"))
+	accessTokenLifeTime := time.Duration(appTokenExpire) * time.Minute
+	c.TokenConfig = TokenConfig{
+		ApplicationName:     os.Getenv("APP_TOKEN_NAME"),
+		JwtSignatureKey:     []byte(os.Getenv("APP_TOKEN_KEY")),
+		JwtSigningMethod:    jwt.SigningMethodHS256,
+		AccessTokenLifeTime: accessTokenLifeTime,
 	}
 
 	if c.DbConfig.Host == "" || c.DbConfig.Port == "" || c.DbConfig.Name == "" || c.DbConfig.User == "" || c.DbConfig.Password == "" || c.DbConfig.Driver == "" || c.ApiConfig.ApiHost == "" || c.ApiConfig.ApiPort == "" {

@@ -13,6 +13,7 @@ import (
 
 type Server struct {
 	userUC usecase.UserUseCase
+	authUC usecase.AuthUseCase
 	engine *gin.Engine
 	host   string
 }
@@ -28,6 +29,7 @@ func (s *Server) Run() {
 func (s *Server) initController() {
 	// semua controller disini
 	controller.NewUserController(s.engine, s.userUC)
+	controller.NewAuthController(s.engine, s.authUC)
 }
 
 func NewServer() *Server {
@@ -37,10 +39,12 @@ func NewServer() *Server {
 	db := dbConn.Conn()
 	userRepo := repository.NewUserRepository(db)
 	userUseCase := usecase.NewUserUseCase(userRepo)
+	authUseCase := usecase.NewAuthUseCase(userUseCase)
 
 	engine := gin.Default()
 	host := fmt.Sprintf("%s:%s", cfg.ApiHost, cfg.ApiPort)
 	return &Server{
+		authUC: authUseCase,
 		userUC: userUseCase,
 		engine: engine,
 		host:   host,

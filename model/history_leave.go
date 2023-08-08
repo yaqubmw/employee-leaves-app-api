@@ -3,11 +3,11 @@ package model
 import "time"
 
 type HistoryLeave struct {
-	Id            string
-	EmployeeId    string
-	TransactionId string
-	DateStart     time.Time
-	DateEnd       time.Time
-	LeaveDuration string
-	StatusLeave   string
+	Id            string `json:"id"`
+	EmployeeId    string `json:"employee_id"`
+	TransactionId string `json:"transaction_id"`
+	DateStart     time.Time `json:"date_start"`
+	DateEnd       time.Time `json:"date_end"`
+	LeaveDuration string `json:"leave_duration"`
+	StatusLeave   string `json:"status_duration"`
 }

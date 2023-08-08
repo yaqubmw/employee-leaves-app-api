@@ -27,6 +27,6 @@ func (h *historyUseCase) RegisterNewHistory(payload model.HistoryLeave) error {
 	return h.repo.Create(payload)
 }
 
-func NewHistoryUseCase(repo repository.RoleRepository) RoleUseCase {
-	return &roleUseCase{repo: repo}
+func NewHistoryUseCase(repo repository.HistoryRepository) HistoryUseCase {
+	return &historyUseCase{repo: repo}
 }

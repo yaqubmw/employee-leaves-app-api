@@ -1,7 +1,7 @@
 package model
 
-type User struct {
-	ID       int
+type UserCredential struct {
+	ID       string
 	Username string
 	Password string
 	RoleID   int

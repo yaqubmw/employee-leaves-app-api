@@ -1,7 +1,7 @@
 package model
 
 type LeaveType struct {
-	ID            string
-	LeaveTypeName string
-	QuotaLeave    int
+	ID            string `json:"id"`
+	LeaveTypeName string `json:"leave_type_name"`
+	QuotaLeave    int    `json:"quota_leave"`
 }

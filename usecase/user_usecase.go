@@ -10,6 +10,9 @@ import (
 
 type UserUseCase interface {
 	RegisterNewUser(payload model.UserCredential) error
+	FindAllUser() ([]model.UserCredential, error)
+	FindByUsername(username string) (model.UserCredential, error)
+	FindByUsernamePassword(username, password string) (model.UserCredential, error)
 }
 
 type userUseCase struct {
@@ -26,6 +29,21 @@ func (u *userUseCase) RegisterNewUser(payload model.UserCredential) error {
 		return fmt.Errorf("failed to create user: %v", err)
 	}
 	return nil
+}
+
+// FindAllUser implements UserUseCase.
+func (u *userUseCase) FindAllUser() ([]model.UserCredential, error) {
+	return u.repo.List()
+}
+
+// FindByUsername implements UserUseCase.
+func (u *userUseCase) FindByUsername(username string) (model.UserCredential, error) {
+	return u.repo.GetUsername(username)
+}
+
+// FindByUsernamePassword implements UserUseCase.
+func (u *userUseCase) FindByUsernamePassword(username string, password string) (model.UserCredential, error) {
+	return u.repo.GetUsernamePassword(username, password)
 }
 
 func NewUserUseCase(repo repository.UserRepository) UserUseCase {

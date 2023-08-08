@@ -36,6 +36,17 @@ func (u *UserController) createHandler(c *gin.Context) {
 	c.JSON(http.StatusOK, userResponse)
 }
 
+func (u *UserController) listHandler(c *gin.Context) {
+	users, err := u.userUC.FindAllUser()
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"err": err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{
+		"data": users,
+	})
+}
+
 func NewUserController(r *gin.Engine, usecase usecase.UserUseCase) *UserController {
 	controller := UserController{
 		router: r,
@@ -44,5 +55,6 @@ func NewUserController(r *gin.Engine, usecase usecase.UserUseCase) *UserControll
 
 	rg := r.Group("/api/v1")
 	rg.POST("/users", controller.createHandler)
+	rg.GET("/users", controller.listHandler)
 	return &controller
 }

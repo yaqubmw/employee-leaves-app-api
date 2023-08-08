@@ -1,6 +1,6 @@
 package model
 
 type StatusLeave struct {
-	ID              int
+	ID              string
 	StatusLeaveName string
 }

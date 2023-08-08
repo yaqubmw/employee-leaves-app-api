@@ -1,9 +1,9 @@
 package model
 
 type Employee struct {
-	ID          int
-	PositionID  int
-	ManagerID   int
+	ID          string
+	PositionID  string
+	ManagerID   string
 	Name        string
 	PhoneNumber string
 	Email       string

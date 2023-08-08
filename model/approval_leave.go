@@ -3,8 +3,8 @@ package model
 import "time"
 
 type ApprovalLeave struct {
-	ID            int
-	TransactionID int
-	PositionID    int
+	ID            string
+	TransactionID string
+	PositionID    string
 	DateApproval  time.Time
 }

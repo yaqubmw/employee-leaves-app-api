@@ -1,6 +1,6 @@
 package model
 
 type QuotaLeave struct {
-	ID             int
+	ID             string
 	RemainingQuota int
 }

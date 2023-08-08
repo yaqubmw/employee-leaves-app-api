@@ -1,7 +1,7 @@
 package model
 
 type LeaveType struct {
-	ID            int
+	ID            string
 	LeaveTypeName string
 	QuotaLeave    int
 }

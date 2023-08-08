@@ -3,11 +3,13 @@ package repository
 import (
 	"database/sql"
 	"employeeleave/model"
+	"employeeleave/model/dto"
+	"employeeleave/utils/common"
 )
 
 type EmployeeRepository interface {
 	BaseRepository[model.Employee]
-	// BaseRepositoryPaging[model.Employee]
+	BaseRepositoryPaging[model.Employee]
 }
 
 type employeeRepository struct {
@@ -15,8 +17,8 @@ type employeeRepository struct {
 }
 
 func (e *employeeRepository) Create(payload model.Employee) error {
-	_, err := e.db.Exec("INSERT INTO employee (id, position_id. manager_id name, phone_number, email, address) VALUES ($1, $2, $3, $4, $5, $6, $7)",
-		payload.ID, payload.PositionID, payload.ManagerID, payload.Name, payload, payload.PhoneNumber, payload.Email, payload.Address)
+	_, err := e.db.Exec("INSERT INTO employee (id, position_id, manager_id, name, phone_number, email, address) VALUES ($1, $2, $3, $4, $5, $6, $7)",
+		payload.ID, payload.PositionID, payload.ManagerID, payload.Name, payload.PhoneNumber, payload.Email, payload.Address)
 	if err != nil {
 		return err
 	}
@@ -68,6 +70,36 @@ func (e *employeeRepository) Update(payload model.Employee) error {
 		return err
 	}
 	return nil
+}
+
+// Paging implements employeeRepository.
+func (e *employeeRepository) Paging(requestPaging dto.PaginationParam) ([]model.Employee, dto.Paging, error) {
+	var paginationQuery dto.PaginationQuery
+	paginationQuery = common.GetPaginationParams(requestPaging)
+	rows, err := e.db.Query("SELECT id, name, phone_number, address FROM employee LIMIT $1 OFFSET $2", paginationQuery.Take, paginationQuery.Skip)
+	if err != nil {
+		return nil, dto.Paging{}, err
+	}
+	var employees []model.Employee
+	for rows.Next() {
+		var employee model.Employee
+		err := rows.Scan(&employee.ID, &employee.PositionID, &employee.ManagerID, &employee.Name, &employee.PhoneNumber, &employee.Email,
+			&employee.Address)
+		if err != nil {
+			return nil, dto.Paging{}, err
+		}
+		employees = append(employees, employee)
+	}
+
+	// count product
+	var totalRows int
+	row := e.db.QueryRow("SELECT COUNT(*) FROM employee")
+	err = row.Scan(&totalRows)
+	if err != nil {
+		return nil, dto.Paging{}, err
+	}
+
+	return employees, common.Paginate(paginationQuery.Page, paginationQuery.Take, totalRows), nil
 }
 
 func NewEmployeeRepository(db *sql.DB) EmployeeRepository {

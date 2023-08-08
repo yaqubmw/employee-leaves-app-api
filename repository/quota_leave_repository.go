@@ -13,7 +13,7 @@ type quotaLeaveRepository struct {
 	db *sql.DB
 }
 
-// Create implements QuotaLeaveRepository.
+
 func (q *quotaLeaveRepository) Create(payload model.QuotaLeave) error {
 	_, err := q.db.Exec("INSERT INTO quota_leave (id, remaining_quota) VALUES ($1, $2)", payload.ID, payload.RemainingQuota)
 	if err != nil {
@@ -22,7 +22,7 @@ func (q *quotaLeaveRepository) Create(payload model.QuotaLeave) error {
 	return nil
 }
 
-// Get implements QuotaLeaveRepository.
+
 func (q *quotaLeaveRepository) Get(id string) (model.QuotaLeave, error) {
 	var quotaLeave model.QuotaLeave
 	err := q.db.QueryRow("SELECT id, remaining_quota FROM quota_leave WHERE id=$1", id).Scan(&quotaLeave.ID, &quotaLeave.RemainingQuota)
@@ -32,7 +32,7 @@ func (q *quotaLeaveRepository) Get(id string) (model.QuotaLeave, error) {
 	return quotaLeave, nil
 }
 
-// List implements QuotaLeaveRepository.
+
 func (q *quotaLeaveRepository) List() ([]model.QuotaLeave, error) {
 	rows, err := q.db.Query("SELECT id, remaining_quota FROM quota_leave")
 	if err != nil {
@@ -53,7 +53,7 @@ func (q *quotaLeaveRepository) List() ([]model.QuotaLeave, error) {
 	return quotaLeaves, nil
 }
 
-// Update implements QuotaLeaveRepository.
+
 func (q *quotaLeaveRepository) Update(payload model.QuotaLeave) error {
 	_, err := q.db.Exec("UPDATE quota_leave SET remaining_quota=$1 WHERE id=$2", payload.RemainingQuota, payload.ID)
 	if err != nil {
@@ -62,7 +62,7 @@ func (q *quotaLeaveRepository) Update(payload model.QuotaLeave) error {
 	return nil
 }
 
-// Delete implements QuotaLeaveRepository.
+
 func (q *quotaLeaveRepository) Delete(id string) error {
 	_, err := q.db.Exec("DELETE FROM quota_leave WHERE id=$1", id)
 	if err != nil {

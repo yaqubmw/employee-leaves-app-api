@@ -7,3 +7,7 @@ type BaseRepository[T any] interface {
 	Update(payload T) error
 	Delete(id string) error
 }
+
+type BaseRepositoryPaging[T any] interface {
+	Paging()
+}

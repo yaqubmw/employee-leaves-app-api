@@ -4,77 +4,75 @@ CREATE DATABASE employee_leave_apps OWNER employee_leave_apps;
 
 \c employee_leave_apps employee_leave_apps
 
-create table user (
-    id varchar(100) primary key,
-    username varchar(100) not null,
-    password varchar(100) not null
+CREATE TABLE role (
+    id serial PRIMARY KEY,
+    role_name varchar(100) NOT NULL
 );
 
-create table employee (
-    id varchar(100) primary key,
-    position_id varchar(100),
-    user_id varchar(100)
+CREATE TABLE "user" (
+    id serial PRIMARY KEY,
+    username varchar(100) NOT NULL,
+    password varchar(100) NOT NULL,
+    role_id int REFERENCES role(id)
+);
+
+CREATE TABLE position (
+    id serial PRIMARY KEY,
     name varchar(100),
-    phone_number varchar(100) unique,
-    email varchar(100) unique,
-    address text,
-    foreign key(user_id) references user(id),
-    foreign key(position_id) references position(id)
-    
+    is_manager boolean
 );
 
-create table position (
-    id varchar(100) primary key,
-    name varchar(100)
+CREATE TABLE employee (
+    id serial PRIMARY KEY,
+    position_id int REFERENCES position(id),
+    manager_id int REFERENCES employee(id),
+    name varchar(100),
+    phone_number varchar(15) UNIQUE,
+    email varchar(100) UNIQUE,
+    address text
 );
 
-create table leave_type (
-    id varchar(100) primary key,
-    leave_type varchar(100),
+CREATE TABLE leave_type (
+    id serial PRIMARY KEY,
+    leave_type_name varchar(100),
     quota_leave int
 );
 
-create table quota_leave (
-    id varchar(100) primary key,
+CREATE TABLE quota_leave (
+    id serial PRIMARY KEY,
     remaining_quota int
-)
+);
 
-create table status_leave (
-    id varchar(100) primary key,
+CREATE TABLE status_leave (
+    id serial PRIMARY KEY,
+    status_leave_name varchar(100)
+);
+
+CREATE TABLE transaction_leave (
+    id serial PRIMARY KEY,
+    employee_id int REFERENCES employee(id),
+    leave_type_id int REFERENCES leave_type(id),
+    status_leave_id int REFERENCES status_leave(id),
+    date_start date,
+    date_end date,
+    type_of_day varchar(20),
+    reason text,
+    submission_date timestamp DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE approval_leave (
+    id serial PRIMARY KEY,
+    transaction_id int REFERENCES transaction_leave(id),
+    position_id int REFERENCES position(id),
+    date_approval timestamp
+);
+
+CREATE TABLE history_leave (
+    id serial PRIMARY KEY,
+    employee_id int REFERENCES employee(id),
+    transaction_id int REFERENCES transaction_leave(id),
+    date_start date,
+    date_end date,
+    leave_duration varchar(100),
     status_leave varchar(100)
-);
-
-create table transaction_leave (
-    id varchar(100) primary key,
-    employee_id varchar(100),
-    leave_type_id varchar(100),
-    status_leave_id varchar(100),
-    date_start date,
-    date_end date,
-    type_of_day varchar(100),
-    reason varchar(100),
-    foreign key(employee_id) references employee(id),
-    foreign key(leave_type_id) references leave_type(id),
-    foreign key(status_leave_id) references status_leave(id)
-);
-
-create table approval_leave (
-    id varchar(100) primary key,
-    transaction_id varchar(100),
-    position_id varchar(100),
-    date_approval varchar(100),
-    foreign key(transaction_id) references transaction_leave(id),
-    foreign key(position_id) references position(id)
-);
-
-create table history_leave (
-    id varchar(100) primary key,
-    employee_id varchar(100),
-    transaction_id varchar(100),
-    date_start date,
-    date_end date,
-    leave_time varchar(100),
-    status_leave varchar(100),
-    foreign key(employee_id) references employee(id),
-    foreign key(transaction_id) references transaction_leave(id)
 );

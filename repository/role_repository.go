@@ -15,27 +15,27 @@ type roleRepository struct {
 	db *sql.DB
 }
 
-func (u *roleRepository) Create(payload model.Role) error {
-	_, err := u.db.Exec("INSERT INTO role (id, role_name) VALUES ($1, $2)", payload.Id, payload.RoleName)
+func (r *roleRepository) Create(payload model.Role) error {
+	_, err := r.db.Exec("INSERT INTO role (id, role_name) VALUES ($1, $2)", payload.Id, payload.RoleName)
 	if err != nil {
 		return err
 	}
 	return nil
 }
 
-func (u *roleRepository) GetRole(roleName string) (model.Role, error) {
+func (r *roleRepository) GetRole(roleName string) (model.Role, error) {
 	var user model.Role
-	err := u.db.QueryRow("SELECT id, role_name FROM role WHERE role_name = $1", roleName).Scan(&user.Id, &user.RoleName)
+	err := r.db.QueryRow("SELECT id, role_name FROM role WHERE role_name = $1", roleName).Scan(&user.Id, &user.RoleName)
 	if err != nil {
 		return model.Role{}, err
 	}
 	return user, nil
 }
 
-func (u *roleRepository) List() ([]model.Role, error) {
+func (r *roleRepository) List() ([]model.Role, error) {
 	var roles []model.Role
 
-	rows, err := u.db.Query("SELECT id, role_name FROM role")
+	rows, err := r.db.Query("SELECT id, role_name FROM role")
 	if err != nil {
 		return nil, err
 	}

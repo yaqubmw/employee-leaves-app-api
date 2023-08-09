@@ -6,18 +6,17 @@ import (
 	"fmt"
 )
 
-type EmplUseCase interface {
+type EmployeeUseCase interface {
 	RegisterNewEmpl(payload model.Employee) error
 	FindAllEmpl() ([]model.Employee, error)
 	FindByIdEmpl(id string) (model.Employee, error)
 }
 
-type emplUseCase struct {
-	repo repository.EmplRepository
+type employeeUseCase struct {
+	repo repository.EmployeeRepository
 }
 
-// RegisterNewUom implements UomUseCase.
-func (e *emplUseCase) RegisterNewEmpl(payload model.Employee) error {
+func (e *employeeUseCase) RegisterNewEmpl(payload model.Employee) error {
 	//pengecekan nama tidak boleh kosong
 	if payload.Name == "" {
 		return fmt.Errorf("name required fields")
@@ -36,14 +35,14 @@ func (e *emplUseCase) RegisterNewEmpl(payload model.Employee) error {
 	return nil
 }
 
-func (e *emplUseCase) FindAllEmpl() ([]model.Employee, error) {
+func (e *employeeUseCase) FindAllEmpl() ([]model.Employee, error) {
 	return e.repo.List()
 }
 
-func (e *emplUseCase) FindByIdEmpl(id string) (model.Employee, error) {
+func (e *employeeUseCase) FindByIdEmpl(id string) (model.Employee, error) {
 	return e.repo.Get(id)
 }
 
-func NewEmplUseCase(repo repository.EmplRepository) EmplUseCase {
-	return &emplUseCase{repo: repo}
+func NewEmplUseCase(repo repository.EmployeeRepository) EmployeeUseCase {
+	return &employeeUseCase{repo: repo}
 }

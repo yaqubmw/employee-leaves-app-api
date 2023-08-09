@@ -8,12 +8,12 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type EmplController struct {
-	emplUC usecase.EmplUseCase
+type EmployeeController struct {
+	emplUC usecase.EmployeeUseCase
 	router *gin.Engine
 }
 
-func (e *EmplController) createHandler(c *gin.Context) {
+func (e *EmployeeController) createHandler(c *gin.Context) {
 	var empl model.Employee
 	if err := c.ShouldBindJSON(&empl); err != nil {
 		c.JSON(400, gin.H{"err": err.Error()})
@@ -27,7 +27,7 @@ func (e *EmplController) createHandler(c *gin.Context) {
 	c.JSON(201, empl)
 }
 
-func (e *EmplController) listHandler(c *gin.Context) {
+func (e *EmployeeController) listHandler(c *gin.Context) {
 	empls, err := e.emplUC.FindAllEmpl()
 	if err != nil {
 		c.JSON(500, gin.H{"err": err.Error()})
@@ -43,7 +43,7 @@ func (e *EmplController) listHandler(c *gin.Context) {
 	})
 }
 
-func (e *EmplController) getHandler(c *gin.Context) {
+func (e *EmployeeController) getHandler(c *gin.Context) {
 	id := c.Param("id")
 	empl, err := e.emplUC.FindByIdEmpl(id)
 	if err != nil {
@@ -60,8 +60,8 @@ func (e *EmplController) getHandler(c *gin.Context) {
 	})
 }
 
-func NewEmplController(usecase usecase.EmplUseCase, r *gin.Engine) *EmplController {
-	controller := EmplController{
+func NewEmplController(usecase usecase.EmployeeUseCase, r *gin.Engine) *EmployeeController {
+	controller := EmployeeController{
 		router: r,
 		emplUC: usecase,
 	}

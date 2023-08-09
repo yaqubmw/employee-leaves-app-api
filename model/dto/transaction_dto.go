@@ -7,9 +7,9 @@ import (
 
 type TransactionResponseDto struct {
 	ID             string            `json:"id"`
-	DateStart      time.Time         `json:"dateStart"`
-	DateEnd        time.Time         `json:"dateEnd"`
-	TypeOfDay      string            `json:"typeOfDay"`
+	DateStart      string            `json:"dateStart"`
+	DateEnd        string            `json:"dateEnd"`
+	DayType        string            `json:"dayType"`
 	Reason         string            `json:"reason"`
 	SubmissionDate time.Time         `json:"submissionDate"`
 	Employee       model.Employee    `json:"employee"`

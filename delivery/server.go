@@ -39,7 +39,8 @@ func NewServer() *Server {
 	db := dbConn.Conn()
 	userRepo := repository.NewUserRepository(db)
 	userUseCase := usecase.NewUserUseCase(userRepo)
-	authUseCase := usecase.NewAuthUseCase(userUseCase)
+	authRepo := userUseCase
+	authUseCase := usecase.NewAuthUseCase(authRepo)
 
 	engine := gin.Default()
 	host := fmt.Sprintf("%s:%s", cfg.ApiHost, cfg.ApiPort)

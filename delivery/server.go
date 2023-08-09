@@ -3,8 +3,7 @@ package delivery
 import (
 	"employeeleave/config"
 	"employeeleave/delivery/controller"
-	"employeeleave/repository"
-	"employeeleave/usecase"
+	"employeeleave/manager"
 	"employeeleave/utils/exceptions"
 	"fmt"
 
@@ -12,10 +11,9 @@ import (
 )
 
 type Server struct {
-	userUC usecase.UserUseCase
-	authUC usecase.AuthUseCase
-	engine *gin.Engine
-	host   string
+	useCaseManager manager.UseCaseManager
+	engine         *gin.Engine
+	host           string
 }
 
 func (s *Server) Run() {
@@ -28,26 +26,22 @@ func (s *Server) Run() {
 
 func (s *Server) initController() {
 	// semua controller disini
-	controller.NewUserController(s.engine, s.userUC)
-	controller.NewAuthController(s.engine, s.authUC)
+	controller.NewUserController(s.engine, s.useCaseManager.UserUseCase())
+	controller.NewAuthController(s.engine, s.useCaseManager.AuthUseCase())
 }
 
 func NewServer() *Server {
 	cfg, err := config.NewConfig()
 	exceptions.CheckError(err)
-	dbConn, _ := config.NewDbConnection(cfg)
-	db := dbConn.Conn()
-	userRepo := repository.NewUserRepository(db)
-	userUseCase := usecase.NewUserUseCase(userRepo)
-	authRepo := userUseCase
-	authUseCase := usecase.NewAuthUseCase(authRepo)
+	infraManager, _ := manager.NewInfraManager(cfg)
+	repoManager := manager.NewRepoManager(infraManager)
+	useCaseManager := manager.NewUseCaseManager(repoManager)
 
 	engine := gin.Default()
 	host := fmt.Sprintf("%s:%s", cfg.ApiHost, cfg.ApiPort)
 	return &Server{
-		authUC: authUseCase,
-		userUC: userUseCase,
-		engine: engine,
-		host:   host,
+		useCaseManager: useCaseManager,
+		engine:         engine,
+		host:           host,
 	}
 }

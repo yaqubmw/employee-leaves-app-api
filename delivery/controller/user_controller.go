@@ -54,9 +54,8 @@ func NewUserController(r *gin.Engine, usecase usecase.UserUseCase) *UserControll
 		userUC: usecase,
 	}
 
-	r.Use(middleware.AuthMiddleware())
 	rg := r.Group("/api/v1")
 	rg.POST("/users", middleware.AuthMiddleware(), controller.createHandler)
-	rg.GET("/users", controller.listHandler)
+	rg.GET("/users", middleware.AuthMiddleware(), controller.listHandler)
 	return &controller
 }

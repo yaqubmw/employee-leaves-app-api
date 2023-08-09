@@ -3,44 +3,50 @@ package delivery
 import (
 	"employeeleave/config"
 	"employeeleave/delivery/controller/api"
-	"employeeleave/repository"
-	"employeeleave/usecase"
+	"employeeleave/delivery/middleware"
+	"employeeleave/manager"
 	"employeeleave/utils/exceptions"
 	"fmt"
 
 	"github.com/gin-gonic/gin"
+
+	"github.com/sirupsen/logrus"
 )
 
 type Server struct {
-	emplUC usecase.EmplUseCase
-	engine *gin.Engine
-	host   string
+	useCaseManager manager.UseCaseManager
+	engine         *gin.Engine
+	host           string
+	log            *logrus.Logger
 }
 
 func (s *Server) Run() {
-	s.initController()
+	s.setupControllers()
 	err := s.engine.Run(s.host)
 	if err != nil {
 		panic(err)
 	}
 }
 
-func (s *Server) initController() {
-	api.NewEmplController(s.emplUC, s.engine)
+func (s *Server) setupControllers() {
+	s.engine.Use(middleware.LogRequestMiddleware(s.log))
+	// semua controller disini
+	api.NewEmplController(s.useCaseManager.EmployeeUseCase(), s.engine)
+
 }
 
 func NewServer() *Server {
 	cfg, err := config.NewConfig()
 	exceptions.CheckError(err)
-	dbConn, _ := config.NewDbConnection(cfg)
-	db := dbConn.Conn()
-	emplRepo := repository.NewEmplRepository(db)
-	emplUseCase := usecase.NewEmplUseCase(emplRepo)
+	infraManager, _ := manager.NewInfraManager(cfg)
+	repoManager := manager.NewRepoManager(infraManager)
+	useCaseManager := manager.NewUseCaseManager(repoManager)
 	engine := gin.Default()
 	host := fmt.Sprintf("%s:%s", cfg.ApiHost, cfg.ApiPort)
 	return &Server{
-		emplUC: emplUseCase,
-		engine: engine,
-		host:   host,
+		useCaseManager: useCaseManager,
+		engine:         engine,
+		host:           host,
+		log:            logrus.New(),
 	}
 }

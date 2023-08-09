@@ -1,9 +1,10 @@
 package repository
 
 import (
-	"database/sql"
 	"employeeleave/model"
 	"employeeleave/model/dto"
+
+	"gorm.io/gorm"
 )
 
 type TransactionRepository interface {
@@ -13,37 +14,43 @@ type TransactionRepository interface {
 }
 
 type transactionRepository struct {
-	db *sql.DB
+	db *gorm.DB
 }
 
 func (t *transactionRepository) Create(payload model.TransactionLeave) error {
-	tx, err := t.db.Begin()
-
+	err := t.db.Create(&payload).Error
 	if err != nil {
 		return err
 	}
-	// insert transaction
-	_, err = tx.Exec("INSERT INTO transaction_leave (id, date_start, date_end, type_of_day, reason, submission_date) VALUES ($1, $2, $3, $4, $5, $6)",
-		payload.ID, payload.DateStart, payload.DateEnd, payload.TypeOfDay, payload.Reason, payload.SubmissionDate)
-
-	if err != nil {
-		tx.Rollback()
-		return err
-	}
-
-	tx.Commit()
 	return nil
 }
 
 func (t *transactionRepository) Get(id string) (dto.TransactionResponseDto, error) {
-	panic("not implemented")
+	var transactionResponseDto dto.TransactionResponseDto
+
+	err := t.db.Preload("Employee").Preload("LeaveType").Preload("StatusLeave").
+		Where("id = ?", id).
+		First(&transactionResponseDto).Error
+	if err != nil {
+		return dto.TransactionResponseDto{}, err
+	}
+
+	return transactionResponseDto, nil
 }
 
 func (t *transactionRepository) List() ([]dto.TransactionResponseDto, error) {
-	panic("not implemented")
+	var transactionList []dto.TransactionResponseDto
+
+	err := t.db.Preload("Employee").Preload("LeaveType").Preload("StatusLeave").
+		Find(&transactionList).Error
+	if err != nil {
+		return nil, err
+	}
+
+	return transactionList, nil
 }
 
-func NewTransactionLeaveRepository(db *sql.DB) TransactionRepository {
+func NewTransactionLeaveRepository(db *gorm.DB) TransactionRepository {
 	return &transactionRepository{
 		db: db,
 	}

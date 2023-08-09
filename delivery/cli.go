@@ -1,12 +1,7 @@
 package delivery
 
 import (
-	"employeeleave/config"
-	"employeeleave/delivery/controller/cli"
-	"employeeleave/manager"
-	"employeeleave/repository"
 	"employeeleave/usecase"
-	"employeeleave/utils/exceptions"
 	"fmt"
 	"os"
 )
@@ -35,7 +30,7 @@ func (c *Console) Run() {
 		fmt.Scanln(&selectedMenu)
 		switch selectedMenu {
 		case "1":
-			cli.NewEmpController(c.emplUC).EmplMenuForm()
+
 		case "2":
 			fmt.Println("Master Jabatan")
 		case "3":
@@ -50,14 +45,16 @@ func (c *Console) Run() {
 	}
 }
 
-func NewConsole() *Console {
-	cfg, err := config.NewConfig()
-	exceptions.CheckError(err)
-	dbConn, _ := manager.NewInfraManager(cfg)
-	db := dbConn.Conn()
-	emplRepo := repository.NewEmplRepository(db)
-	emplUseCase := usecase.NewEmplUseCase(emplRepo)
-	return &Console{
-		emplUC: emplUseCase,
-	}
-}
+// func NewConsole() *Console {
+// 	cfg, err := config.NewConfig()
+// 	exceptions.CheckError(err)
+// 	dbConn, _ := manager.NewInfraManager(cfg)
+// 	gormDB, err := gorm.Open(dbConn.Dialect(), dbConn.Conn())
+// 	exceptions.CheckError(err)
+
+// 	emplRepo := repository.NewEmployeeRepository(gormDB) // Use the GORM DB instance
+// 	emplUseCase := usecase.NewEmplUseCase(emplRepo)
+// 	return &Console{
+// 		emplUC: emplUseCase,
+// 	}
+// }

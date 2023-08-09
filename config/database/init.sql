@@ -26,12 +26,12 @@ CREATE TABLE employee (
     id varchar(100) PRIMARY KEY,
     position_id varchar(100) REFERENCES position(id),
     manager_id varchar(100) REFERENCES employee(id),
-    foreign key(position_id) references
     name varchar(100),
     phone_number varchar(15) UNIQUE,
     email varchar(100) UNIQUE,
     address text
 );
+
 
 CREATE TABLE leave_type (
     id varchar(100) PRIMARY KEY,

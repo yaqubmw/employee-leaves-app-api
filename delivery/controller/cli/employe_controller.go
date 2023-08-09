@@ -1,156 +1,98 @@
-package cli
+package api
 
 import (
 	"employeeleave/model"
 	"employeeleave/usecase"
-	"employeeleave/utils/exceptions"
-	"fmt"
-	"strings"
+	"employeeleave/utils/common"
 
-	"github.com/google/uuid"
+	"github.com/gin-gonic/gin"
 )
 
 type EmplController struct {
 	emplUC usecase.EmplUseCase
+	router *gin.Engine
 }
 
-func (e *EmplController) EmplMenuForm() {
-	fmt.Println(`
-|==== Master Employee ====|
-| 1. Tambah Data     |
-| 2. Lihat Data      |
-| 3. Detail Data     |
-| 4. Update Data     |
-| 5. Hapus Data      |
-| 6. Kembali ke Menu |
-			     `)
-	fmt.Print("Pilih Menu (1-6): ")
-	for {
-		var selectedMenu string
-		fmt.Scanln(&selectedMenu)
-		switch selectedMenu {
-		case "1":
-			empl := e.emplCreateForm()
-			err := e.emplUC.RegisterNewEmpl(empl)
-			exceptions.CheckError(err)
-			return
-		case "2":
-			empls, err := e.emplUC.FindAllEmpl()
-			exceptions.CheckError(err)
-			e.emplFindAll(empls)
-			return
-		case "3":
-			e.emplGetForm()
-			return
-		case "4":
-			empl := e.emplUpdateForm()
-			err := e.emplUC.UpdateEmpl(empl)
-			exceptions.CheckError(err)
-			return
-		case "5":
-			id := e.emplDeleteForm()
-			err := e.emplUC.DeleteEmpl(id)
-			exceptions.CheckError(err)
-			return
-		case "6":
-			return
-		default:
-			fmt.Println("Menu tidak ditemukan!")
-		}
+func (e *EmplController) createHandler(c *gin.Context) {
+	var empl model.Employee
+	if err := c.ShouldBindJSON(&empl); err != nil {
+		c.JSON(400, gin.H{"err": err.Error()})
+		return
 	}
-}
-
-func (e *EmplController) emplCreateForm() model.Employee {
-	var (
-		Id, Name, PhoneNumber, Email, Address, saveConfirmation string
-	)
-	fmt.Print("Name: ")
-	fmt.Scanln(&Name)
-	fmt.Print("PhoneNumber: ")
-	fmt.Scanln(&PhoneNumber)
-	fmt.Print("Email: ")
-	fmt.Scanln(&Email)
-	fmt.Print("Address: ")
-	fmt.Scanln(&Address)
-	fmt.Printf("Id: %s, Name: %s, PhoneNumber: %s, Email: %s, Address: %s akan disimpan (y/t)", Id, Name, PhoneNumber, Email, Address)
-	fmt.Scanln(&saveConfirmation)
-	if saveConfirmation == "y" {
-		empl := model.Employee{
-			ID:          uuid.New().String(),
-			Name:        Name,
-			PhoneNumber: PhoneNumber,
-			Email:       Email,
-			Address:     Address,
-		}
-		return empl
+	empl.ID = common.GenerateID()
+	if err := e.emplUC.RegisterNewEmpl(empl); err != nil {
+		c.JSON(500, gin.H{"err": err.Error()})
+		return
 	}
-	return model.Employee{}
+	c.JSON(201, empl)
 }
 
-func (e *EmplController) emplFindAll(empls []model.Employee) {
-	for _, empl := range empls {
-		fmt.Println("Employee List")
-		fmt.Printf("ID: %s \n", empl.ID)
-		fmt.Printf("Name: %s \n", empl.Name)
-		fmt.Printf("PhoneNumber: %s \n", empl.PhoneNumber)
-		fmt.Printf("Email: %s \n", empl.Email)
-		fmt.Printf("Address: %s \n", empl.Address)
-		fmt.Println()
+func (e *EmplController) listHandler(c *gin.Context) {
+	empls, err := e.emplUC.FindAllEmpl()
+	if err != nil {
+		c.JSON(500, gin.H{"err": err.Error()})
+		return
 	}
-}
-
-func (e *EmplController) emplUpdateForm() model.Employee {
-	var (
-		Id, Name, PhoneNumber, Email, Address, saveConfirmation string
-	)
-	fmt.Print("Employee ID: ")
-	fmt.Scanln(&Id)
-	fmt.Print("Employee, Name: ")
-	fmt.Scanln(&Name)
-	fmt.Print("Employee PhoneNumber: ")
-	fmt.Scanln(&PhoneNumber)
-	fmt.Print("Employee Email: ")
-	fmt.Scanln(&Email)
-	fmt.Print("Employee Address: ")
-	fmt.Scanln(&Address)
-	fmt.Printf("Employee Id: %s, Name: %s, PhoneNumber: %s, Email: %s, Address: %s, akan disimpan (y/t)", Id, Name, PhoneNumber, Email, Address)
-	fmt.Scanln(&saveConfirmation)
-	if saveConfirmation == "y" {
-		empl := model.Employee{
-			ID:          uuid.New().String(),
-			Name:        Name,
-			PhoneNumber: PhoneNumber,
-			Email:       Email,
-			Address:     Address,
-		}
-		return empl
+	status := map[string]any{
+		"code":        200,
+		"description": "Get All Data Successfully",
 	}
-	return model.Employee{}
+	c.JSON(200, gin.H{
+		"status": status,
+		"data":   empls,
+	})
 }
 
-func (e *EmplController) emplDeleteForm() string {
-	var id string
-	fmt.Print("Employee ID: ")
-	fmt.Scanln(&id)
-	return id
-}
-
-func (e *EmplController) emplGetForm() {
-	var id string
-	fmt.Print("Employee ID: ")
-	fmt.Scanln(&id)
+func (e *EmplController) getHandler(c *gin.Context) {
+	id := c.Param("id")
 	empl, err := e.emplUC.FindByIdEmpl(id)
-	exceptions.CheckError(err)
-	fmt.Printf("Employee ID %s \n", id)
-	fmt.Println(strings.Repeat("=", 15))
-	fmt.Printf("Employe ID: %s \n", empl.ID)
-	fmt.Printf("Name: %s \n", empl.Name)
-	fmt.Printf("PhoneNumber: %s \n", empl.PhoneNumber)
-	fmt.Printf("Email: %s \n", empl.Email)
-	fmt.Printf("Address: %s \n", empl.Address)
-	fmt.Println()
+	if err != nil {
+		c.JSON(500, gin.H{"err": err.Error()})
+		return
+	}
+	status := map[string]any{
+		"code":        200,
+		"description": "Get By Id Data Successfully",
+	}
+	c.JSON(200, gin.H{
+		"status": status,
+		"data":   empl,
+	})
 }
 
-func NewEmpController(usecase usecase.EmplUseCase) *EmplController {
-	return &EmplController{emplUC: usecase}
+func (e *EmplController) updateHandler(c *gin.Context) {
+	var empl model.Employee
+	if err := c.ShouldBindJSON(&empl); err != nil {
+		c.JSON(400, gin.H{"err": err.Error()})
+		return
+	}
+	if err := e.emplUC.UpdateEmpl(empl); err != nil {
+		c.JSON(500, gin.H{"err": err.Error()})
+		return
+	}
+	c.JSON(200, empl)
+}
+
+func (e *EmplController) deleteHandler(c *gin.Context) {
+	id := c.Param("id")
+	if err := e.emplUC.DeleteEmpl(id); err != nil {
+		c.JSON(500, gin.H{"err": err.Error()})
+		return
+	}
+	c.String(204, "")
+}
+
+func NewEmplController(usecase usecase.EmplUseCase, r *gin.Engine) *EmplController {
+	controller := EmplController{
+		router: r,
+		emplUC: usecase,
+	}
+
+	rg := r.Group("/api/v1")
+	rg.POST("/employee", controller.createHandler)
+	rg.GET("/employee", controller.listHandler)
+	rg.GET("/employee/:id", controller.getHandler)
+	rg.PUT("/employee", controller.updateHandler)
+	rg.DELETE("/employee/:id", controller.deleteHandler)
+	return &controller
 }

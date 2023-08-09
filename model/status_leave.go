@@ -1,6 +1,6 @@
 package model
 
 type StatusLeave struct {
-	ID              string
-	StatusLeaveName string
+	ID              string `json:"id"`
+	StatusLeaveName string `json:"statusLeaveName"`
 }

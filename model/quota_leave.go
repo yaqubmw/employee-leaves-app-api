@@ -1,6 +1,6 @@
 package model
 
 type QuotaLeave struct {
-	ID             string
-	RemainingQuota int
+	ID             string `json:"id"`
+	RemainingQuota int `json:"remainingQuota"`
 }

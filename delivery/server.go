@@ -3,8 +3,7 @@ package delivery
 import (
 	"employeeleave/config"
 	"employeeleave/delivery/controller"
-	"employeeleave/repository"
-	"employeeleave/usecase"
+	"employeeleave/manager"
 	"employeeleave/utils/exceptions"
 	"fmt"
 
@@ -12,10 +11,9 @@ import (
 )
 
 type Server struct {
-	statusLeaveUC usecase.StatusLeaveUseCase
-	quotaLeaveUC usecase.QuotaLeaveUseCase
-	engine *gin.Engine
-	host   string
+	useCaseManager manager.UseCaseManager
+	engine         *gin.Engine
+	host           string
 }
 
 func (s *Server) Run() {
@@ -28,26 +26,22 @@ func (s *Server) Run() {
 
 func (s *Server) initController() {
 	// semua controller disini
-	controller.NewStatusLeaveController(s.engine, s.statusLeaveUC)
-	controller.NewQuotaLeaveController(s.engine, s.quotaLeaveUC)
+	controller.NewStatusLeaveController(s.engine, s.useCaseManager.StatusLeaveUseCase())
+	controller.NewQuotaLeaveController(s.engine, s.useCaseManager.QuotaLeaveUseCase())
 }
 
 func NewServer() *Server {
 	cfg, err := config.NewConfig()
 	exceptions.CheckError(err)
-	dbConn, _ := config.NewDbConnection(cfg)
-	db := dbConn.Conn()
-	statusLeaveRepo := repository.NewStatusLeaveRepository(db)
-	statusLeaveUseCase := usecase.NewStatusLeaveUseCase(statusLeaveRepo)
-	qoutaRepo := repository.NewQuotaLeaveRepository(db)
-	qoutaUseCase := usecase.NewQuotaLeaveUseCase(qoutaRepo)
+	infraManager, _ := manager.NewInfraManager(cfg)
+	repoManager := manager.NewRepoManager(infraManager)
+	usecaseManager := manager.NewUseCaseManager(repoManager)
 
 	engine := gin.Default()
 	host := fmt.Sprintf("%s:%s", cfg.ApiHost, cfg.ApiPort)
 	return &Server{
-		statusLeaveUC: statusLeaveUseCase,
-		quotaLeaveUC:  qoutaUseCase,
-		engine:        engine,
-		host:          host,
+		useCaseManager: usecaseManager,
+		engine:         engine,
+		host:           host,
 	}
 }

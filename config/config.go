@@ -32,8 +32,8 @@ type TokenConfig struct {
 }
 
 type Config struct {
-	DbConfig
 	ApiConfig
+	DbConfig
 	TokenConfig
 	FileConfig
 }
@@ -68,7 +68,11 @@ func (c *Config) ReadConfig() error {
 	}
 
 	appTokenExpire, err := strconv.Atoi(os.Getenv("APP_TOKEN_EXPIRE"))
+	if err != nil {
+		return err
+	}
 	accessTokenLifeTime := time.Duration(appTokenExpire) * time.Minute
+
 	c.TokenConfig = TokenConfig{
 		ApplicationName:     os.Getenv("APP_TOKEN_NAME"),
 		JwtSignatureKey:     []byte(os.Getenv("APP_TOKEN_KEY")),
@@ -76,10 +80,11 @@ func (c *Config) ReadConfig() error {
 		AccessTokenLifeTime: accessTokenLifeTime,
 	}
 
-	if c.DbConfig.Host == "" || c.DbConfig.Port == "" || c.DbConfig.Name == "" || c.DbConfig.User == "" || c.DbConfig.Password == "" || c.DbConfig.Driver == "" || c.ApiConfig.ApiHost == "" || c.ApiConfig.ApiPort == "" || c.FileConfig.FilePath == "" {
+	if c.DbConfig.Host == "" || c.DbConfig.Port == "" || c.DbConfig.Name == "" ||
+		c.DbConfig.User == "" || c.DbConfig.Password == "" || c.DbConfig.Driver == "" ||
+		c.ApiConfig.ApiHost == "" || c.ApiConfig.ApiPort == "" || c.FileConfig.FilePath == "" {
 		return fmt.Errorf("missing required environment variables")
 	}
-
 	return nil
 }
 

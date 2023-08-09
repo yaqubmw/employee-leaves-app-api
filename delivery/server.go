@@ -31,8 +31,8 @@ func (s *Server) initController() {
 	s.engine.Use(middleware.LogRequestMiddleware(s.log))
 
 	// semua controller disini
-	controller.NewLeaveTypeController(s.useCaseManager.LeaveTypeUseCase(), s.engine)
-	controller.NewPositionController(s.useCaseManager.PositionUseCase(), s.engine)
+	// controller.NewLeaveTypeController(s.useCaseManager.LeaveTypeUseCase(), s.engine)
+	// controller.NewPositionController(s.useCaseManager.PositionUseCase(), s.engine)
 	controller.NewUserController(s.engine, s.useCaseManager.UserUseCase())
 	controller.NewAuthController(s.engine, s.useCaseManager.AuthUseCase())
 }

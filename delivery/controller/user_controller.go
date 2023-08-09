@@ -70,6 +70,6 @@ func NewUserController(r *gin.Engine, usecase usecase.UserUseCase) *UserControll
 
 	rg := r.Group("/api/v1")
 	rg.POST("/users", middleware.AuthMiddleware(), controller.createHandler)
-	rg.GET("/users", middleware.AuthMiddleware(), controller.listHandler)
+	rg.GET("/users", controller.listHandler)
 	return &controller
 }

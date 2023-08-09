@@ -1,11 +1,14 @@
 package model
 
 type Employee struct {
-	ID          string
-	PositionID  string
-	ManagerID   string
-	Name        string
-	PhoneNumber string
-	Email       string
-	Address     string
+	ID          string `json:"id"`
+	Name        string `json:"name"`
+	PhoneNumber string `json:"phoneNumber"`
+	Email       string `json:"email"`
+	Address     string `json:"address"`
+}
+
+// Pastikan bahwa nama tabel yang digunakan sesuai dengan yang ada di skema basis data
+func (Employee) TableName() string {
+	return "employee"
 }

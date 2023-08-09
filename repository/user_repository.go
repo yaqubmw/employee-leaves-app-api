@@ -3,6 +3,8 @@ package repository
 import (
 	"database/sql"
 	"employeeleave/model"
+	"employeeleave/model/dto"
+	"employeeleave/utils/common"
 	"fmt"
 
 	"golang.org/x/crypto/bcrypt"
@@ -12,7 +14,7 @@ type UserRepository interface {
 	Create(payload model.UserCredential) error
 	GetUsername(username string) (model.UserCredential, error)
 	GetUsernamePassword(username, password string) (model.UserCredential, error)
-	List() ([]model.UserCredential, error)
+	BaseRepositoryPaging[model.UserCredential]
 }
 
 type userRepository struct {
@@ -51,22 +53,32 @@ func (u *userRepository) GetUsernamePassword(username string, password string) (
 	return user, nil
 }
 
-// List implements UserRepository.
-func (u *userRepository) List() ([]model.UserCredential, error) {
-	var users []model.UserCredential
-	rows, err := u.db.Query("SELECT id, username, role_id FROM user_credential")
+//Paging implement user repository
+func (u *userRepository) Paging(requestPaging dto.PaginationParam) ([]model.UserCredential, dto.Paging, error) {
+	paginationQuery := common.GetPaginationParams(requestPaging)
+	rows, err := u.db.Query("SELECT id, username, role_id FROM user_credential LIMIT $1 OFFSET $2", paginationQuery.Take, paginationQuery.Skip)
 	if err != nil {
-		return nil, err
+		return nil, dto.Paging{}, err
 	}
+
+	var users []model.UserCredential
 	for rows.Next() {
 		var user model.UserCredential
 		err := rows.Scan(&user.ID, &user.Username, &user.RoleId)
 		if err != nil {
-			return nil, err
+			return nil, dto.Paging{}, err
 		}
 		users = append(users, user)
 	}
-	return users, nil
+
+	//count users
+	var totalRows int
+	row := u.db.QueryRow("SELECT COUNT(*) FROM user")
+	err = row.Scan(&totalRows)
+	if err != nil {
+		return nil, dto.Paging{}, err
+	}
+	return users, common.Paginate(paginationQuery.Page, paginationQuery.Take, totalRows), nil
 }
 
 func NewUserRepository(db *sql.DB) UserRepository {

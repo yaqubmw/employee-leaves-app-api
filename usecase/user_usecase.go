@@ -2,6 +2,7 @@ package usecase
 
 import (
 	"employeeleave/model"
+	"employeeleave/model/dto"
 	"employeeleave/repository"
 	"fmt"
 
@@ -10,7 +11,7 @@ import (
 
 type UserUseCase interface {
 	RegisterNewUser(payload model.UserCredential) error
-	FindAllUser() ([]model.UserCredential, error)
+	FindAllUser(requesPaging dto.PaginationParam) ([]model.UserCredential, dto.Paging, error)
 	FindByUsername(username string) (model.UserCredential, error)
 	FindByUsernamePassword(username, password string) (model.UserCredential, error)
 }
@@ -32,8 +33,8 @@ func (u *userUseCase) RegisterNewUser(payload model.UserCredential) error {
 }
 
 // FindAllUser implements UserUseCase.
-func (u *userUseCase) FindAllUser() ([]model.UserCredential, error) {
-	return u.repo.List()
+func (u *userUseCase) FindAllUser(requesPaging dto.PaginationParam) ([]model.UserCredential, dto.Paging, error) {
+	return u.repo.Paging(requesPaging)
 }
 
 // FindByUsername implements UserUseCase.

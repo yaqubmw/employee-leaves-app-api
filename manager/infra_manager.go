@@ -4,6 +4,8 @@ import (
 	"database/sql"
 	"employeeleave/config"
 	"fmt"
+
+	_ "github.com/lib/pq"
 )
 
 type InfraManager interface {

@@ -3,9 +3,11 @@ package controller
 import (
 	"employeeleave/delivery/middleware"
 	"employeeleave/model"
+	"employeeleave/model/dto"
 	"employeeleave/usecase"
 	"employeeleave/utils/common"
 	"net/http"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
 )
@@ -38,13 +40,25 @@ func (u *UserController) createHandler(c *gin.Context) {
 }
 
 func (u *UserController) listHandler(c *gin.Context) {
-	users, err := u.userUC.FindAllUser()
+	page, _ := strconv.Atoi(c.Query("page"))
+	limit, _ := strconv.Atoi(c.Query("limit"))
+	paginationParam := dto.PaginationParam{
+		Page:  page,
+		Limit: limit,
+	}
+	users, paging, err := u.userUC.FindAllUser(paginationParam)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"err": err.Error()})
 		return
 	}
-	c.JSON(http.StatusOK, gin.H{
-		"data": users,
+	status := map[string]any{
+		"code":        200,
+		"description": "Successfully Get All Data",
+	}
+	c.JSON(200, gin.H{
+		"status": status,
+		"data":   users,
+		"paging": paging,
 	})
 }
 

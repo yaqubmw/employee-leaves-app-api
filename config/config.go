@@ -63,9 +63,8 @@ func (c *Config) ReadConfig() error {
 		ApiPort: os.Getenv("API_PORT"),
 	}
 
-	c.ApiConfig = ApiConfig{
-		ApiHost: os.Getenv("API_HOST"),
-		ApiPort: os.Getenv("API_PORT"),
+	c.FileConfig = FileConfig{
+		FilePath: os.Getenv("FILE_PATH"),
 	}
 
 	appTokenExpire, err := strconv.Atoi(os.Getenv("APP_TOKEN_EXPIRE"))

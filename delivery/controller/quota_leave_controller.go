@@ -16,16 +16,16 @@ type QuotaLeaveController struct {
 
 func (q *QuotaLeaveController) createHandler(c *gin.Context) {
 	var quotaLeave model.QuotaLeave
-	// cek error bind body JSON
+	
 	if err := c.ShouldBindJSON(&quotaLeave); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"err": err.Error()})
-		return // agar tidak diteruskan ke bawah
+		return 
 	}
-	// cek error ketika sever tidak merespon/terjadi kesalahan pada server
+	
 	quotaLeave.ID = common.GenerateID()
 	if err := q.quotaLeaveUC.RegisterNewQuotaLeave(quotaLeave); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"err": err.Error()})
-		return // agar tidak diteruskan ke bawah
+		return 
 	}
 
 	c.JSON(http.StatusCreated, quotaLeave)

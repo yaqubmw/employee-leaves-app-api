@@ -16,16 +16,16 @@ type StatusLeaveController struct {
 
 func (s *StatusLeaveController) createHandler(c *gin.Context) {
 	var statusLeave model.StatusLeave
-	// cek error bind body JSON
+	
 	if err := c.ShouldBindJSON(&statusLeave); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"err": err.Error()})
-		return // agar tidak diteruskan ke bawah
+		return 
 	}
-	// cek error ketika sever tidak merespon/terjadi kesalahan pada server
+	
 	statusLeave.ID = common.GenerateID()
 	if err := s.statusLeaveUC.RegisterNewStatusLeave(statusLeave); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"err": err.Error()})
-		return // agar tidak diteruskan ke bawah
+		return 
 	}
 
 	c.JSON(http.StatusCreated, statusLeave)

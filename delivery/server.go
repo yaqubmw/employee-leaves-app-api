@@ -1,52 +1,46 @@
 package delivery
 
-// import (
-// 	"fmt"
+import (
+	"employeeleave/config"
+	"employeeleave/delivery/controller/api"
+	"employeeleave/repository"
+	"employeeleave/usecase"
+	"employeeleave/utils/exceptions"
+	"fmt"
 
-// 	"employeeleave/config"
-// 	"employeeleave/delivery/controller/api"
-// 	"employeeleave/delivery/middleware"
-// 	"employeeleave/utils/exceptions"
+	"github.com/gin-gonic/gin"
+)
 
-// 	"employeeleave/manager"
+type Server struct {
+	emplUC usecase.EmplUseCase
+	engine *gin.Engine
+	host   string
+}
 
-// 	"github.com/gin-gonic/gin"
-// 	"github.com/sirupsen/logrus"
-// )
+func (s *Server) Run() {
+	s.initController()
+	err := s.engine.Run(s.host)
+	if err != nil {
+		panic(err)
+	}
+}
 
-// type Server struct {
-// 	useCaseManager manager.UseCaseManager
-// 	engine         *gin.Engine
-// 	host           string
-// 	log            *logrus.Logger
-// }
+func (s *Server) initController() {
+	api.NewEmplController(s.emplUC, s.engine)
+}
 
-// func (s *Server) Run() {
-// 	s.setupControllers()
-// 	err := s.engine.Run(s.host)
-// 	if err != nil {
-// 		panic(err)
-// 	}
-// }
-
-// func (s *Server) setupControllers() {
-// 	s.engine.Use(middleware.LogRequestMiddleware(s.log))
-// 	api.NewEmployeeController(s.engine, s.useCaseManager.EmployeeUseCase())
-
-// }
-
-// func NewServer() *Server {
-// 	cfg, err := config.NewConfig()
-// 	exceptions.CheckError(err)
-// 	infraManager, _ := manager.NewInfraManager(cfg)
-// 	repoManager := manager.NewRepoManager(infraManager)
-// 	useCaseManager := manager.NewUseCaseManager(repoManager)
-// 	engine := gin.Default()
-// 	host := fmt.Sprintf("%s:%s", cfg.ApiHost, cfg.ApiPort)
-// 	return &Server{
-// 		useCaseManager: useCaseManager,
-// 		engine:         engine,
-// 		host:           host,
-// 		log:            logrus.New(),
-// 	}
-// }
+func NewServer() *Server {
+	cfg, err := config.NewConfig()
+	exceptions.CheckError(err)
+	dbConn, _ := config.NewDbConnection(cfg)
+	db := dbConn.Conn()
+	emplRepo := repository.NewEmplRepository(db)
+	emplUseCase := usecase.NewEmplUseCase(emplRepo)
+	engine := gin.Default()
+	host := fmt.Sprintf("%s:%s", cfg.ApiHost, cfg.ApiPort)
+	return &Server{
+		emplUC: emplUseCase,
+		engine: engine,
+		host:   host,
+	}
+}

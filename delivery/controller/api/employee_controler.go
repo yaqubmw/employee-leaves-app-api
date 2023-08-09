@@ -1,127 +1,98 @@
 package api
 
-// import (
-// 	"employeeleave/model"
-// 	"employeeleave/model/dto"
-// 	"employeeleave/usecase"
-// 	"employeeleave/utils/common"
-// 	"net/http"
-// 	"strconv"
+import (
+	"employeeleave/model"
+	"employeeleave/usecase"
+	"employeeleave/utils/common"
 
-// 	"github.com/gin-gonic/gin"
-// )
+	"github.com/gin-gonic/gin"
+)
 
-// type EmployeeController struct {
-// 	router     *gin.Engine
-// 	employeeUC usecase.EmplUseCase
-// }
+type EmplController struct {
+	emplUC usecase.EmplUseCase
+	router *gin.Engine
+}
 
-// func (e *EmployeeController) createHandler(c *gin.Context) {
-// 	var employeeRequest dto.EmployeeRequestDto
-// 	if err := c.ShouldBindJSON(&employeeRequest); err != nil {
-// 		c.JSON(http.StatusBadRequest, gin.H{"err": err.Error()})
-// 		return
-// 	}
+func (e *EmplController) createHandler(c *gin.Context) {
+	var empl model.Employee
+	if err := c.ShouldBindJSON(&empl); err != nil {
+		c.JSON(400, gin.H{"err": err.Error()})
+		return
+	}
+	empl.ID = common.GenerateID()
+	if err := e.emplUC.RegisterNewEmpl(empl); err != nil {
+		c.JSON(500, gin.H{"err": err.Error()})
+		return
+	}
+	c.JSON(201, empl)
+}
 
-// 	var newEmployee model.Employee
-// 	newEmployee.ID = common.GenerateID()
-// 	newEmployee.PositionID = employeeRequest.PositionID
-// 	newEmployee.ManagerID = employeeRequest.ManagerID
-// 	newEmployee.Name = employeeRequest.Name
-// 	newEmployee.PhoneNumber = employeeRequest.PhoneNumber
-// 	newEmployee.Email = employeeRequest.Email
-// 	newEmployee.Address = employeeRequest.Address
+func (e *EmplController) listHandler(c *gin.Context) {
+	empls, err := e.emplUC.FindAllEmpl()
+	if err != nil {
+		c.JSON(500, gin.H{"err": err.Error()})
+		return
+	}
+	status := map[string]any{
+		"code":        200,
+		"description": "Get All Data Successfully",
+	}
+	c.JSON(200, gin.H{
+		"status": status,
+		"data":   empls,
+	})
+}
 
-// 	if err := e.employeeUC.RegisterNewUom(newEmployee); err != nil {
-// 		c.JSON(http.StatusInternalServerError, gin.H{"err": err.Error()})
-// 		return
-// 	}
+func (e *EmplController) getHandler(c *gin.Context) {
+	id := c.Param("id")
+	empl, err := e.emplUC.FindByIdEmpl(id)
+	if err != nil {
+		c.JSON(500, gin.H{"err": err.Error()})
+		return
+	}
+	status := map[string]any{
+		"code":        200,
+		"description": "Get By Id Data Successfully",
+	}
+	c.JSON(200, gin.H{
+		"status": status,
+		"data":   empl,
+	})
+}
 
-// 	c.JSON(http.StatusCreated, newEmployee)
-// }
+func (e *EmplController) updateHandler(c *gin.Context) {
+	var empl model.Employee
+	if err := c.ShouldBindJSON(&empl); err != nil {
+		c.JSON(400, gin.H{"err": err.Error()})
+		return
+	}
+	if err := e.emplUC.UpdateEmpl(empl); err != nil {
+		c.JSON(500, gin.H{"err": err.Error()})
+		return
+	}
+	c.JSON(200, empl)
+}
 
-// func (e *EmployeeController) listHandler(c *gin.Context) {
-// 	page, _ := strconv.Atoi(c.Query("page"))
-// 	limit, _ := strconv.Atoi(c.Query("limit"))
-// 	paginationParam := dto.PaginationParam{
-// 		Page:  page,
-// 		Limit: limit,
-// 	}
-// 	employees, paging, err := e.employeeUC.FindAllEmployee(paginationParam)
-// 	if err != nil {
-// 		c.JSON(http.StatusInternalServerError, gin.H{"err": err.Error()})
-// 		return
-// 	}
-// 	status := map[string]any{
-// 		"code":        200,
-// 		"description": "Get All Data Successfully",
-// 	}
-// 	c.JSON(http.StatusOK, gin.H{
-// 		"status": status,
-// 		"data":   employees,
-// 		"paging": paging,
-// 	})
-// }
+func (e *EmplController) deleteHandler(c *gin.Context) {
+	id := c.Param("id")
+	if err := e.emplUC.DeleteEmpl(id); err != nil {
+		c.JSON(500, gin.H{"err": err.Error()})
+		return
+	}
+	c.String(204, "")
+}
 
-// func (e *EmployeeController) getHandler(c *gin.Context) {
-// 	id := c.Param("id")
-// 	employee, err := e.employeeUC.FindByIdEmployee(id)
-// 	if err != nil {
-// 		c.JSON(500, gin.H{"err": err.Error()})
-// 		return
-// 	}
-// 	status := map[string]any{
-// 		"code":        200,
-// 		"description": "Get By Id Data Successfully",
-// 	}
-// 	c.JSON(200, gin.H{
-// 		"status": status,
-// 		"data":   employee,
-// 	})
-// }
-// func (e *EmployeeController) updateHandler(c *gin.Context) {
-// 	var employeeRequest dto.EmployeeRequestDto
-// 	if err := c.ShouldBindJSON(&employeeRequest); err != nil {
-// 		c.JSON(http.StatusBadRequest, gin.H{"err": err.Error()})
-// 		return
-// 	}
+func NewEmplController(usecase usecase.EmplUseCase, r *gin.Engine) *EmplController {
+	controller := EmplController{
+		router: r,
+		emplUC: usecase,
+	}
 
-// 	var newEmployee model.Employee
-// 	newEmployee.ID = employeeRequest.ID
-// 	newEmployee.PositionID = employeeRequest.PositionID
-// 	newEmployee.ManagerID = employeeRequest.ManagerID
-// 	newEmployee.Name = employeeRequest.Name
-// 	newEmployee.PhoneNumber = employeeRequest.PhoneNumber
-// 	newEmployee.Email = employeeRequest.Email
-// 	newEmployee.Address = employeeRequest.Address
-
-// 	if err := e.employeeUC.UpdateEmployee(newEmployee); err != nil {
-// 		c.JSON(http.StatusInternalServerError, gin.H{"err": err.Error()})
-// 		return
-// 	}
-
-// 	c.JSON(http.StatusOK, employeeRequest)
-// }
-
-// func (e *EmployeeController) deleteHandler(c *gin.Context) {
-// 	id := c.Param("id")
-// 	if err := e.employeeUC.DeleteEmployee(id); err != nil {
-// 		c.JSON(500, gin.H{"err": err.Error()})
-// 		return
-// 	}
-// 	c.String(204, "")
-// }
-
-// func NewEmployeeController(r *gin.Engine, usecase usecase.EmployeeUseCase) *EmployeeController {
-// 	controller := EmployeeController{
-// 		router:     r,
-// 		employeeUC: usecase,
-// 	}
-// 	rg := r.Group("/api/v1")
-// 	rg.POST("/employees", controller.createHandler)
-// 	rg.GET("/employees", controller.listHandler)
-// 	rg.GET("/employees/:id", controller.getHandler)
-// 	rg.PUT("/employees", controller.updateHandler)
-// 	rg.DELETE("/employees/:id", controller.deleteHandler)
-// 	return &controller
-// }
+	rg := r.Group("/api/v1")
+	rg.POST("/employee", controller.createHandler)
+	rg.GET("/employee", controller.listHandler)
+	rg.GET("/employee/:id", controller.getHandler)
+	rg.PUT("/employee", controller.updateHandler)
+	rg.DELETE("/employee/:id", controller.deleteHandler)
+	return &controller
+}

@@ -37,10 +37,27 @@ func (h *HistoryController) createHandler(c *gin.Context) {
 		// "date_start": history.DateStart,
 		// "date_end": history.DateEnd,
 		"leave_duration": history.LeaveDuration,
-		"StatusLeave": history.StatusLeave,
+		"status_leave": history.StatusLeave,
 	}
 
 	c.JSON(http.StatusOK, historyResponse)
+}
+
+func (h *HistoryController) getHandler(c *gin.Context) {
+	id := c.Param("id")
+	history, err := h.historyUC.FindHistoryById(id)
+	if err != nil {
+		c.JSON(500, gin.H{"err": err.Error()})
+		return
+	}
+	status := map[string]any{
+		"code":        200,
+		"description": "Get By Id Data Successfully",
+	}
+	c.JSON(200, gin.H{
+		"status": status,
+		"data":   history,
+	})
 }
 
 func (h *HistoryController) listHandler(c *gin.Context) {
@@ -62,6 +79,7 @@ func NewHistoryController(r *gin.Engine, usecase usecase.HistoryUseCase) *Histor
 
 	rg := r.Group("/api/v1")
 	rg.POST("/histories", controller.createHandler)
+	rg.GET("/histories/:id", controller.getHandler)
 	rg.GET("/histories", controller.listHandler)
 	return &controller
 }

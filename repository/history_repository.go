@@ -7,7 +7,7 @@ import (
 
 type HistoryRepository interface {
 	Create(payload model.HistoryLeave) error
-	GetHistory(id string) (model.HistoryLeave, error)
+	GetHistoryById(id string) (model.HistoryLeave, error)
 	List() ([]model.HistoryLeave, error)
 }
 
@@ -23,9 +23,9 @@ func (h *historyRepository) Create(payload model.HistoryLeave) error {
 	return nil
 }
 
-func (h *historyRepository) GetHistory(id string) (model.HistoryLeave, error) {
+func (h *historyRepository) GetHistoryById(id string) (model.HistoryLeave, error) {
 	var history model.HistoryLeave
-	err := h.db.QueryRow("SELECT id, employee_id, transaction_id, date_start, date_end, leave_duration, status_leave FROM history_leave WHERE id = $1", history.Id).Scan(&history.Id, &history.EmployeeId, &history.TransactionId, &history.DateStart, &history.DateEnd, &history.LeaveDuration, &history.StatusLeave)
+	err := h.db.QueryRow("SELECT id, employee_id, transaction_id, date_start, date_end, leave_duration, status_leave FROM history_leave WHERE id = $1", id).Scan(&history.Id, &history.EmployeeId, &history.TransactionId, &history.DateStart, &history.DateEnd, &history.LeaveDuration, &history.StatusLeave)
 	if err != nil {
 		return model.HistoryLeave{}, err
 	}
@@ -35,7 +35,7 @@ func (h *historyRepository) GetHistory(id string) (model.HistoryLeave, error) {
 func (h *historyRepository) List() ([]model.HistoryLeave, error) {
 	var histories []model.HistoryLeave
 
-	rows, err := h.db.Query("SELECT id, employee_id, transaction_id, date_start, date_end, leave_duration, status_leav FROM history_leave")
+	rows, err := h.db.Query("SELECT id, employee_id, transaction_id, date_start, date_end, leave_duration, status_leave FROM history_leave")
 	if err != nil {
 		return nil, err
 	}

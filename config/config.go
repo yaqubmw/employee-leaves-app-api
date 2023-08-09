@@ -1,13 +1,13 @@
 package config
 
 import (
+	"employeeleave/utils/common"
 	"fmt"
 	"os"
 	"strconv"
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
-	"github.com/joho/godotenv"
 )
 
 type ApiConfig struct {
@@ -44,7 +44,7 @@ type FileConfig struct {
 
 // Method
 func (c *Config) ReadConfig() error {
-	err := godotenv.Load()
+	err := common.LoadEnv()
 	if err != nil {
 		return err
 	}

@@ -50,5 +50,6 @@ func NewServer() *Server {
 		useCaseManager: useCaseManager,
 		engine:         engine,
 		host:           host,
+		log:            logrus.New(),
 	}
 }

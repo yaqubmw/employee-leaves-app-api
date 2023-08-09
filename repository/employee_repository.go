@@ -3,29 +3,75 @@ package repository
 import (
 	"database/sql"
 	"employeeleave/model"
-	"employeeleave/model/dto"
-	"employeeleave/utils/common"
 )
 
-type EmployeeRepository interface {
+// Karena dia sebuah interface, maka wajib kita implementasikan semuanya
+// mulai dari Create s.d Delete
+type EmplRepository interface {
 	BaseRepository[model.Employee]
-	BaseRepositoryPaging[model.Employee]
+	GetByName(name string) (model.Employee, error)
 }
 
-type employeeRepository struct {
+type emplRepository struct {
 	db *sql.DB
 }
 
-func (e *employeeRepository) Create(payload model.Employee) error {
-	_, err := e.db.Exec("INSERT INTO employee (id, position_id, manager_id, name, phone_number, email, address) VALUES ($1, $2, $3, $4, $5, $6, $7)",
-		payload.ID, payload.PositionID, payload.ManagerID, payload.Name, payload.PhoneNumber, payload.Email, payload.Address)
+// Method -> ada sebuah receiver ((u *uomRepository))
+func (e *emplRepository) Create(payload model.Employee) error {
+	_, err := e.db.Exec("INSERT INTO employee (id, name, phonenumber, email, address) VALUES ($1, $2, $3, $4, $5)", payload.ID, payload.Name, payload.PhoneNumber, payload.Email, payload.Address)
 	if err != nil {
 		return err
 	}
 	return nil
 }
 
-func (e *employeeRepository) Delete(id string) error {
+func (e *emplRepository) List() ([]model.Employee, error) {
+	rows, err := e.db.Query("SELECT id, name, phonenumber, email, address FROM employee")
+	if err != nil {
+		return nil, err
+	}
+
+	var empls []model.Employee
+	for rows.Next() {
+		var empl model.Employee
+		err := rows.Scan(&empl.ID, &empl.Name, &empl.PhoneNumber, &empl.Email, &empl.Address)
+		if err != nil {
+			return nil, err
+		}
+		empls = append(empls, empl)
+	}
+	return empls, nil
+}
+
+func (e *emplRepository) Get(id string) (model.Employee, error) {
+	var empl model.Employee
+	err := e.db.QueryRow("SELECT id, name, phonenumber, email, address FROM employee WHERE id=$1", id).Scan(&empl.ID, &empl.Name, &empl.PhoneNumber, &empl.Email, &empl.Address)
+	if err != nil {
+		return model.Employee{}, err
+	}
+	return empl, nil
+}
+
+func (e *emplRepository) GetByName(name string) (model.Employee, error) {
+	var empl model.Employee
+	// LIKE => case sensitive e.g L l (ngaruh)
+	// ILIKE => in case sensitibe e.g L l (tidak ngaruh) (hanya ada di postgre)
+	err := e.db.QueryRow("SELECT id, name, phonenumber, email, address FROM employee WHERE name ILIKE $1", "%"+name+"%").Scan(&empl.ID, &empl.Name, &empl.PhoneNumber, &empl.Email, &empl.Address)
+	if err != nil {
+		return model.Employee{}, err
+	}
+	return empl, nil
+}
+
+func (e *emplRepository) Update(payload model.Employee) error {
+	_, err := e.db.Exec("UPDATE employee SET name=$1, phonenumber=$3, email=$4, address=$5 WHERE id=$2", payload.Name, payload.ID, payload.PhoneNumber, payload.Email, payload.Address)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (e *emplRepository) Delete(id string) error {
 	_, err := e.db.Exec("DELETE FROM employee WHERE id=$1", id)
 	if err != nil {
 		return err
@@ -33,75 +79,7 @@ func (e *employeeRepository) Delete(id string) error {
 	return nil
 }
 
-func (e *employeeRepository) Get(id string) (model.Employee, error) {
-	var employee model.Employee
-	err := e.db.QueryRow("SELECT id, position_id. manager_id name, phone_number, email, address FROM employee WHERE id=$1", id).
-		Scan(&employee.ID, &employee.PositionID, &employee.ManagerID, &employee.Name, &employee.PhoneNumber, &employee.Email,
-			&employee.Address)
-	if err != nil {
-		return model.Employee{}, err
-	}
-	return employee, nil
-
-}
-
-func (e *employeeRepository) List() ([]model.Employee, error) {
-	rows, err := e.db.Query("SELECT id, position_id. manager_id name, phone_number, email, address FROM employee")
-	if err != nil {
-		return nil, err
-	}
-	var employees []model.Employee
-	for rows.Next() {
-		var employee model.Employee
-		err := rows.Scan(&employee.ID, &employee.PositionID, &employee.ManagerID, &employee.Name, &employee.PhoneNumber, &employee.Email,
-			&employee.Address)
-		if err != nil {
-			return nil, err
-		}
-		employees = append(employees, employee)
-	}
-	return employees, nil
-}
-
-func (e *employeeRepository) Update(payload model.Employee) error {
-	_, err := e.db.Exec("UPDATE employee SET position_id = $2, manager_id = $3, name = $4, phone_number = $5, email = $6, address = $7 WHERE id = $1",
-		payload.ID, payload.PositionID, payload.ManagerID, payload.Name, payload.PhoneNumber, payload.Email, payload.Address)
-	if err != nil {
-		return err
-	}
-	return nil
-}
-
-// Paging implements employeeRepository.
-func (e *employeeRepository) Paging(requestPaging dto.PaginationParam) ([]model.Employee, dto.Paging, error) {
-	var paginationQuery dto.PaginationQuery
-	paginationQuery = common.GetPaginationParams(requestPaging)
-	rows, err := e.db.Query("SELECT id, name, phone_number, address FROM employee LIMIT $1 OFFSET $2", paginationQuery.Take, paginationQuery.Skip)
-	if err != nil {
-		return nil, dto.Paging{}, err
-	}
-	var employees []model.Employee
-	for rows.Next() {
-		var employee model.Employee
-		err := rows.Scan(&employee.ID, &employee.PositionID, &employee.ManagerID, &employee.Name, &employee.PhoneNumber, &employee.Email,
-			&employee.Address)
-		if err != nil {
-			return nil, dto.Paging{}, err
-		}
-		employees = append(employees, employee)
-	}
-
-	// count product
-	var totalRows int
-	row := e.db.QueryRow("SELECT COUNT(*) FROM employee")
-	err = row.Scan(&totalRows)
-	if err != nil {
-		return nil, dto.Paging{}, err
-	}
-
-	return employees, common.Paginate(paginationQuery.Page, paginationQuery.Take, totalRows), nil
-}
-
-func NewEmployeeRepository(db *sql.DB) EmployeeRepository {
-	return &employeeRepository{db}
+// Constructor
+func NewEmplRepository(db *sql.DB) *emplRepository {
+	return &emplRepository{db: db}
 }

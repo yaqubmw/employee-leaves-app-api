@@ -5,7 +5,7 @@ import "employeeleave/repository"
 type RepoManager interface {
 	// semua repo di daftarkan disini
 
-	EmployeeRepo() repository.EmployeeRepository
+	EmployeeRepo() repository.EmplRepository
 }
 
 type repoManager struct {
@@ -18,8 +18,8 @@ type repoManager struct {
 // }
 
 // EmployeeRepo implements RepoManager.
-func (r *repoManager) EmployeeRepo() repository.EmployeeRepository {
-	return repository.NewEmployeeRepository(r.infra.Conn())
+func (r *repoManager) EmployeeRepo() repository.EmplRepository {
+	return repository.NewEmplRepository(r.infra.Conn())
 }
 
 func NewRepoManager(infra InfraManager) RepoManager {

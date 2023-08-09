@@ -2,74 +2,86 @@ package usecase
 
 import (
 	"employeeleave/model"
-	"employeeleave/model/dto"
 	"employeeleave/repository"
 	"fmt"
 )
 
-type EmployeeUseCase interface {
-	RegisterNewEmployee(payload model.Employee) error
-	FindAllEmployee(requesPaging dto.PaginationParam) ([]model.Employee, dto.Paging, error)
-	FindByIdEmployee(id string) (model.Employee, error)
-	UpdateEmployee(payload model.Employee) error
-	DeleteEmployee(id string) error
+type EmplUseCase interface {
+	RegisterNewEmpl(payload model.Employee) error
+	FindAllEmpl() ([]model.Employee, error)
+	FindByIdEmpl(id string) (model.Employee, error)
+	UpdateEmpl(payload model.Employee) error
+	DeleteEmpl(id string) error
 }
 
-type employeeUseCase struct {
-	repo repository.EmployeeRepository
+type emplUseCase struct {
+	repo repository.EmplRepository
 }
 
-func (e *employeeUseCase) DeleteEmployee(id string) error {
-	employee, err := e.FindByIdEmployee(id)
-	if err != nil {
-		return fmt.Errorf("employee with ID %s not found", id)
+// RegisterNewUom implements UomUseCase.
+func (e *emplUseCase) RegisterNewEmpl(payload model.Employee) error {
+	//pengecekan nama tidak boleh kosong
+	if payload.Name == "" {
+		return fmt.Errorf("name required fields")
 	}
 
-	err = e.repo.Delete(employee.ID)
+	//pengecekan nama tidak boleh sama
+	isExistEmpl, _ := e.repo.GetByName(payload.Name)
+	if isExistEmpl.Name == payload.Name {
+		return fmt.Errorf("employee with name %s exists", payload.Name)
+	}
+
+	err := e.repo.Create(payload)
 	if err != nil {
-		return fmt.Errorf("failed to delete customer: %v", err.Error())
+		return fmt.Errorf("failed to create new employee: %v", err)
 	}
 	return nil
 }
 
-func (e *employeeUseCase) FindAllEmployee(requesPaging dto.PaginationParam) ([]model.Employee, dto.Paging, error) {
-	return e.repo.Paging(requesPaging)
+// FindAllUom implements UomUseCase.
+func (e *emplUseCase) FindAllEmpl() ([]model.Employee, error) {
+	return e.repo.List()
 }
 
-func (e *employeeUseCase) FindByIdEmployee(id string) (model.Employee, error) {
+// FindByIdUom implements UomUseCase.
+func (e *emplUseCase) FindByIdEmpl(id string) (model.Employee, error) {
 	return e.repo.Get(id)
 }
 
-func (e *employeeUseCase) RegisterNewEmployee(payload model.Employee) error {
-	if payload.Name == "" || payload.PhoneNumber == "" {
-		return fmt.Errorf("name, phone number are required fields")
-	}
-	// employee, _ := e.repo.GetPhoneNumber(payload.PhoneNumber)
-	// if employee.PhoneNumber == payload.PhoneNumber {
-	// 	return fmt.Errorf("employee with phone number %s already exists", payload.PhoneNumber)
-	// }
-	err := e.repo.Create(payload)
+// DeleteUom implements UomUseCase.
+func (e *emplUseCase) DeleteEmpl(id string) error {
+	// cek id nya ada atau tidak
+	uom, err := e.FindByIdEmpl(id)
 	if err != nil {
-		return fmt.Errorf("failed to create employee: %v", err.Error())
+		return fmt.Errorf("data with ID %s not found", id)
+	}
+
+	err = e.repo.Delete(uom.ID)
+	if err != nil {
+		return fmt.Errorf("failed to delete employee: %v", err)
 	}
 	return nil
 }
 
-func (e *employeeUseCase) UpdateEmployee(payload model.Employee) error {
-	if payload.Name == "" || payload.PhoneNumber == "" {
-		return fmt.Errorf("name, phone number are required fields")
+// UpdateUom implements UomUseCase.
+func (e *emplUseCase) UpdateEmpl(payload model.Employee) error {
+	if payload.Name == "" {
+		return fmt.Errorf("name is required field")
 	}
-	// employee, _ := e.repo.GetPhoneNumber(payload.PhoneNumber)
-	// if employee.PhoneNumber == payload.PhoneNumber && employee.Id != payload.Id {
-	// 	return fmt.Errorf("employee with phone number %s already exists", payload.PhoneNumber)
-	// }
+
+	isExistEmpl, _ := e.repo.GetByName(payload.Name)
+	if isExistEmpl.Name == payload.Name && isExistEmpl.ID != payload.ID {
+		return fmt.Errorf("employee with name %s exists", payload.Name)
+	}
+
 	err := e.repo.Update(payload)
 	if err != nil {
-		return fmt.Errorf("failed to update employee: %v", err.Error())
+		return fmt.Errorf("failed to update employee: %v", err)
 	}
+
 	return nil
 }
 
-func NewEmployeeUseCase(repo repository.EmployeeRepository) EmployeeUseCase {
-	return &employeeUseCase{repo: repo}
+func NewEmplUseCase(repo repository.EmplRepository) EmplUseCase {
+	return &emplUseCase{repo: repo}
 }

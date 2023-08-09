@@ -3,7 +3,7 @@ package manager
 import "employeeleave/usecase"
 
 type UseCaseManager interface {
-	EmployeeUseCase() usecase.EmployeeUseCase
+	EmployeeUseCase() usecase.EmplUseCase
 }
 
 type useCaseManager struct {
@@ -13,8 +13,8 @@ type useCaseManager struct {
 // AuthUseCase implements UseCaseManager.
 
 // EmployeeUseCase implements UseCaseManager.
-func (u *useCaseManager) EmployeeUseCase() usecase.EmployeeUseCase {
-	return usecase.NewEmployeeUseCase(u.repoManager.EmployeeRepo())
+func (u *useCaseManager) EmployeeUseCase() usecase.EmplUseCase {
+	return usecase.NewEmplUseCase(u.repoManager.EmployeeRepo())
 }
 
 func NewUseCaseManager(repoManager RepoManager) UseCaseManager {

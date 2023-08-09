@@ -1,8 +1,8 @@
 package config
 
 import (
+	"employeeleave/utils/common"
 	"fmt"
-	"log"
 	"os"
 	"strconv"
 	"time"
@@ -36,13 +36,18 @@ type Config struct {
 	DbConfig
 	ApiConfig
 	TokenConfig
+	FileConfig
+}
+
+type FileConfig struct {
+	FilePath string
 }
 
 // Method
 func (c *Config) ReadConfig() error {
-	err := godotenv.Load()
+	err := common.LoadEnv()
 	if err != nil {
-		log.Fatal("Error loading .env file")
+		return err
 	}
 
 	c.DbConfig = DbConfig{

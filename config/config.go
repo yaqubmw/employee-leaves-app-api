@@ -1,7 +1,6 @@
 package config
 
 import (
-	"employeeleave/utils/common"
 	"fmt"
 	"os"
 	"strconv"
@@ -45,7 +44,7 @@ type FileConfig struct {
 
 // Method
 func (c *Config) ReadConfig() error {
-	err := common.LoadEnv()
+	err := godotenv.Load()
 	if err != nil {
 		return err
 	}

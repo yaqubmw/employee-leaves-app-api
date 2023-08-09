@@ -83,7 +83,7 @@ func (lt *LeaveTypeController) deleteHandler(c *gin.Context) {
 	c.String(204, "")
 }
 
-func NewPositionLeaveType(usecase usecase.LeaveTypeUseCase, r *gin.Engine) *LeaveTypeController {
+func NewLeaveTypeController(usecase usecase.LeaveTypeUseCase, r *gin.Engine) *LeaveTypeController {
 	controller := LeaveTypeController{
 		router:      r,
 		leaveTypeUC: usecase,

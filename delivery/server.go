@@ -3,50 +3,52 @@ package delivery
 import (
 	"employeeleave/config"
 	"employeeleave/delivery/controller"
-	"employeeleave/repository"
-	"employeeleave/usecase"
+	"employeeleave/delivery/middleware"
+	"employeeleave/manager"
 	"employeeleave/utils/exceptions"
 	"fmt"
 
 	"github.com/gin-gonic/gin"
+	"github.com/sirupsen/logrus"
 )
 
 type Server struct {
-	userUC usecase.UserUseCase
-	authUC usecase.AuthUseCase
-	engine *gin.Engine
-	host   string
+	useCaseManager manager.UseCaseManager
+	engine         *gin.Engine
+	host           string
+	log            *logrus.Logger
 }
 
 func (s *Server) Run() {
-	s.initController()
+	s.setupControllers()
 	err := s.engine.Run(s.host)
 	if err != nil {
 		panic(err)
 	}
 }
 
-func (s *Server) initController() {
+func (s *Server) setupControllers() {
+	s.engine.Use(middleware.LogRequestMiddleware(s.log))
+
 	// semua controller disini
-	controller.NewUserController(s.engine, s.userUC)
-	controller.NewAuthController(s.engine, s.authUC)
+	controller.NewLeaveTypeController(s.useCaseManager.LeaveTypeUseCase(), s.engine)
+	controller.NewPositionController(s.useCaseManager.PositionUseCase(), s.engine)
+	controller.NewUserController(s.engine, s.useCaseManager.UserUseCase())
+	controller.NewAuthController(s.engine, s.useCaseManager.AuthUseCase())
 }
 
 func NewServer() *Server {
 	cfg, err := config.NewConfig()
 	exceptions.CheckError(err)
-	dbConn, _ := config.NewDbConnection(cfg)
-	db := dbConn.Conn()
-	userRepo := repository.NewUserRepository(db)
-	userUseCase := usecase.NewUserUseCase(userRepo)
-	authUseCase := usecase.NewAuthUseCase(userUseCase)
-
+	infraManager, _ := manager.NewInfraManager(cfg)
+	repoManager := manager.NewRepoManager(infraManager)
+	useCaseManager := manager.NewUseCaseManager(repoManager)
 	engine := gin.Default()
 	host := fmt.Sprintf("%s:%s", cfg.ApiHost, cfg.ApiPort)
 	return &Server{
-		authUC: authUseCase,
-		userUC: userUseCase,
-		engine: engine,
-		host:   host,
+		useCaseManager: useCaseManager,
+		engine:         engine,
+		host:           host,
+		log:            logrus.New(),
 	}
 }

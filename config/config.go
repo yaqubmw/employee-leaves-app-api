@@ -1,15 +1,13 @@
 package config
 
 import (
+	"employeeleave/utils/common"
 	"fmt"
-	"log"
 	"os"
 	"strconv"
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
-
-	"github.com/joho/godotenv"
 )
 
 type ApiConfig struct {
@@ -37,13 +35,18 @@ type Config struct {
 	DbConfig
 	ApiConfig
 	TokenConfig
+	FileConfig
+}
+
+type FileConfig struct {
+	FilePath string
 }
 
 // Method
 func (c *Config) ReadConfig() error {
-	err := godotenv.Load()
+	err := common.LoadEnv()
 	if err != nil {
-		log.Fatal("Error loading .env file")
+		return err
 	}
 
 	c.DbConfig = DbConfig{
@@ -60,6 +63,10 @@ func (c *Config) ReadConfig() error {
 		ApiPort: os.Getenv("API_PORT"),
 	}
 
+	c.FileConfig = FileConfig{
+		FilePath: os.Getenv("FILE_PATH"),
+	}
+
 	appTokenExpire, err := strconv.Atoi(os.Getenv("APP_TOKEN_EXPIRE"))
 	accessTokenLifeTime := time.Duration(appTokenExpire) * time.Minute
 	c.TokenConfig = TokenConfig{
@@ -69,7 +76,7 @@ func (c *Config) ReadConfig() error {
 		AccessTokenLifeTime: accessTokenLifeTime,
 	}
 
-	if c.DbConfig.Host == "" || c.DbConfig.Port == "" || c.DbConfig.Name == "" || c.DbConfig.User == "" || c.DbConfig.Password == "" || c.DbConfig.Driver == "" || c.ApiConfig.ApiHost == "" || c.ApiConfig.ApiPort == "" {
+	if c.DbConfig.Host == "" || c.DbConfig.Port == "" || c.DbConfig.Name == "" || c.DbConfig.User == "" || c.DbConfig.Password == "" || c.DbConfig.Driver == "" || c.ApiConfig.ApiHost == "" || c.ApiConfig.ApiPort == "" || c.FileConfig.FilePath == "" {
 		return fmt.Errorf("missing required environment variables")
 	}
 	return nil

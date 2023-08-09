@@ -9,7 +9,10 @@ import (
 type RoleUseCase interface {
 	RegisterNewRole(payload model.Role) error
 	FindAllRole() ([]model.Role, error)
+	FindByIdRole(id string) (model.Role, error)
 	FindByRolename(roleName string) (model.Role, error)
+	UpdateRole(payload model.Role) error
+	DeleteRole(id string) error
 }
 
 type roleUseCase struct {
@@ -21,7 +24,11 @@ func (r *roleUseCase) FindAllRole() ([]model.Role, error) {
 }
 
 func (r *roleUseCase) FindByRolename(roleName string) (model.Role, error) {
-	return r.repo.GetRole(roleName)
+	return r.repo.GetByName(roleName)
+}
+
+func (r *roleUseCase) FindByIdRole(id string) (model.Role, error) {
+	return r.repo.Get(id)
 }
 
 func (r *roleUseCase) RegisterNewRole(payload model.Role) error {
@@ -31,7 +38,7 @@ func (r *roleUseCase) RegisterNewRole(payload model.Role) error {
 	}
 
 	// nama tidak boleh sama
-	isExistRole, _ := r.repo.GetRole(payload.RoleName)
+	isExistRole, _ := r.repo.GetByName(payload.RoleName)
 	if isExistRole.RoleName == payload.RoleName {
 		return fmt.Errorf("Role with name %s already exist", payload.RoleName)
 	}
@@ -39,6 +46,38 @@ func (r *roleUseCase) RegisterNewRole(payload model.Role) error {
 	err := r.repo.Create(payload)
 	if err != nil {
 		return fmt.Errorf("failed to create new Role: %v", err)
+	}
+	return nil
+}
+
+func (r *roleUseCase) UpdateRole(payload model.Role) error {
+	if payload.RoleName == "" {
+		return fmt.Errorf("Role name is required")
+	}
+
+	isExistRole, _ := r.repo.GetByName(payload.RoleName)
+	if isExistRole.RoleName == payload.RoleName && isExistRole.Id != payload.Id {
+		return fmt.Errorf("Role with name %s exists", payload.RoleName)
+	}
+
+	err := r.repo.Update(payload)
+	if err != nil {
+		return fmt.Errorf("failed to update uom: %v", err)
+	}
+
+	return nil
+}
+
+func (r *roleUseCase) DeleteRole(id string) error {
+	// cek idnya ada atau tidak
+	uom, err := r.FindByIdRole(id)
+	if err != nil {
+		return fmt.Errorf("data with id %s not found", id)
+	}
+
+	err = r.repo.Delete(uom.Id)
+	if err != nil {
+		return fmt.Errorf("failed to delete uom: %v", err)
 	}
 	return nil
 }

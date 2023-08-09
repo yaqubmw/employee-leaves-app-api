@@ -94,7 +94,7 @@ func (r *RoleController) deleteHandler(c *gin.Context) {
 	})
 }
 
-func NewUserController(r *gin.Engine, usecase usecase.RoleUseCase) *RoleController {
+func NewRoleController(r *gin.Engine, usecase usecase.RoleUseCase) *RoleController {
 	controller := RoleController{
 		router: r,
 		roleUC: usecase,

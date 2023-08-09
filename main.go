@@ -1,10 +1,6 @@
 package main
 
-import (
-	"employeeleave/delivery"
-
-	_ "github.com/lib/pq"
-)
+import "employeeleave/delivery"
 
 func main() {
 	delivery.NewServer().Run()

@@ -5,6 +5,8 @@ import "employeeleave/usecase"
 type UseCaseManager interface {
 	LeaveTypeUseCase() usecase.LeaveTypeUseCase
 	PositionUseCase() usecase.PositionUseCase
+	StatusLeaveUseCase() usecase.StatusLeaveUseCase
+	QuotaLeaveUseCase() usecase.QuotaLeaveUseCase
 	UserUseCase() usecase.UserUseCase
 	AuthUseCase() usecase.AuthUseCase
 }
@@ -27,6 +29,16 @@ func (u *useCaseManager) PositionUseCase() usecase.PositionUseCase {
 
 func (u *useCaseManager) LeaveTypeUseCase() usecase.LeaveTypeUseCase {
 	return usecase.NewLeaveTypeUseCase(u.repoManager.LeaveTypeRepo())
+}
+
+// QuotaLeaveUseCase implements UseCaseManager.
+func (r *useCaseManager) QuotaLeaveUseCase() usecase.QuotaLeaveUseCase {
+	return usecase.NewQuotaLeaveUseCase(r.repoManager.QuotaLeaveRepo())
+}
+
+// StatusLeaveUseCase implements UseCaseManager.
+func (r *useCaseManager) StatusLeaveUseCase() usecase.StatusLeaveUseCase {
+	return usecase.NewStatusLeaveUseCase(r.repoManager.StatusLeaveRepo())
 }
 
 func NewUseCaseManager(repoManager RepoManager) UseCaseManager {

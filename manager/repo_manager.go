@@ -5,6 +5,8 @@ import "employeeleave/repository"
 type RepoManager interface {
 	LeaveTypeRepo() repository.LeaveTypeRepository
 	PositionRepo() repository.PositionRepository
+	StatusLeaveRepo() repository.StatusLeaveRepository
+	QuotaLeaveRepo() repository.QuotaLeaveRepository
 	UserRepo() repository.UserRepository
 }
 
@@ -22,6 +24,16 @@ func (r *repoManager) PositionRepo() repository.PositionRepository {
 
 func (r *repoManager) LeaveTypeRepo() repository.LeaveTypeRepository {
 	return repository.NewLeaveTypeRepository(r.infra.Conn())
+}
+
+// QuotaLeaveRepo implements RepoManager.
+func (r *repoManager) QuotaLeaveRepo() repository.QuotaLeaveRepository {
+	return repository.NewQuotaLeaveRepository(r.infra.Conn())
+}
+
+// StatusLeaveRepo implements RepoManager.
+func (r *repoManager) StatusLeaveRepo() repository.StatusLeaveRepository {
+	return repository.NewStatusLeaveRepository(r.infra.Conn())
 }
 
 func NewRepoManager(infra InfraManager) RepoManager {

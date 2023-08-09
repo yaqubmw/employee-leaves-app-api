@@ -7,6 +7,8 @@ type UseCaseManager interface {
 	PositionUseCase() usecase.PositionUseCase
 	StatusLeaveUseCase() usecase.StatusLeaveUseCase
 	QuotaLeaveUseCase() usecase.QuotaLeaveUseCase
+	RoleUseCase() usecase.RoleUseCase
+	HistoryUseCase() usecase.HistoryUseCase
 	UserUseCase() usecase.UserUseCase
 	AuthUseCase() usecase.AuthUseCase
 }
@@ -39,6 +41,16 @@ func (r *useCaseManager) QuotaLeaveUseCase() usecase.QuotaLeaveUseCase {
 // StatusLeaveUseCase implements UseCaseManager.
 func (r *useCaseManager) StatusLeaveUseCase() usecase.StatusLeaveUseCase {
 	return usecase.NewStatusLeaveUseCase(r.repoManager.StatusLeaveRepo())
+}
+
+// RoleUseCase implements UseCaseManager.
+func (u *useCaseManager) RoleUseCase() usecase.RoleUseCase {
+	return usecase.NewRoleUseCase(u.repoManager.RoleRepo())
+}
+
+// HistoryUseCase implements UseCaseManager.
+func (u *useCaseManager) HistoryUseCase() usecase.HistoryUseCase {
+	return usecase.NewHistoryUseCase(u.repoManager.HistoryRepo())
 }
 
 func NewUseCaseManager(repoManager RepoManager) UseCaseManager {

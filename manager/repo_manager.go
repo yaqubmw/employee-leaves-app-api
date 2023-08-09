@@ -7,6 +7,8 @@ type RepoManager interface {
 	PositionRepo() repository.PositionRepository
 	StatusLeaveRepo() repository.StatusLeaveRepository
 	QuotaLeaveRepo() repository.QuotaLeaveRepository
+	RoleRepo() repository.RoleRepository
+	HistoryRepo() repository.HistoryRepository
 	UserRepo() repository.UserRepository
 }
 
@@ -34,6 +36,16 @@ func (r *repoManager) QuotaLeaveRepo() repository.QuotaLeaveRepository {
 // StatusLeaveRepo implements RepoManager.
 func (r *repoManager) StatusLeaveRepo() repository.StatusLeaveRepository {
 	return repository.NewStatusLeaveRepository(r.infra.Conn())
+}
+
+// RoleRepo implements RepoManager.
+func (r *repoManager) RoleRepo() repository.RoleRepository {
+	return repository.NewRoleRepository(r.infra.Conn())
+}
+
+// HistoryRepo implements RepoManager.
+func (r *repoManager) HistoryRepo() repository.HistoryRepository {
+	return repository.NewHistoryRepository(r.infra.Conn())
 }
 
 func NewRepoManager(infra InfraManager) RepoManager {

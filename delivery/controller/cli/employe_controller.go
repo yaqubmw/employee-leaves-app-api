@@ -60,28 +60,6 @@ func (e *EmplController) getHandler(c *gin.Context) {
 	})
 }
 
-func (e *EmplController) updateHandler(c *gin.Context) {
-	var empl model.Employee
-	if err := c.ShouldBindJSON(&empl); err != nil {
-		c.JSON(400, gin.H{"err": err.Error()})
-		return
-	}
-	if err := e.emplUC.UpdateEmpl(empl); err != nil {
-		c.JSON(500, gin.H{"err": err.Error()})
-		return
-	}
-	c.JSON(200, empl)
-}
-
-func (e *EmplController) deleteHandler(c *gin.Context) {
-	id := c.Param("id")
-	if err := e.emplUC.DeleteEmpl(id); err != nil {
-		c.JSON(500, gin.H{"err": err.Error()})
-		return
-	}
-	c.String(204, "")
-}
-
 func NewEmplController(usecase usecase.EmplUseCase, r *gin.Engine) *EmplController {
 	controller := EmplController{
 		router: r,
@@ -92,7 +70,5 @@ func NewEmplController(usecase usecase.EmplUseCase, r *gin.Engine) *EmplControll
 	rg.POST("/employee", controller.createHandler)
 	rg.GET("/employee", controller.listHandler)
 	rg.GET("/employee/:id", controller.getHandler)
-	rg.PUT("/employee", controller.updateHandler)
-	rg.DELETE("/employee/:id", controller.deleteHandler)
 	return &controller
 }

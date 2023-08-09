@@ -1,7 +1,7 @@
 package model
 
 type Employee struct {
-	ID          string `gorm:"primaryKey" json:"id"`
+	ID          string `json:"id"`
 	Name        string `json:"name"`
 	PhoneNumber string `json:"phoneNumber"`
 	Email       string `json:"email"`

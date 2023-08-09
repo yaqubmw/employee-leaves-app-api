@@ -11,8 +11,6 @@ type EmplRepository interface {
 	List() ([]model.Employee, error)
 	Get(id string) (model.Employee, error)
 	GetByName(name string) (model.Employee, error)
-	Update(payload model.Employee) error
-	Delete(id string) error
 }
 
 type emplRepository struct {
@@ -30,23 +28,15 @@ func (e *emplRepository) List() ([]model.Employee, error) {
 }
 
 func (e *emplRepository) Get(id string) (model.Employee, error) {
-	var empl model.Employee
-	err := e.db.Where("id = $1", id).First(&empl).Error
-	return empl, err
+	var employee model.Employee
+	err := e.db.First(&employee, id).Error
+	return employee, err
 }
 
 func (e *emplRepository) GetByName(name string) (model.Employee, error) {
-	var empl model.Employee
-	err := e.db.Where("name ILIKE $1", "%"+name+"%").First(&empl).Error
-	return empl, err
-}
-
-func (e *emplRepository) Update(payload model.Employee) error {
-	return e.db.Model(&payload).Updates(model.Employee{Name: payload.Name, PhoneNumber: payload.PhoneNumber, Email: payload.Email, Address: payload.Address}).Error
-}
-
-func (e *emplRepository) Delete(id string) error {
-	return e.db.Where("id = ?", id).Delete(&model.Employee{}).Error
+	var employees model.Employee
+	err := e.db.Where("name LIKE ?", "%"+name+"%").Find(&employees).Error
+	return employees, err
 }
 
 func NewEmplRepository(db *gorm.DB) EmplRepository {

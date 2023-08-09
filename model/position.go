@@ -1,7 +1,7 @@
 package model
 
 type Position struct {
-	ID        string `gorm:"primaryKey" json:"id"`
+	ID        string `json:"id"`
 	Name      string `json:"name"`
 	IsManager bool   `json:"isManager"`
 }

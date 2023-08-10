@@ -18,9 +18,15 @@ type statusLeaveUseCase struct {
 	repo repository.StatusLeaveRepository
 }
 
+
 func (s *statusLeaveUseCase) RegisterNewStatusLeave(payload model.StatusLeave) error {
 	if payload.StatusLeaveName == "" {
 		return fmt.Errorf("status-leave-name required field")
+	}
+
+	isExistStatus, _ := s.repo.GetByName(payload.StatusLeaveName)
+	if isExistStatus.StatusLeaveName == payload.StatusLeaveName {
+		return fmt.Errorf("status with name %s exists", payload.StatusLeaveName)
 	}
 
 	err := s.repo.Create(payload)
@@ -30,17 +36,25 @@ func (s *statusLeaveUseCase) RegisterNewStatusLeave(payload model.StatusLeave) e
 	return nil
 }
 
+
 func (s *statusLeaveUseCase) FindAllStatusLeave() ([]model.StatusLeave, error) {
 	return s.repo.List()
 }
+
 
 func (s *statusLeaveUseCase) FindByIdStatusLeave(id string) (model.StatusLeave, error) {
 	return s.repo.Get(id)
 }
 
+
 func (s *statusLeaveUseCase) UpdateStatusLeave(payload model.StatusLeave) error {
 	if payload.StatusLeaveName == "" {
 		return fmt.Errorf("status-leave-name required field")
+	}
+
+	isExistStatus, _ := s.repo.GetByName(payload.StatusLeaveName)
+	if isExistStatus.StatusLeaveName == payload.StatusLeaveName && isExistStatus.ID != payload.ID {
+		return fmt.Errorf("status with name %s exists", payload.StatusLeaveName)
 	}
 
 	err := s.repo.Update(payload)
@@ -49,6 +63,7 @@ func (s *statusLeaveUseCase) UpdateStatusLeave(payload model.StatusLeave) error 
 	}
 	return nil
 }
+
 
 func (s *statusLeaveUseCase) DeleteStatusLeave(id string) error {
 	statusLeave, err := s.FindByIdStatusLeave(id)

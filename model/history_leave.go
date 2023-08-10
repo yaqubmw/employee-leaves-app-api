@@ -4,10 +4,10 @@ import "time"
 
 type HistoryLeave struct {
 	Id            string `json:"id"`
-	EmployeeId    string `json:"employee_id"`
-	TransactionId string `json:"transaction_id"`
-	DateStart     time.Time `json:"date_start"`
-	DateEnd       time.Time `json:"date_end"`
-	LeaveDuration string `json:"leave_duration"`
-	StatusLeave   string `json:"status_duration"`
+	Employee    	Employee `json:"employee"`
+	Transaction 	TransactionLeave `json:"transactionLeave"`
+	DateStart     time.Time `json:"dateStart"`
+	DateEnd       time.Time `json:"dateEnd"`
+	LeaveDuration string `json:"leaveDuration"`
+	StatusLeave   string `json:"statusDuration"`
 }

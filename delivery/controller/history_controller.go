@@ -2,6 +2,7 @@ package controller
 
 import (
 	"employeeleave/model"
+	"employeeleave/model/dto"
 	"employeeleave/usecase"
 	"employeeleave/utils/common"
 	"net/http"
@@ -16,31 +17,38 @@ type HistoryController struct {
 }
 
 func (h *HistoryController) createHandler(c *gin.Context) {
-	var history model.HistoryLeave
-	if err := c.ShouldBindJSON(&history); err != nil {
+	// var history model.HistoryLeave
+	var historyRequest dto.HistoryResponseDto
+	if err := c.ShouldBindJSON(&historyRequest); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"err": err.Error()})
 		return
 	}
 
-	history.Id = common.GenerateID()
-	history.DateStart = time.Now()
-	history.DateEnd = time.Now()
-	if err := h.historyUC.RegisterNewHistory(history); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"err": err.Error()})
+	var newHistory model.HistoryLeave
+	historyRequest.Id = common.GenerateID()
+	newHistory.Id = historyRequest.Id
+	newHistory.Employee.ID = historyRequest.EmployeeId
+	newHistory.Transaction.ID = historyRequest.TransactionId
+	newHistory.DateStart = time.Now()
+	newHistory.DateEnd = time.Now()
+	newHistory.LeaveDuration = historyRequest.LeaveDuration
+	newHistory.StatusLeave = historyRequest.StatusLeave
+	if err := h.historyUC.RegisterNewHistory(newHistory); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"err": newHistory})
 		return
 	}
 
-	historyResponse := map[string]any{
-		"id":       history.Id,
-		"employee_id": history.EmployeeId,
-		"transaction_id": history.TransactionId,
-		// "date_start": history.DateStart,
-		// "date_end": history.DateEnd,
-		"leave_duration": history.LeaveDuration,
-		"status_leave": history.StatusLeave,
-	}
+	// historyResponse := map[string]any{
+	// 	"id":       history.Id,
+	// 	"employee_id": history.EmployeeId,
+	// 	"transaction_id": history.TransactionId,
+	// 	// "date_start": history.DateStart,
+	// 	// "date_end": history.DateEnd,
+	// 	"leave_duration": history.LeaveDuration,
+	// 	"status_leave": history.StatusLeave,
+	// }
 
-	c.JSON(http.StatusOK, historyResponse)
+	c.JSON(http.StatusOK, historyRequest)
 }
 
 func (h *HistoryController) getHandler(c *gin.Context) {

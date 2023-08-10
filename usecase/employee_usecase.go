@@ -43,6 +43,6 @@ func (e *employeeUseCase) FindByIdEmpl(id string) (model.Employee, error) {
 	return e.repo.Get(id)
 }
 
-func NewEmplUseCase(repo repository.EmployeeRepository) EmployeeUseCase {
+func NewEmployeeUseCase(repo repository.EmployeeRepository) EmployeeUseCase {
 	return &employeeUseCase{repo: repo}
 }

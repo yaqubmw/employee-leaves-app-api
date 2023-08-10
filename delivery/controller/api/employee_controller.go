@@ -9,8 +9,8 @@ import (
 )
 
 type EmployeeController struct {
-	emplUC usecase.EmployeeUseCase
 	router *gin.Engine
+	emplUC usecase.EmployeeUseCase
 }
 
 func (e *EmployeeController) createHandler(c *gin.Context) {
@@ -60,7 +60,7 @@ func (e *EmployeeController) getHandler(c *gin.Context) {
 	})
 }
 
-func NewEmplController(usecase usecase.EmployeeUseCase, r *gin.Engine) *EmployeeController {
+func NewEmployeeController(r *gin.Engine, usecase usecase.EmployeeUseCase) *EmployeeController {
 	controller := EmployeeController{
 		router: r,
 		emplUC: usecase,

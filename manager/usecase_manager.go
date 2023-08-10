@@ -10,11 +10,9 @@ type useCaseManager struct {
 	repoManager RepoManager
 }
 
-// AuthUseCase implements UseCaseManager.
-
 // EmployeeUseCase implements UseCaseManager.
 func (u *useCaseManager) EmployeeUseCase() usecase.EmployeeUseCase {
-	return usecase.NewEmplUseCase(u.repoManager.EmployeeRepo())
+	return usecase.NewEmployeeUseCase(u.repoManager.EmployeeRepo())
 }
 
 func NewUseCaseManager(repoManager RepoManager) UseCaseManager {

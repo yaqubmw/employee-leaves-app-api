@@ -3,17 +3,20 @@ package delivery
 import (
 	"employeeleave/config"
 	"employeeleave/delivery/controller"
+	"employeeleave/delivery/middleware"
 	"employeeleave/manager"
 	"employeeleave/utils/exceptions"
 	"fmt"
 
 	"github.com/gin-gonic/gin"
+	"github.com/sirupsen/logrus"
 )
 
 type Server struct {
 	useCaseManager manager.UseCaseManager
 	engine         *gin.Engine
 	host           string
+	log            *logrus.Logger
 }
 
 func (s *Server) Run() {
@@ -25,6 +28,7 @@ func (s *Server) Run() {
 }
 
 func (s *Server) initController() {
+	s.engine.Use(middleware.LogRequestMiddleware(s.log))
 	// semua controller disini
 	controller.NewStatusLeaveController(s.engine, s.useCaseManager.StatusLeaveUseCase())
 	controller.NewQuotaLeaveController(s.engine, s.useCaseManager.QuotaLeaveUseCase())
@@ -43,5 +47,6 @@ func NewServer() *Server {
 		useCaseManager: usecaseManager,
 		engine:         engine,
 		host:           host,
+		log:            logrus.New(),
 	}
 }

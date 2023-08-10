@@ -1,25 +1,26 @@
 package manager
 
 import (
-	"database/sql"
+	
 	"employeeleave/config"
 	"fmt"
 
-	_ "github.com/lib/pq"
+	"gorm.io/driver/postgres"
+	"gorm.io/gorm"
 )
 
 type InfraManager interface {
-	Conn() *sql.DB
+	Conn() *gorm.DB
 }
 
 type infraManager struct {
-	db  *sql.DB
+	db  *gorm.DB
 	cfg *config.Config
 }
 
 func (i *infraManager) initDb() error {
 	dsn := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=disable", i.cfg.Host, i.cfg.Port, i.cfg.User, i.cfg.Password, i.cfg.Name)
-	db, err := sql.Open(i.cfg.Driver, dsn)
+	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
 	if err != nil {
 		return err
 	}
@@ -27,7 +28,7 @@ func (i *infraManager) initDb() error {
 	return nil
 }
 
-func (i *infraManager) Conn() *sql.DB {
+func (i *infraManager) Conn() *gorm.DB {
 	return i.db
 }
 

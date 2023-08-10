@@ -22,9 +22,14 @@ type DbConfig struct {
 	Driver   string
 }
 
+type FileConfig struct {
+	FilePath string
+}
+
 type Config struct {
 	DbConfig
 	ApiConfig
+	FileConfig
 }
 
 // Method
@@ -48,10 +53,14 @@ func (c *Config) ReadConfig() error {
 		ApiPort: os.Getenv("API_PORT"),
 	}
 
+	c.FileConfig = FileConfig{
+		FilePath: os.Getenv("FILE_PATH"),
+	}
+
 	if c.DbConfig.Host == "" || c.DbConfig.Port == "" || c.DbConfig.Name == "" || c.DbConfig.User == "" || c.DbConfig.Password == "" || c.DbConfig.Driver == "" || c.ApiConfig.ApiHost == "" || c.ApiConfig.ApiPort == "" {
 		return fmt.Errorf("missing required environment variables")
 	}
-	
+
 	return nil
 }
 

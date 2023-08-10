@@ -70,7 +70,6 @@ func (r *RoleController) updateHandler(c *gin.Context) {
 		return
 	}
 
-	// call usecase
 	if err := r.roleUC.UpdateRole(role); err != nil {
 		c.JSON(500, gin.H{"err": err.Error()})
 		return

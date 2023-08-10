@@ -69,7 +69,6 @@ func (r *roleUseCase) UpdateRole(payload model.Role) error {
 }
 
 func (r *roleUseCase) DeleteRole(id string) error {
-	// cek idnya ada atau tidak
 	uom, err := r.FindByIdRole(id)
 	if err != nil {
 		return fmt.Errorf("data with id %s not found", id)

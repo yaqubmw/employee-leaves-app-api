@@ -18,7 +18,6 @@ type HistoryController struct {
 }
 
 func (h *HistoryController) createHandler(c *gin.Context) {
-	// var history model.HistoryLeave
 	var historyRequest dto.HistoryResponseDto
 	if err := c.ShouldBindJSON(&historyRequest); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"err": err.Error()})
@@ -30,8 +29,6 @@ func (h *HistoryController) createHandler(c *gin.Context) {
 	newHistory.Id = historyRequest.Id
 	newHistory.EmployeeId = historyRequest.EmployeeId
 	newHistory.TransactionId = historyRequest.TransactionId
-	// newHistory.Employee.ID = historyRequest.EmployeeId
-	// newHistory.Transaction.ID = historyRequest.TransactionId
 	newHistory.DateStart = time.Now()
 	newHistory.DateEnd = time.Now()
 	newHistory.LeaveDuration = historyRequest.LeaveDuration
@@ -40,16 +37,6 @@ func (h *HistoryController) createHandler(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"err": newHistory})
 		return
 	}
-
-	// historyResponse := map[string]any{
-	// 	"id":       history.Id,
-	// 	"employee_id": history.EmployeeId,
-	// 	"transaction_id": history.TransactionId,
-	// 	// "date_start": history.DateStart,
-	// 	// "date_end": history.DateEnd,
-	// 	"leave_duration": history.LeaveDuration,
-	// 	"status_leave": history.StatusLeave,
-	// }
 
 	c.JSON(http.StatusOK, historyRequest)
 }
@@ -93,17 +80,6 @@ func (h *HistoryController) listHandler(c *gin.Context) {
 		"paging": paging,
 	})
 }
-
-// func (h *HistoryController) listHandler(c *gin.Context) {
-// 	histories, err := h.historyUC.FindAllHistory()
-// 	if err != nil {
-// 		c.JSON(http.StatusInternalServerError, gin.H{"err": err.Error()})
-// 		return
-// 	}
-// 	c.JSON(http.StatusOK, gin.H{
-// 		"data": histories,
-// 	})
-// }
 
 func NewHistoryController(r *gin.Engine, usecase usecase.HistoryUseCase) *HistoryController {
 	controller := HistoryController{

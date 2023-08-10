@@ -4,13 +4,11 @@ import (
 	"employeeleave/config"
 	"employeeleave/delivery/controller"
 	"employeeleave/delivery/middleware"
-	"employeeleave/delivery/middleware"
 	"employeeleave/manager"
 	"employeeleave/utils/exceptions"
 	"fmt"
 
 	"github.com/gin-gonic/gin"
-	"github.com/sirupsen/logrus"
 	"github.com/sirupsen/logrus"
 )
 
@@ -18,7 +16,6 @@ type Server struct {
 	useCaseManager manager.UseCaseManager
 	engine         *gin.Engine
 	host           string
-	log            *logrus.Logger
 	log            *logrus.Logger
 }
 
@@ -31,7 +28,6 @@ func (s *Server) Run() {
 }
 
 func (s *Server) initController() {
-	s.engine.Use(middleware.LogRequestMiddleware(s.log))
 	s.engine.Use(middleware.LogRequestMiddleware(s.log))
 
 	// semua controller disini
@@ -58,7 +54,6 @@ func NewServer() *Server {
 		useCaseManager: useCaseManager,
 		engine:         engine,
 		host:           host,
-		log:            logrus.New(),
 		log:            logrus.New(),
 	}
 }

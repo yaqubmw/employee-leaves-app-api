@@ -63,8 +63,8 @@ func (t *transactionRepository) GetByName(name string) ([]dto.TransactionRespons
 	var transactionList []dto.TransactionResponseDto
 
 	err := t.db.Preload("Employee").Preload("LeaveType").Preload("StatusLeave").
-		Joins("JOIN employees ON transaction_leaves.employee_id = employees.id").
-		Where("employees.name LIKE ?", "%"+name+"%").
+		Joins("JOIN employee ON transaction_leave.employee_id = employee.id").
+		Where("employee.name LIKE ?", "%"+name+"%").
 		Find(&transactionList).Error
 	if err != nil {
 		return nil, err

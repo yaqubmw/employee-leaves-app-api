@@ -1,7 +1,6 @@
 package controller
 
 import (
-	"employeeleave/delivery/middleware"
 	"employeeleave/model"
 	"employeeleave/usecase"
 	"employeeleave/utils/common"
@@ -91,10 +90,10 @@ func NewPositionController(usecase usecase.PositionUseCase, r *gin.Engine) *Posi
 	// daftarkan semua url path disini
 	// /position -> GET, POST, PUT, DELETE
 	rg := r.Group("/api/v1")
-	rg.POST("/positions", middleware.AuthMiddleware(), controller.createHandler)
-	rg.GET("/positions", middleware.AuthMiddleware(), controller.listHandler)
-	rg.GET("/positions/:id", middleware.AuthMiddleware(), controller.getHandler)
-	rg.PUT("/positions", middleware.AuthMiddleware(), controller.updateHandler)
-	rg.DELETE("/positions/:id", middleware.AuthMiddleware(), controller.deleteHandler)
+	rg.POST("/positions", controller.createHandler)
+	rg.GET("/positions", controller.listHandler)
+	rg.GET("/positions/:id", controller.getHandler)
+	rg.PUT("/positions", controller.updateHandler)
+	rg.DELETE("/positions/:id", controller.deleteHandler)
 	return &controller
 }

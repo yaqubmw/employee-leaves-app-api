@@ -6,12 +6,8 @@ import (
 )
 
 type RoleRepository interface {
-	Create(payload model.Role) error
-	Get(id string) (model.Role, error)
+	BaseRepository[model.Role]
 	GetByName(roleName string) (model.Role, error)
-	List() ([]model.Role, error)
-	Update(payload model.Role) error
-	Delete(id string) error
 }
 
 type roleRepository struct {

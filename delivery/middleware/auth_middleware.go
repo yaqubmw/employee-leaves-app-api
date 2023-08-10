@@ -1,7 +1,6 @@
 package middleware
 
 import (
-	"employeeleave/utils/security"
 	"fmt"
 	"net/http"
 	"strings"
@@ -26,24 +25,24 @@ func AuthMiddleware() gin.HandlerFunc {
 		tokenHeader := strings.Replace(h.AuthorizationHeader, "Bearer ", "", -1)
 		fmt.Println("tokenHeader:", tokenHeader)
 
-		if tokenHeader == "" {
-			c.JSON(http.StatusUnauthorized, gin.H{"message": "unauthorized"})
-			c.Abort()
-			return
-		}
+		// if tokenHeader == "" {
+		// 	c.JSON(http.StatusUnauthorized, gin.H{"message": "unauthorized"})
+		// 	c.Abort()
+		// 	return
+		// }
 
-		token, err := security.VerifyAccessToken(tokenHeader)
-		if err != nil {
-			c.JSON(http.StatusUnauthorized, gin.H{"message": "unauthorized"})
-			c.Abort()
-			return
-		}
-		if token != nil {
-			c.Next()
-		} else {
-			c.JSON(http.StatusUnauthorized, gin.H{"message": "unauthorized"})
-			c.Abort()
-			return
-		}
+		// token, err := security.VerifyAccessToken(tokenHeader)
+		// if err != nil {
+		// 	c.JSON(http.StatusUnauthorized, gin.H{"message": "unauthorized"})
+		// 	c.Abort()
+		// 	return
+		// }
+		// if token != nil {
+		// 	c.Next()
+		// } else {
+		// 	c.JSON(http.StatusUnauthorized, gin.H{"message": "unauthorized"})
+		// 	c.Abort()
+		// 	return
+		// }
 	}
 }

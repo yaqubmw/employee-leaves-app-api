@@ -10,9 +10,11 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
+	"gorm.io/gorm"
 )
 
 type Server struct {
+	db             *gorm.DB
 	useCaseManager manager.UseCaseManager
 	engine         *gin.Engine
 	host           string
@@ -30,7 +32,7 @@ func (s *Server) Run() {
 func (s *Server) setupControllers() {
 	s.engine.Use(middleware.LogRequestMiddleware(s.log))
 
-	// semua controller disini
+	// All controllers here
 	controller.NewLeaveTypeController(s.useCaseManager.LeaveTypeUseCase(), s.engine)
 	controller.NewPositionController(s.useCaseManager.PositionUseCase(), s.engine)
 	controller.NewUserController(s.engine, s.useCaseManager.UserUseCase())

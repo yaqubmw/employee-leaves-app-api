@@ -34,8 +34,7 @@ func (u *userRepository) GetByUsername(username string) (model.UserCredential, e
 
 // GetByUsernamePassword implements UserRepository.
 func (u *userRepository) GetByUsernamePassword(username, password string) (model.UserCredential, error) {
-	var user model.UserCredential
-	err := u.db.Where("username = ?", username).First(&user).Error
+	user, err := u.GetByUsername(username)
 	if err != nil {
 		return model.UserCredential{}, err
 	}

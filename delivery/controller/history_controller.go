@@ -28,10 +28,10 @@ func (h *HistoryController) createHandler(c *gin.Context) {
 	var newHistory model.HistoryLeave
 	historyRequest.Id = common.GenerateID()
 	newHistory.Id = historyRequest.Id
-	// newHistory.EmployeeId = historyRequest.EmployeeId
-	// newHistory.TransactionId = historyRequest.TransactionId
-	newHistory.Employee.ID = historyRequest.EmployeeId
-	newHistory.Transaction.ID = historyRequest.TransactionId
+	newHistory.EmployeeId = historyRequest.EmployeeId
+	newHistory.TransactionId = historyRequest.TransactionId
+	// newHistory.Employee.ID = historyRequest.EmployeeId
+	// newHistory.Transaction.ID = historyRequest.TransactionId
 	newHistory.DateStart = time.Now()
 	newHistory.DateEnd = time.Now()
 	newHistory.LeaveDuration = historyRequest.LeaveDuration

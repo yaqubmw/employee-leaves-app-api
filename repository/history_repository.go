@@ -29,9 +29,15 @@ func (h *historyRepository) Create(payload model.HistoryLeave) error {
 }
 
 func (h *historyRepository) GetHistoryById(id string) (model.HistoryLeave, error) {
+	// var history model.HistoryLeave
+	// err := h.db.First(&history, id).Error
+	// return history, err
+
 	var history model.HistoryLeave
-	err := h.db.First(&history, id).Error
+	err := h.db.Where("id = $1", id).First(&history).Error
+
 	return history, err
+
 	// var history model.HistoryLeave
 	// err := h.db.QueryRow("SELECT id, employee_id, transaction_id, date_start, date_end, leave_duration, status_leave FROM history_leave WHERE id = $1", id).Scan(&history.Id, &history.Employee.ID, &history.Transaction.ID, &history.DateStart, &history.DateEnd, &history.LeaveDuration, &history.StatusLeave)
 	// if err != nil {

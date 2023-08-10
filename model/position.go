@@ -5,3 +5,7 @@ type Position struct {
 	Name      string `json:"name"`
 	IsManager bool   `json:"isManager"`
 }
+
+func (Position) TableName() string {
+	return "position"
+}

@@ -1,6 +1,7 @@
 package model
 
 type Position struct {
-	ID   string
-	Name string
+	ID        string `json:"id"`
+	Name      string `json:"name"`
+	IsManager bool   `json:"isManager"`
 }

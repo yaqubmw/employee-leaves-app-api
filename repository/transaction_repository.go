@@ -23,10 +23,21 @@ type transactionRepository struct {
 
 // membuat data transaksi cuti baru
 func (t *transactionRepository) Create(payload model.TransactionLeave) error {
-	err := t.db.Create(&payload).Error
-	if err != nil {
+	tx := t.db.Begin()
+	if tx.Error != nil {
+		return tx.Error
+	}
+	// lakukan rollback
+	if err := tx.Create(&payload).Error; err != nil {
+		tx.Rollback()
 		return err
 	}
+	// commit transaction
+
+	if err := tx.Commit().Error; err != nil {
+		return err
+	}
+
 	return nil
 }
 

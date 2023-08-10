@@ -2,12 +2,15 @@ package usecase
 
 import (
 	"employeeleave/model"
+	"employeeleave/model/dto"
 	"employeeleave/repository"
 )
 
 type HistoryUseCase interface {
 	RegisterNewHistory(payload model.HistoryLeave) error
-	FindAllHistory() ([]model.HistoryLeave, error)
+	FindAllHistory(requestPaging dto.PaginationParam) ([]model.HistoryLeave, dto.Paging, error)
+
+
 	FindHistoryById(id string) (model.HistoryLeave, error)
 }
 
@@ -15,8 +18,8 @@ type historyUseCase struct {
 	repo repository.HistoryRepository
 }
 
-func (h *historyUseCase) FindAllHistory() ([]model.HistoryLeave, error) {
-	return h.repo.List()
+func (h *historyUseCase) FindAllHistory(requestPaging dto.PaginationParam) ([]model.HistoryLeave, dto.Paging, error) {
+	return h.repo.Paging(requestPaging)
 }
 
 func (h *historyUseCase) FindHistoryById(id string) (model.HistoryLeave, error) {

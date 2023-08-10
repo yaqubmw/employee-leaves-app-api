@@ -10,5 +10,5 @@ type BaseRepository[T any] interface {
 	Delete(id string) error
 }
 type BaseRepositoryPaging[T any] interface {
-	Paging(requestPagung dto.PaginationParam) ([]T, dto.Paging, error)
+	Paging(requestPaging dto.PaginationParam) ([]T, dto.Paging, error)
 }

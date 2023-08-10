@@ -4,11 +4,13 @@ import (
 	"employeeleave/config"
 	"employeeleave/delivery/controller"
 	"employeeleave/delivery/middleware"
+	"employeeleave/delivery/middleware"
 	"employeeleave/manager"
 	"employeeleave/utils/exceptions"
 	"fmt"
 
 	"github.com/gin-gonic/gin"
+	"github.com/sirupsen/logrus"
 	"github.com/sirupsen/logrus"
 )
 
@@ -16,6 +18,7 @@ type Server struct {
 	useCaseManager manager.UseCaseManager
 	engine         *gin.Engine
 	host           string
+	log            *logrus.Logger
 	log            *logrus.Logger
 }
 
@@ -29,9 +32,17 @@ func (s *Server) Run() {
 
 func (s *Server) initController() {
 	s.engine.Use(middleware.LogRequestMiddleware(s.log))
+	s.engine.Use(middleware.LogRequestMiddleware(s.log))
+
 	// semua controller disini
+	controller.NewEmplController(s.useCaseManager.EmployeeUseCase(), s.engine)
+	controller.NewLeaveTypeController(s.useCaseManager.LeaveTypeUseCase(), s.engine)
+	controller.NewPositionController(s.useCaseManager.PositionUseCase(), s.engine)
 	controller.NewStatusLeaveController(s.engine, s.useCaseManager.StatusLeaveUseCase())
 	controller.NewQuotaLeaveController(s.engine, s.useCaseManager.QuotaLeaveUseCase())
+	controller.NewRoleController(s.engine, s.useCaseManager.RoleUseCase())
+	controller.NewUserController(s.engine, s.useCaseManager.UserUseCase())
+	controller.NewAuthController(s.engine, s.useCaseManager.AuthUseCase())
 }
 
 func NewServer() *Server {
@@ -39,14 +50,15 @@ func NewServer() *Server {
 	exceptions.CheckError(err)
 	infraManager, _ := manager.NewInfraManager(cfg)
 	repoManager := manager.NewRepoManager(infraManager)
-	usecaseManager := manager.NewUseCaseManager(repoManager)
+	useCaseManager := manager.NewUseCaseManager(repoManager)
 
 	engine := gin.Default()
 	host := fmt.Sprintf("%s:%s", cfg.ApiHost, cfg.ApiPort)
 	return &Server{
-		useCaseManager: usecaseManager,
+		useCaseManager: useCaseManager,
 		engine:         engine,
 		host:           host,
+		log:            logrus.New(),
 		log:            logrus.New(),
 	}
 }

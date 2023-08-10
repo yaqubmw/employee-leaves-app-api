@@ -10,6 +10,7 @@ type StatusLeaveUseCase interface {
 	RegisterNewStatusLeave(payload model.StatusLeave) error
 	FindAllStatusLeave() ([]model.StatusLeave, error)
 	FindByIdStatusLeave(id string) (model.StatusLeave, error)
+	FindByNameStatusLeave(statusName string) (model.StatusLeave, error)
 	UpdateStatusLeave(payload model.StatusLeave) error
 	DeleteStatusLeave(id string) error
 }
@@ -18,13 +19,12 @@ type statusLeaveUseCase struct {
 	repo repository.StatusLeaveRepository
 }
 
-
 func (s *statusLeaveUseCase) RegisterNewStatusLeave(payload model.StatusLeave) error {
 	if payload.StatusLeaveName == "" {
 		return fmt.Errorf("status-leave-name required field")
 	}
 
-	isExistStatus, _ := s.repo.GetByName(payload.StatusLeaveName)
+	isExistStatus, _ := s.repo.GetByNameStatus(payload.StatusLeaveName)
 	if isExistStatus.StatusLeaveName == payload.StatusLeaveName {
 		return fmt.Errorf("status with name %s exists", payload.StatusLeaveName)
 	}
@@ -36,23 +36,24 @@ func (s *statusLeaveUseCase) RegisterNewStatusLeave(payload model.StatusLeave) e
 	return nil
 }
 
-
 func (s *statusLeaveUseCase) FindAllStatusLeave() ([]model.StatusLeave, error) {
 	return s.repo.List()
 }
-
 
 func (s *statusLeaveUseCase) FindByIdStatusLeave(id string) (model.StatusLeave, error) {
 	return s.repo.Get(id)
 }
 
+func (s *statusLeaveUseCase) FindByNameStatusLeave(statusName string) (model.StatusLeave, error) {
+	return s.repo.Get(statusName)
+}
 
 func (s *statusLeaveUseCase) UpdateStatusLeave(payload model.StatusLeave) error {
 	if payload.StatusLeaveName == "" {
 		return fmt.Errorf("status-leave-name required field")
 	}
 
-	isExistStatus, _ := s.repo.GetByName(payload.StatusLeaveName)
+	isExistStatus, _ := s.repo.GetByNameStatus(payload.StatusLeaveName)
 	if isExistStatus.StatusLeaveName == payload.StatusLeaveName && isExistStatus.ID != payload.ID {
 		return fmt.Errorf("status with name %s exists", payload.StatusLeaveName)
 	}
@@ -63,7 +64,6 @@ func (s *statusLeaveUseCase) UpdateStatusLeave(payload model.StatusLeave) error 
 	}
 	return nil
 }
-
 
 func (s *statusLeaveUseCase) DeleteStatusLeave(id string) error {
 	statusLeave, err := s.FindByIdStatusLeave(id)

@@ -12,15 +12,14 @@ import (
 )
 
 func LogRequestMiddleware(log *logrus.Logger) gin.HandlerFunc {
-	cfg, err := config.NewConfig()
-	exceptions.CheckError(err)
-	file, err := os.OpenFile(cfg.FilePath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0666)
-	exceptions.CheckError(err)
-	log.SetOutput(file)
-
-	startTime := time.Now()
-
 	return func(c *gin.Context) {
+		cfg, err := config.NewConfig()
+		exceptions.CheckError(err)
+		file, err := os.OpenFile(cfg.FilePath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0666)
+		exceptions.CheckError(err)
+		log.SetOutput(file)
+
+		startTime := time.Now()
 		c.Next()
 
 		endTime := time.Since(startTime)
@@ -41,6 +40,8 @@ func LogRequestMiddleware(log *logrus.Logger) gin.HandlerFunc {
 			log.Warn(requestLog)
 		default:
 			log.Info(requestLog)
+
 		}
+
 	}
 }

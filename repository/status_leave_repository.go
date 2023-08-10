@@ -8,19 +8,11 @@ import (
 
 type StatusLeaveRepository interface {
 	BaseRepository[model.StatusLeave]
-	GetByName(name string) (model.StatusLeave, error)
+	GetByNameStatus(statusLeaveName string) (model.StatusLeave, error)
 }
 
 type statusLeaveRepository struct {
 	db *gorm.DB
-}
-
-// GetByName implements StatusLeaveRepository.
-func (s *statusLeaveRepository) GetByName(name string) (model.StatusLeave, error) {
-	var statusLeave model.StatusLeave
-	err := s.db.Where("status_leave_name ILIKE ?", "%"+name+"%").First(&statusLeave).Error
-
-	return statusLeave, err
 }
 
 func (s *statusLeaveRepository) Create(payload model.StatusLeave) error {
@@ -52,6 +44,12 @@ func (s *statusLeaveRepository) Delete(id string) error {
 	err := s.db.Where("id = $1", id).Delete(&statusLeave).Error
 
 	return err
+}
+
+func (r *statusLeaveRepository) GetByNameStatus(statusLeaveName string) (model.StatusLeave, error) {
+	var status model.StatusLeave
+	err := r.db.Where("status_leave_name LIKE $1", "%"+statusLeaveName+"%").Find(&status).Error
+	return status, err
 }
 
 func NewStatusLeaveRepository(db *gorm.DB) StatusLeaveRepository {

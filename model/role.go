@@ -1,6 +1,10 @@
 package model
 
 type Role struct {
-	ID       string
-	RoleName string
+	Id       string `json:"id"`
+	RoleName string `json:"role_name" gorm:"tableName:role"`
+}
+
+func (Role) TableName() string {
+	return "role"
 }

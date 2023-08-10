@@ -18,7 +18,7 @@ type statusLeaveRepository struct {
 // GetByName implements StatusLeaveRepository.
 func (s *statusLeaveRepository) GetByName(name string) (model.StatusLeave, error) {
 	var statusLeave model.StatusLeave
-	err := s.db.Where("name ILIKE ?", "%"+name+"%").First(&statusLeave).Error
+	err := s.db.Where("status_leave_name ILIKE ?", "%"+name+"%").First(&statusLeave).Error
 
 	return statusLeave, err
 }

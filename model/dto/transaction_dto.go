@@ -7,8 +7,8 @@ import (
 
 type TransactionResponseDto struct {
 	ID             string            `json:"id"`
-	DateStart      string            `json:"dateStart"`
-	DateEnd        string            `json:"dateEnd"`
+	DateStart      time.Time         `json:"dateStart"`
+	DateEnd        time.Time         `json:"dateEnd"`
 	DayType        string            `json:"dayType"`
 	Reason         string            `json:"reason"`
 	SubmissionDate time.Time         `json:"submissionDate"`

@@ -10,11 +10,9 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
-	"gorm.io/gorm"
 )
 
 type Server struct {
-	db             *gorm.DB
 	useCaseManager manager.UseCaseManager
 	engine         *gin.Engine
 	host           string
@@ -22,17 +20,17 @@ type Server struct {
 }
 
 func (s *Server) Run() {
-	s.setupControllers()
+	s.initController()
 	err := s.engine.Run(s.host)
 	if err != nil {
 		panic(err)
 	}
 }
 
-func (s *Server) setupControllers() {
+func (s *Server) initController() {
 	s.engine.Use(middleware.LogRequestMiddleware(s.log))
 
-	// All controllers here
+	// semua controller disini
 	controller.NewLeaveTypeController(s.useCaseManager.LeaveTypeUseCase(), s.engine)
 	controller.NewPositionController(s.useCaseManager.PositionUseCase(), s.engine)
 	controller.NewStatusLeaveController(s.engine, s.useCaseManager.StatusLeaveUseCase())
@@ -46,8 +44,9 @@ func NewServer() *Server {
 	cfg, err := config.NewConfig()
 	exceptions.CheckError(err)
 	infraManager, _ := manager.NewInfraManager(cfg)
-	repoManager := manager.NewRepoManager(infraManager)
+	repoManager := manager.NewRepoManager(infraManager.Conn())
 	useCaseManager := manager.NewUseCaseManager(repoManager)
+
 	engine := gin.Default()
 	host := fmt.Sprintf("%s:%s", cfg.ApiHost, cfg.ApiPort)
 	return &Server{

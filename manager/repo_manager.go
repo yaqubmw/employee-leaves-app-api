@@ -27,12 +27,7 @@ func (r *repoManager) UserRepo() repository.UserRepository {
 
 // EmployeeRepo implements RepoManager.
 func (r *repoManager) EmployeeRepo() repository.EmployeeRepository {
-	return repository.NewEmplRepository(r.infra.Conn())
-}
-
-// EmployeeRepo implements RepoManager.
-func (r *repoManager) EmployeeRepo() repository.EmployeeRepository {
-	return repository.NewEmplRepository(r.infra.Conn())
+	return repository.NewEmplRepository(r.db)
 }
 
 func (r *repoManager) PositionRepo() repository.PositionRepository {

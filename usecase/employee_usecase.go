@@ -11,6 +11,7 @@ type EmployeeUseCase interface {
 	FindAllEmpl() ([]model.Employee, error)
 	FindByIdEmpl(id string) (model.Employee, error)
 	UpdateEmpl(payload model.Employee) error
+	UpdateAvailableDay(id string, availableDays int) error
 }
 
 type employeeUseCase struct {
@@ -50,6 +51,10 @@ func (e *employeeUseCase) UpdateEmpl(payload model.Employee) error {
 		return fmt.Errorf("failed to update employee: %v", err)
 	}
 	return nil
+}
+
+func (e *employeeUseCase) UpdateAvailableDay(id string, availableDays int) error {
+	return e.repo.UpdateAvailableDays(id, availableDays)
 }
 
 func NewEmplUseCase(repo repository.EmployeeRepository) EmployeeUseCase {

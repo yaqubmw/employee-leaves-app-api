@@ -10,15 +10,24 @@ import (
 type TransactionRepository interface {
 	Create(payload model.TransactionLeave) error
 	GetByID(id string) (dto.TransactionResponseDto, error)
+	GetByIdTxNonDto(id string) (model.TransactionLeave, error)
 	GetByEmployeeID(employeeID string) ([]dto.TransactionResponseDto, error)
 	GetByName(name string) ([]dto.TransactionResponseDto, error)
 	List() ([]dto.TransactionResponseDto, error)
 	UpdateStatus(transactionID, statusID string) error
 	DeleteByID(id string) error
-} 
+}
 
 type transactionRepository struct {
 	db *gorm.DB
+}
+
+// GetByIdTxNonDto implements TransactionRepository.
+func (t *transactionRepository) GetByIdTxNonDto(id string) (model.TransactionLeave, error) {
+	var txLeave model.TransactionLeave
+	err := t.db.Where("id = $1", id).First(&txLeave).Error
+
+	return txLeave, err
 }
 
 // membuat data transaksi cuti baru

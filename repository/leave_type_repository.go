@@ -39,12 +39,9 @@ func (lt *leaveTypeRepository) List() ([]model.LeaveType, error) {
 
 func (lt *leaveTypeRepository) Get(id string) (model.LeaveType, error) {
 	var leave_type model.LeaveType
-	result := lt.db.First(&leave_type, id)
-	if result.Error != nil {
-		return model.LeaveType{}, result.Error
-	}
+	err := lt.db.Where("id = $1", id).First(&leave_type).Error
 
-	return leave_type, nil
+	return leave_type, err
 }
 
 func (lt *leaveTypeRepository) GetByName(leave_type_name string) (model.LeaveType, error) {

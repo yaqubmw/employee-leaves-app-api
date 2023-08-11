@@ -12,6 +12,7 @@ type EmployeeRepository interface {
 	Get(id string) (model.Employee, error)
 	GetByName(name string) (model.Employee, error)
 	Update(employee model.Employee) error
+	UpdateAvailableDays(id string, availableDays int) error
 }
 
 type employeeRepository struct {
@@ -42,6 +43,11 @@ func (e *employeeRepository) GetByName(name string) (model.Employee, error) {
 
 func (e *employeeRepository) Update(employee model.Employee) error {
 	err := e.db.Model(&employee).Updates(employee).Error
+	return err
+}
+
+func (e *employeeRepository) UpdateAvailableDays(id string, availableDays int) error {
+	err := e.db.Model(&model.Employee{}).Where("id = ?", id).Update("available_leave_days", availableDays).Error
 	return err
 }
 

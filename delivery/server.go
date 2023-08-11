@@ -2,7 +2,7 @@ package delivery
 
 import (
 	"employeeleave/config"
-	"employeeleave/delivery/controller/api"
+	"employeeleave/delivery/controller"
 	"employeeleave/delivery/middleware"
 	"employeeleave/manager"
 	"employeeleave/utils/exceptions"
@@ -31,7 +31,8 @@ func (s *Server) Run() {
 func (s *Server) setupControllers() {
 	s.engine.Use(middleware.LogRequestMiddleware(s.log))
 	// semua controller disini
-	api.NewEmployeeController(s.engine, s.useCaseManager.EmployeeUseCase())
+	controller.NewEmplController(s.useCaseManager.EmployeeUseCase(), s.engine)
+	controller.NewTransactionController(s.engine, s.useCaseManager.TransactionUseCase())
 
 }
 

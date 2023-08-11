@@ -8,7 +8,7 @@ type UseCaseManager interface {
 	StatusLeaveUseCase() usecase.StatusLeaveUseCase
 	QuotaLeaveUseCase() usecase.QuotaLeaveUseCase
 	RoleUseCase() usecase.RoleUseCase
-	// HistoryUseCase() usecase.HistoryUseCase
+	HistoryUseCase() usecase.HistoryUseCase
 	EmployeeUseCase() usecase.EmployeeUseCase
 	UserUseCase() usecase.UserUseCase
 	AuthUseCase() usecase.AuthUseCase
@@ -21,7 +21,7 @@ type useCaseManager struct {
 
 // TransactionUseCase implements UseCaseManager.
 func (u *useCaseManager) TransactionUseCase() usecase.TransactionLeaveUseCase {
-	return usecase.NewTransactionLeaveUseCase(u.repoManager.TransactionRepo(), u.EmployeeUseCase(), u.LeaveTypeUseCase(), u.StatusLeaveUseCase())
+	return usecase.NewTransactionLeaveUseCase(u.repoManager.TransactionLeaveRepo(), u.EmployeeUseCase(), u.LeaveTypeUseCase(), u.StatusLeaveUseCase())
 }
 
 func (u *useCaseManager) AuthUseCase() usecase.AuthUseCase {
@@ -55,10 +55,10 @@ func (u *useCaseManager) RoleUseCase() usecase.RoleUseCase {
 	return usecase.NewRoleUseCase(u.repoManager.RoleRepo())
 }
 
-// // HistoryUseCase implements UseCaseManager.
-// func (u *useCaseManager) HistoryUseCase() usecase.HistoryUseCase {
-// 	return usecase.NewHistoryUseCase(u.repoManager.HistoryRepo())
-// }
+// HistoryUseCase implements UseCaseManager.
+func (u *useCaseManager) HistoryUseCase() usecase.HistoryUseCase {
+	return usecase.NewHistoryUseCase(u.repoManager.HistoryRepo())
+}
 
 // EmployeeUseCase implements UseCaseManager.
 func (u *useCaseManager) EmployeeUseCase() usecase.EmployeeUseCase {

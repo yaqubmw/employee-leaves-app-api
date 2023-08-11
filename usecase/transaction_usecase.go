@@ -3,10 +3,13 @@ package usecase
 import (
 	"employeeleave/model"
 	"employeeleave/repository"
+	"fmt"
+	"time"
 )
 
 type TransactionLeaveUseCase interface {
 	ApproveOrRejectLeave(payload model.TransactionLeave) error
+	ApplyLeave(payload model.TransactionLeave) error
 }
 
 type transactionLeaveUseCase struct {
@@ -17,6 +20,57 @@ type transactionLeaveUseCase struct {
 }
 
 // Persetujuan atau penolakan cuti oleh atasan
+// Pengajuan cuti oleh karyawan
+func (tl *transactionLeaveUseCase) ApplyLeave(trx model.TransactionLeave) error {
+
+	employee, err := tl.employeeUC.FindByIdEmpl(trx.EmployeeID)
+	if err != nil {
+		return err
+	}
+
+	leaveType, err := tl.leaveTypeUC.FindByIdLeaveType(trx.LeaveTypeID)
+	if err != nil {
+		return err
+	}
+
+	statusLeave, err := tl.statusLeaveUC.FindByNameStatusLeave("Pending")
+	if err != nil {
+		return err
+	}
+
+	trx.EmployeeID = employee.ID
+	trx.LeaveTypeID = leaveType.ID
+	trx.StatusLeaveID = statusLeave.ID
+	trx.SubmissionDate = time.Now()
+
+	err = tl.transactionRepo.Create(trx)
+	if err != nil {
+		return fmt.Errorf("failed to register new transaction %v", err)
+	}
+
+	return nil
+
+	// Validasi jumlah cuti yang tersedia
+	// if leaveType.QuotaLeave > employee.AvailableLeaveDays {
+	// 	return fmt.Errorf("jumlah cuti yang diajukan melebihi sisa cuti yang tersedia")
+	// }
+
+	// err = uc.transactionRepo.Create(transaction)
+	// if err != nil {
+	// 	return err
+	// }
+
+	// Kurangi jumlah cuti yang tersedia pada karyawan
+	// employee.AvailableLeaveDays -= leaveType.QuotaLeave
+
+	// Update jumlah cuti yang tersedia pada repositori
+	// err = uc.employeeRepo.Update(employee)
+	// if err != nil {
+	// 	return err
+	// }
+
+}
+
 func (tl *transactionLeaveUseCase) ApproveOrRejectLeave(trx model.TransactionLeave) error {
 
 	// Get the transaction by ID

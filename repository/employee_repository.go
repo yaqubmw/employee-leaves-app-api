@@ -31,8 +31,10 @@ func (e *employeeRepository) List() ([]model.Employee, error) {
 
 func (e *employeeRepository) Get(id string) (model.Employee, error) {
 	var employee model.Employee
-	err := e.db.First(&employee, id).Error
-	return employee, err
+	if err := e.db.Where("id = ?", id).First(&employee).Error; err != nil {
+		return employee, err
+	}
+	return employee, nil
 }
 
 func (e *employeeRepository) GetByName(name string) (model.Employee, error) {

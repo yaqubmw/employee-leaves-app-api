@@ -1,56 +1,53 @@
 package repository
 
 import (
-	"database/sql"
 	"employeeleave/model"
+	"employeeleave/model/dto"
+	"employeeleave/utils/common"
+
+	"gorm.io/gorm"
 )
 
 type HistoryRepository interface {
 	Create(payload model.HistoryLeave) error
 	GetHistoryById(id string) (model.HistoryLeave, error)
-	List() ([]model.HistoryLeave, error)
+	BaseRepositoryPaging[model.HistoryLeave]
 }
 
 type historyRepository struct {
-	db *sql.DB
+	db *gorm.DB
 }
 
 func (h *historyRepository) Create(payload model.HistoryLeave) error {
-	_, err := h.db.Exec("INSERT INTO history_leave (id, employee_id, transaction_id, date_start, date_end, leave_duration, status_leave) VALUES ($1, $2, $3, $4, $5, $6, $7)", payload.Id, payload.EmployeeId, payload.TransactionId, payload.DateStart, payload.DateEnd, payload.LeaveDuration, payload.StatusLeave)
-	if err != nil {
-		return err
-	}
-	return nil
+	return h.db.Create(&payload).Error
 }
 
 func (h *historyRepository) GetHistoryById(id string) (model.HistoryLeave, error) {
 	var history model.HistoryLeave
-	err := h.db.QueryRow("SELECT id, employee_id, transaction_id, date_start, date_end, leave_duration, status_leave FROM history_leave WHERE id = $1", id).Scan(&history.Id, &history.EmployeeId, &history.TransactionId, &history.DateStart, &history.DateEnd, &history.LeaveDuration, &history.StatusLeave)
-	if err != nil {
-		return model.HistoryLeave{}, err
-	}
-	return history, nil
+	err := h.db.Where("id = $1", id).First(&history).Error
+
+	return history, err
 }
 
-func (h *historyRepository) List() ([]model.HistoryLeave, error) {
+func (h *historyRepository) Paging(requestPaging dto.PaginationParam) ([]model.HistoryLeave, dto.Paging, error) {
 	var histories []model.HistoryLeave
+	var totalRows int64
 
-	rows, err := h.db.Query("SELECT id, employee_id, transaction_id, date_start, date_end, leave_duration, status_leave FROM history_leave")
-	if err != nil {
-		return nil, err
+	pagination := common.GetPaginationParams(requestPaging)
+	result := h.db.Model(&model.HistoryLeave{}).Count(&totalRows)
+	if result.Error != nil {
+		return nil, dto.Paging{}, result.Error
 	}
 
-	for rows.Next() {
-		var history model.HistoryLeave
-		err := rows.Scan(&history.Id, &history.EmployeeId, &history.TransactionId, &history.DateStart, &history.DateEnd, &history.LeaveDuration, &history.StatusLeave)
-		if err != nil {
-			return nil, err
-		}
-		histories = append(histories, history)
+	query := h.db.Model(&model.HistoryLeave{}).Limit(pagination.Take).Offset(pagination.Skip)
+	result = query.Find(&histories)
+	if result.Error != nil {
+		return nil, dto.Paging{}, result.Error
 	}
-	return histories, nil
+
+	return histories, common.Paginate(pagination.Page, pagination.Take, int(totalRows)), nil
 }
 
-func NewHistoryRepository(db *sql.DB) HistoryRepository {
+func NewHistoryRepository(db *gorm.DB) HistoryRepository {
 	return &historyRepository{db: db}
 }

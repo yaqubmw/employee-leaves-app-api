@@ -38,12 +38,9 @@ func (p *positionRepository) List() ([]model.Position, error) {
 }
 
 func (p *positionRepository) Get(id string) (model.Position, error) {
-	var position model.Position
-	result := p.db.First(&position, id)
-	if result.Error != nil {
-		return model.Position{}, result.Error
-	}
-	return position, nil
+	var positions model.Position
+	err := p.db.Where("id = $1", id).First(&positions).Error
+	return positions, err
 }
 
 func (p *positionRepository) GetByName(name string) (model.Position, error) {

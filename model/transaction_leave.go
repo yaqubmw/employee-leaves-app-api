@@ -4,12 +4,11 @@ import "time"
 
 type TransactionLeave struct {
 	ID             string    `json:"id"`
-	EmployeeID     string    `json:"employeeId"`
-	LeaveTypeID    string    `json:"leaveTypeId"`
-	StatusLeaveID  string    `json:"statusleaveId"`
-	DateStart      time.Time `json:"dateStart"`
-	DateEnd        time.Time `json:"dateEnd"`
-	TypeOfDay      string    `json:"typeOfDay"`
+	EmployeeID     string    `json:"employee_id"`
+	LeaveTypeID    string    `json:"leave_type_id"`
+	StatusLeaveID  string    `json:"status_leave_id"`
+	DateStart      time.Time `json:"date_start"`
+	DateEnd        time.Time `json:"date_end"`
 	Reason         string    `json:"reason"`
 	SubmissionDate time.Time `json:"submissionDate"`
 }

@@ -36,16 +36,16 @@ func (s *statusLeaveUseCase) RegisterNewStatusLeave(payload model.StatusLeave) e
 	return nil
 }
 
+func (s *statusLeaveUseCase) FindByNameStatusLeave(statusName string) (model.StatusLeave, error) {
+	return s.repo.GetByNameStatus(statusName)
+}
+
 func (s *statusLeaveUseCase) FindAllStatusLeave() ([]model.StatusLeave, error) {
 	return s.repo.List()
 }
 
 func (s *statusLeaveUseCase) FindByIdStatusLeave(id string) (model.StatusLeave, error) {
 	return s.repo.Get(id)
-}
-
-func (s *statusLeaveUseCase) FindByNameStatusLeave(statusName string) (model.StatusLeave, error) {
-	return s.repo.Get(statusName)
 }
 
 func (s *statusLeaveUseCase) UpdateStatusLeave(payload model.StatusLeave) error {

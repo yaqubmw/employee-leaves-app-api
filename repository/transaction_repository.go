@@ -32,10 +32,21 @@ func (t *transactionRepository) GetByIdTxNonDto(id string) (model.TransactionLea
 
 // membuat data transaksi cuti baru
 func (t *transactionRepository) Create(payload model.TransactionLeave) error {
-	err := t.db.Create(&payload).Error
-	if err != nil {
+	tx := t.db.Begin() // Memulai transaksi
+	if tx.Error != nil {
+		return tx.Error
+	}
+
+	// Menyimpan data transaksi dalam transaksi
+	if err := tx.Create(&payload).Error; err != nil {
+		tx.Rollback() // Rollback jika ada error
 		return err
 	}
+
+	if err := tx.Commit().Error; err != nil {
+		return err
+	}
+
 	return nil
 }
 

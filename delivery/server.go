@@ -39,7 +39,7 @@ func (s *Server) initController() {
 	controller.NewRoleController(s.engine, s.useCaseManager.RoleUseCase())
 	controller.NewUserController(s.engine, s.useCaseManager.UserUseCase())
 	controller.NewAuthController(s.engine, s.useCaseManager.AuthUseCase())
-	controller.NewTransactionLeaveController(s.engine, s.useCaseManager.TransactionUseCase())
+	controller.NewTransactionController(s.engine, s.useCaseManager.TransactionUseCase())
 }
 
 func NewServer() *Server {

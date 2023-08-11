@@ -56,7 +56,6 @@ func (e *employeeRepository) GetByName(name string) (model.Employee, error) {
 }
 
 func (e *employeeRepository) Update(payload model.Employee) error {
-	// Menggunakan GORM untuk memperbarui kolom-kolom tertentu pada karyawan berdasarkan payload yang diberikan
 	if err := e.db.Model(&payload).Updates(map[string]interface{}{
 		"Name":        payload.Name,
 		"PhoneNumber": payload.PhoneNumber,

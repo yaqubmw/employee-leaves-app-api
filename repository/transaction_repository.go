@@ -1,58 +1,122 @@
-// File: transaction_repository.go
-
 package repository
 
 import (
 	"employeeleave/model"
+	"employeeleave/model/dto"
 
 	"gorm.io/gorm"
 )
 
-// TransactionRepository adalah interface yang mendefinisikan operasi yang diperlukan untuk mengelola transaksi pengajuan cuti.
 type TransactionRepository interface {
-	// CreateTransaction membuat transaksi pengajuan cuti baru dan mengembalikan ID transaksi yang berhasil dibuat.
-	CreateTransaction(payload *model.TransactionLeave) (string, error)
-
-	// GetTransactionByID mengambil detail transaksi berdasarkan ID transaksi.
-	GetTransactionByID(id string) (*model.TransactionLeave, error)
-
-	// GetTransactionsByEmployeeID mengambil daftar transaksi pengajuan cuti berdasarkan ID pegawai.
-	GetTransactionsByEmployeeID(id string) ([]*model.TransactionLeave, error)
-
-	// UpdateTransactionStatus mengupdate status transaksi pengajuan cuti berdasarkan ID transaksi.
-	UpdateTransactionStatus(transactionID, statusLeaveID string) error
+	Create(payload model.TransactionLeave) error
+	GetByID(id string) (dto.TransactionResponseDto, error)
+	GetByEmployeeID(employeeID string) ([]dto.TransactionResponseDto, error)
+	GetByName(name string) ([]dto.TransactionResponseDto, error)
+	List() ([]dto.TransactionResponseDto, error)
+	UpdateStatus(transactionID, statusID string) error
+	DeleteByID(id string) error
 }
 
-type TransactionRepositoryImpl struct {
+type transactionRepository struct {
 	db *gorm.DB
 }
 
-// CreateTransaction implementasi membuat transaksi pengajuan cuti baru.
-func (repo *TransactionRepositoryImpl) CreateTransaction(transaction *model.TransactionLeave) (string, error) {
-	// TODO: Implementasikan logika untuk membuat transaksi baru dan mengembalikan ID transaksi yang berhasil dibuat.
-	panic("not implemented")
+// membuat data transaksi cuti baru
+func (t *transactionRepository) Create(payload model.TransactionLeave) error {
+	tx := t.db.Begin() // Memulai transaksi
+	if tx.Error != nil {
+		return tx.Error
+	}
+
+	// Menyimpan data transaksi dalam transaksi
+	if err := tx.Create(&payload).Error; err != nil {
+		tx.Rollback() // Rollback jika ada error
+		return err
+	}
+
+	if err := tx.Commit().Error; err != nil {
+		return err
+	}
+
+	return nil
 }
 
-// GetTransactionByID implementasi mengambil detail transaksi berdasarkan ID transaksi.
-func (repo *TransactionRepositoryImpl) GetTransactionByID(transactionID string) (*model.TransactionLeave, error) {
-	// TODO: Implementasikan logika untuk mengambil detail transaksi berdasarkan ID transaksi.
-	panic("Not implemented")
+// ]mendapatkan data transaksi cuti berdasarkan ID
+func (t *transactionRepository) GetByID(id string) (dto.TransactionResponseDto, error) {
+	var transactionResponseDto dto.TransactionResponseDto
+
+	err := t.db.Preload("Employee").Preload("LeaveType").Preload("StatusLeave").
+		Where("id = ?", id).
+		First(&transactionResponseDto).Error
+	if err != nil {
+		return dto.TransactionResponseDto{}, err
+	}
+
+	return transactionResponseDto, nil
 }
 
-// GetTransactionsByEmployeeID implementasi mengambil daftar transaksi pengajuan cuti berdasarkan ID pegawai.
-func (repo *TransactionRepositoryImpl) GetTransactionsByEmployeeID(employeeID string) ([]*model.TransactionLeave, error) {
-	// TODO: Implementasikan logika untuk mengambil daftar transaksi berdasarkan ID pegawai.
-	panic("not implemented")
+// mendapatkan data transaksi cuti berdasarkan ID karyawan
+func (t *transactionRepository) GetByEmployeeID(employeeID string) ([]dto.TransactionResponseDto, error) {
+	var transactions []dto.TransactionResponseDto
+
+	err := t.db.Preload("Employee").Preload("LeaveType").Preload("StatusLeave").
+		Where("employee_id = ?", employeeID).
+		Find(&transactions).Error
+	if err != nil {
+		return nil, err
+	}
+
+	return transactions, nil
 }
 
-// UpdateTransactionStatus implementasi mengupdate status transaksi pengajuan cuti berdasarkan ID transaksi.
-func (repo *TransactionRepositoryImpl) UpdateTransactionStatus(transactionID, statusLeaveID string) error {
-	// TODO: Implementasikan logika untuk mengupdate status transaksi pengajuan cuti berdasarkan ID transaksi.
-	panic("not implemented")
+// mendapatkan daftar transaksi cuti berdasarkan nama karyawan
+func (t *transactionRepository) GetByName(name string) ([]dto.TransactionResponseDto, error) {
+	var transactionList []dto.TransactionResponseDto
+
+	err := t.db.Preload("Employee").Preload("LeaveType").Preload("StatusLeave").
+		Joins("JOIN employees ON transaction_leaves.employee_id = employees.id").
+		Where("employees.name LIKE ?", "%"+name+"%").
+		Find(&transactionList).Error
+	if err != nil {
+		return nil, err
+	}
+
+	return transactionList, nil
 }
 
-// NewTransactionRepository mengembalikan instance baru dari TransactionRepositoryImpl.
-func NewTransactionRepository() TransactionRepository {
-	// TODO: Inisialisasi instance TransactionRepositoryImpl dan kembalikan.
-	panic("not implemented")
+// mendapatkan daftar semua transaksi cuti
+func (t *transactionRepository) List() ([]dto.TransactionResponseDto, error) {
+	var transactionList []dto.TransactionResponseDto
+
+	err := t.db.Preload("Employee").Preload("LeaveType").Preload("StatusLeave").
+		Find(&transactionList).Error
+	if err != nil {
+		return nil, err
+	}
+
+	return transactionList, nil
+}
+
+// mengubah status transaksi cuti
+func (t *transactionRepository) UpdateStatus(transactionID, statusID string) error {
+	err := t.db.Model(&model.TransactionLeave{}).
+		Where("id = ?", transactionID).
+		Update("status_leave_id", statusID).
+		Error
+	return err
+}
+
+// menghapus data transaksi cuti berdasarkan ID
+func (t *transactionRepository) DeleteByID(id string) error {
+	err := t.db.Where("id = ?", id).Delete(&model.TransactionLeave{}).Error
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func NewTransactionLeaveRepository(db *gorm.DB) TransactionRepository {
+	return &transactionRepository{
+		db: db,
+	}
 }

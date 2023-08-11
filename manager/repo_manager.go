@@ -14,7 +14,7 @@ type repoManager struct {
 
 // EmployeeRepo implements RepoManager.
 func (r *repoManager) EmployeeRepo() repository.EmployeeRepository {
-	return repository.NewEmplRepository(r.infra.Conn())
+	return repository.NewEmployeeRepository(r.infra.Conn())
 }
 
 func NewRepoManager(infra InfraManager) RepoManager {

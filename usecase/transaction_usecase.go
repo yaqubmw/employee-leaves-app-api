@@ -14,9 +14,9 @@ type TransactionLeaveUseCase interface {
 type transactionLeaveUseCase struct {
 	transactionRepo repository.TransactionRepository
 	employeeUC      EmployeeUseCase
-	positionUC      PositionUseCase
-	leaveTypeUC     LeaveTypeUseCase
-	statusLeaveUC   StatusLeaveUseCase
+	// positionUC      PositionUseCase
+	leaveTypeUC   LeaveTypeUseCase
+	statusLeaveUC StatusLeaveUseCase
 }
 
 // Pengajuan cuti oleh karyawan
@@ -32,7 +32,7 @@ func (tl *transactionLeaveUseCase) ApplyLeave(trx model.TransactionLeave) error 
 		return err
 	}
 
-	statusLeave, err := tl.statusLeaveUC.FindByIdStatusLeave(trx.StatusLeaveID)
+	statusLeave, err := tl.statusLeaveUC.FindByNameStatusLeave("Pending")
 	if err != nil {
 		return err
 	}

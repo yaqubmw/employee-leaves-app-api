@@ -16,3 +16,7 @@ type TransactionResponseDto struct {
 	LeaveType      model.LeaveType   `json:"leaveType"`
 	StatusLeave    model.StatusLeave `json:"statusLeave"`
 }
+
+func (TransactionResponseDto) TableName() string {
+	return "transaction_response_dto"
+}

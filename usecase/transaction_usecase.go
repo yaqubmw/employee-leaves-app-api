@@ -2,6 +2,7 @@ package usecase
 
 import (
 	"employeeleave/model"
+	"employeeleave/model/dto"
 	"employeeleave/repository"
 	"fmt"
 	"time"
@@ -9,6 +10,9 @@ import (
 
 type TransactionLeaveUseCase interface {
 	ApplyLeave(payload model.TransactionLeave) error
+	FindById(id string) (dto.TransactionResponseDto, error)
+	// FindById(id string) (dto.TransactionResponseDto, error)
+	// FindAllTransaction() ([]dto.TransactionResponseDto, error)
 }
 
 type transactionLeaveUseCase struct {
@@ -17,6 +21,16 @@ type transactionLeaveUseCase struct {
 	// positionUC      PositionUseCase
 	leaveTypeUC   LeaveTypeUseCase
 	statusLeaveUC StatusLeaveUseCase
+}
+
+// FindAllTransaction implements TransactionLeaveUseCase.
+// func (tl *transactionLeaveUseCase) FindAllTransaction() ([]dto.TransactionResponseDto, error) {
+// 	return tl.transactionRepo.List()
+// }
+
+// FindByIdHC implements TransactionLeaveUseCase.
+func (tl *transactionLeaveUseCase) FindById(id string) (dto.TransactionResponseDto, error) {
+	return tl.transactionRepo.GetByID(id)
 }
 
 // Pengajuan cuti oleh karyawan

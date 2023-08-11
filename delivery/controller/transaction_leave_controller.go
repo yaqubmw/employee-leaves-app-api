@@ -42,6 +42,23 @@ func (tl *TransactionLeaveController) createHandler(c *gin.Context) {
 	c.JSON(http.StatusOK, userResponse)
 }
 
+func (tl *TransactionLeaveController) getHandler(c *gin.Context) {
+	id := c.Param("id")
+	role, err := tl.txUC.FindById(id)
+	if err != nil {
+		c.JSON(500, gin.H{"err": err.Error()})
+		return
+	}
+	status := map[string]any{
+		"code":        200,
+		"description": "Get Data By Id Success",
+	}
+	c.JSON(200, gin.H{
+		"status": status,
+		"data":   role,
+	})
+}
+
 // func (tl *TransactionLeaveController) listHandler(c *gin.Context) {
 // 	page, _ := strconv.Atoi(c.Query("page"))
 // 	limit, _ := strconv.Atoi(c.Query("limit"))
@@ -73,6 +90,7 @@ func NewTransactionController(r *gin.Engine, usecase usecase.TransactionLeaveUse
 
 	rg := r.Group("/api/v1")
 	rg.POST("/transaction", middleware.AuthMiddleware(), controller.createHandler)
+	rg.GET("/transactions/:id", controller.getHandler)
 	// rg.GET("/transactions", controller.listHandler)
 	return &controller
 }

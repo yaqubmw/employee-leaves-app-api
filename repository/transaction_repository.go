@@ -15,7 +15,7 @@ type TransactionRepository interface {
 	List() ([]dto.TransactionResponseDto, error)
 	UpdateStatus(transactionID, statusID string) error
 	DeleteByID(id string) error
-}
+} 
 
 type transactionRepository struct {
 	db *gorm.DB

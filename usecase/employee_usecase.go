@@ -10,6 +10,7 @@ type EmployeeUseCase interface {
 	RegisterNewEmpl(payload model.Employee) error
 	FindAllEmpl() ([]model.Employee, error)
 	FindByIdEmpl(id string) (model.Employee, error)
+	UpdateEmpl(payload model.Employee) error
 }
 
 type employeeUseCase struct {
@@ -41,6 +42,14 @@ func (e *employeeUseCase) FindAllEmpl() ([]model.Employee, error) {
 
 func (e *employeeUseCase) FindByIdEmpl(id string) (model.Employee, error) {
 	return e.repo.Get(id)
+}
+
+func (e *employeeUseCase) UpdateEmpl(payload model.Employee) error {
+	err := e.repo.Update(payload)
+	if err != nil {
+		return fmt.Errorf("failed to update employee: %v", err)
+	}
+	return nil
 }
 
 func NewEmplUseCase(repo repository.EmployeeRepository) EmployeeUseCase {

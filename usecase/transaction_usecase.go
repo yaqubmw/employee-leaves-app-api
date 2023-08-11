@@ -65,14 +65,14 @@ func (uc *leaveApplicationUseCase) ApplyLeave(employeeID, leaveTypeID string, da
 		return err
 	}
 
-	// // Kurangi jumlah cuti yang tersedia pada karyawan
-	// employee.AvailableLeaveDays -= leaveType.QuotaLeave
+	// Kurangi jumlah cuti yang tersedia pada karyawan
+	employee.AvailableLeaveDays -= leaveType.QuotaLeave
 
-	// // Update jumlah cuti yang tersedia pada repositori
-	// err = uc.employeeRepo.Update(employee)
-	// if err != nil {
-	// 	return err
-	// }
+	// Update jumlah cuti yang tersedia pada repositori
+	err = uc.employeeUC.UpdateEmpl(employee)
+	if err != nil {
+		return err
+	}
 
 	return nil
 }
@@ -135,7 +135,7 @@ func (uc *leaveApplicationUseCase) ApproveLeaveByHC(transactionID string) error 
 	}
 
 	return nil
-}
+} 
 
 // Mendapatkan informasi status cuti untuk pegawai
 func (uc *leaveApplicationUseCase) GetLeaveStatusForEmployee(employeeID string) ([]dto.TransactionResponseDto, error) {

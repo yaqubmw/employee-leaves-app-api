@@ -13,7 +13,7 @@ import (
 )
 
 type HistoryController struct {
-	router *gin.Engine
+	router    *gin.Engine
 	historyUC usecase.HistoryUseCase
 }
 
@@ -83,7 +83,7 @@ func (h *HistoryController) listHandler(c *gin.Context) {
 
 func NewHistoryController(r *gin.Engine, usecase usecase.HistoryUseCase) *HistoryController {
 	controller := HistoryController{
-		router: r,
+		router:    r,
 		historyUC: usecase,
 	}
 

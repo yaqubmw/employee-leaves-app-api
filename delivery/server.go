@@ -39,6 +39,8 @@ func (s *Server) initController() {
 	controller.NewHistoryController(s.engine, s.useCaseManager.HistoryUseCase())
 	controller.NewUserController(s.engine, s.useCaseManager.UserUseCase())
 	controller.NewAuthController(s.engine, s.useCaseManager.AuthUseCase())
+	controller.NewEmplController(s.useCaseManager.EmployeeUseCase(), s.engine)
+	controller.NewTransactionController(s.engine, s.useCaseManager.TransactionUseCase())
 }
 
 func NewServer() *Server {

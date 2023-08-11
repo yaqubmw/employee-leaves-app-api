@@ -10,7 +10,6 @@ type HistoryUseCase interface {
 	RegisterNewHistory(payload model.HistoryLeave) error
 	FindAllHistory(requestPaging dto.PaginationParam) ([]model.HistoryLeave, dto.Paging, error)
 
-
 	FindHistoryById(id string) (model.HistoryLeave, error)
 }
 

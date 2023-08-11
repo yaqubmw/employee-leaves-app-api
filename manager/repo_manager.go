@@ -11,10 +11,16 @@ type RepoManager interface {
 	HistoryRepo() repository.HistoryRepository
 	EmployeeRepo() repository.EmployeeRepository
 	UserRepo() repository.UserRepository
+	TransactionLeaveRepo() repository.TransactionRepository
 }
 
 type repoManager struct {
 	infra InfraManager
+}
+
+// TransactionLeaveRepo implements RepoManager.
+func (r *repoManager) TransactionLeaveRepo() repository.TransactionRepository {
+	return repository.NewTransactionLeaveRepository(r.infra.Conn())
 }
 
 func (r *repoManager) UserRepo() repository.UserRepository {

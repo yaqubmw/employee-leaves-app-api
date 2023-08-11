@@ -21,7 +21,7 @@ func (r *roleRepository) Create(payload model.Role) error {
 
 func (r *roleRepository) Get(id string) (model.Role, error) {
 	var role model.Role
-	err := r.db.First(&role, id).Error
+	err := r.db.Where("id = $1", id).First(&role).Error
 	return role, err
 }
 
@@ -46,12 +46,9 @@ func (r *roleRepository) Update(payload model.Role) error {
 }
 
 func (r *roleRepository) Delete(id string) error {
-	var role model.Role
-	result := r.db.Where("id = ?", id).Delete(&role)
-	if result.Error != nil {
-		return result.Error
-	}
-	return nil
+	role := model.Role{}
+	err := r.db.Where("id = $1", id).Delete(&role).Error
+	return err
 }
 
 func NewRoleRepository(db *gorm.DB) RoleRepository {

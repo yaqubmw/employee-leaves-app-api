@@ -24,7 +24,7 @@ func (r *roleUseCase) FindAllRole() ([]model.Role, error) {
 }
 
 func (r *roleUseCase) FindByRolename(roleName string) (model.Role, error) {
-	return r.repo.GetByName(roleName)
+	return r.repo.GetRoleByName(roleName)
 }
 
 func (r *roleUseCase) FindByIdRole(id string) (model.Role, error) {
@@ -38,7 +38,7 @@ func (r *roleUseCase) RegisterNewRole(payload model.Role) error {
 	}
 
 	// nama tidak boleh sama
-	isExistRole, _ := r.repo.GetByName(payload.RoleName)
+	isExistRole, _ := r.repo.GetRoleByName(payload.RoleName)
 	if isExistRole.RoleName == payload.RoleName {
 		return fmt.Errorf("role with name %s already exist", payload.RoleName)
 	}
@@ -55,7 +55,7 @@ func (r *roleUseCase) UpdateRole(payload model.Role) error {
 		return fmt.Errorf("role name is required")
 	}
 
-	isExistRole, _ := r.repo.GetByName(payload.RoleName)
+	isExistRole, _ := r.repo.GetRoleByName(payload.RoleName)
 	if isExistRole.RoleName == payload.RoleName && isExistRole.Id != payload.Id {
 		return fmt.Errorf("role with name %s exists", payload.RoleName)
 	}

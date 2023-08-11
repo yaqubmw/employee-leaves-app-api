@@ -28,7 +28,7 @@ func (r *RoleController) createHandler(c *gin.Context) {
 	}
 
 	roleResponse := map[string]any{
-		"id":       role.Id,
+		"id":        role.Id,
 		"role_name": role.RoleName,
 	}
 
@@ -43,12 +43,12 @@ func (r *RoleController) getHandler(c *gin.Context) {
 		return
 	}
 	status := map[string]any{
-		"code": 200,
+		"code":        200,
 		"description": "Get Data By Id Success",
 	}
 	c.JSON(200, gin.H{
 		"status": status,
-		"data": role,
+		"data":   role,
 	})
 }
 
@@ -81,12 +81,12 @@ func (r *RoleController) updateHandler(c *gin.Context) {
 
 func (r *RoleController) deleteHandler(c *gin.Context) {
 	id := c.Param("id")
-	if err := r.roleUC.DeleteRole(id);err != nil {
+	if err := r.roleUC.DeleteRole(id); err != nil {
 		c.JSON(500, gin.H{"err": err.Error()})
 		return
 	}
 	status := map[string]any{
-		"code": 204,
+		"code":        204,
 		"description": "Delete Data By Id Success",
 	}
 	c.JSON(204, gin.H{

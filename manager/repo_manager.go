@@ -12,7 +12,8 @@ type RepoManager interface {
 	StatusLeaveRepo() repository.StatusLeaveRepository
 	QuotaLeaveRepo() repository.QuotaLeaveRepository
 	RoleRepo() repository.RoleRepository
-	HistoryRepo() repository.HistoryRepository
+	// HistoryRepo() repository.HistoryRepository
+	EmployeeRepo() repository.EmployeeRepository
 	UserRepo() repository.UserRepository
 }
 
@@ -22,6 +23,16 @@ type repoManager struct {
 
 func (r *repoManager) UserRepo() repository.UserRepository {
 	return repository.NewUserRepository(r.db)
+}
+
+// EmployeeRepo implements RepoManager.
+func (r *repoManager) EmployeeRepo() repository.EmployeeRepository {
+	return repository.NewEmplRepository(r.infra.Conn())
+}
+
+// EmployeeRepo implements RepoManager.
+func (r *repoManager) EmployeeRepo() repository.EmployeeRepository {
+	return repository.NewEmplRepository(r.infra.Conn())
 }
 
 func (r *repoManager) PositionRepo() repository.PositionRepository {
@@ -44,9 +55,10 @@ func (r *repoManager) RoleRepo() repository.RoleRepository {
 	return repository.NewRoleRepository(r.db)
 }
 
-func (r *repoManager) HistoryRepo() repository.HistoryRepository {
-	return repository.NewHistoryRepository(r.db)
-}
+// // HistoryRepo implements RepoManager.
+// func (r *repoManager) HistoryRepo() repository.HistoryRepository {
+// 	return repository.NewHistoryRepository(r.infra.Conn())
+// }
 
 func NewRepoManager(db *gorm.DB) RepoManager {
 	return &repoManager{db: db}

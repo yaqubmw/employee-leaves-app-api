@@ -38,12 +38,12 @@ func (u *userUseCase) FindAllUser() ([]model.UserCredential, error) {
 
 // FindByUsername implements UserUseCase.
 func (u *userUseCase) FindByUsername(username string) (model.UserCredential, error) {
-	return u.repo.GetUsername(username)
+	return u.repo.GetByUsername(username)
 }
 
 // FindByUsernamePassword implements UserUseCase.
 func (u *userUseCase) FindByUsernamePassword(username string, password string) (model.UserCredential, error) {
-	return u.repo.GetUsernamePassword(username, password)
+	return u.repo.GetByUsernamePassword(username, password)
 }
 
 func NewUserUseCase(repo repository.UserRepository) UserUseCase {

@@ -38,7 +38,6 @@ type TokenConfig struct {
 type Config struct {
 	ApiConfig
 	DbConfig
-	FileConfig
 	TokenConfig
 }
 

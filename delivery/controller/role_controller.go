@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"employeeleave/delivery/middleware"
 	"employeeleave/model"
 	"employeeleave/usecase"
 	"employeeleave/utils/common"
@@ -100,10 +101,10 @@ func NewRoleController(r *gin.Engine, usecase usecase.RoleUseCase) *RoleControll
 	}
 
 	rg := r.Group("/api/v1")
-	rg.POST("/roles", controller.createHandler)
-	rg.GET("/roles", controller.listHandler)
-	rg.GET("/roles/:id", controller.getHandler)
-	rg.PUT("/roles", controller.updateHandler)
-	rg.DELETE("/roles/:id", controller.deleteHandler)
+	rg.POST("/roles", middleware.AuthMiddleware(), controller.createHandler)
+	rg.GET("/roles", middleware.AuthMiddleware(), controller.listHandler)
+	rg.GET("/roles/:id", middleware.AuthMiddleware(), controller.getHandler)
+	rg.PUT("/roles", middleware.AuthMiddleware(), controller.updateHandler)
+	rg.DELETE("/roles/:id", middleware.AuthMiddleware(), controller.deleteHandler)
 	return &controller
 }

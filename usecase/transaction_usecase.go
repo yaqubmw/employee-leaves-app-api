@@ -2,7 +2,6 @@ package usecase
 
 import (
 	"employeeleave/model"
-	"employeeleave/model/dto"
 	"employeeleave/repository"
 	"employeeleave/utils/common"
 	"fmt"
@@ -11,7 +10,7 @@ import (
 
 type TransactionLeaveUseCase interface {
 	ApplyLeave(payload model.TransactionLeave) error
-	FindById(id string) (dto.TransactionResponseDto, error)
+	FindById(id string) (model.TransactionLeave, error)
 	// FindById(id string) (dto.TransactionResponseDto, error)
 	// FindAllTransaction() ([]dto.TransactionResponseDto, error)
 }
@@ -30,7 +29,7 @@ type transactionLeaveUseCase struct {
 // }
 
 // FindByIdHC implements TransactionLeaveUseCase.
-func (tl *transactionLeaveUseCase) FindById(id string) (dto.TransactionResponseDto, error) {
+func (tl *transactionLeaveUseCase) FindById(id string) (model.TransactionLeave, error) {
 	return tl.transactionRepo.GetByID(id)
 }
 

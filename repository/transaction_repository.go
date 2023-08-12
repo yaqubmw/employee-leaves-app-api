@@ -3,13 +3,14 @@ package repository
 import (
 	"employeeleave/model"
 	"employeeleave/model/dto"
+	"errors"
 
 	"gorm.io/gorm"
 )
 
 type TransactionRepository interface {
 	Create(payload model.TransactionLeave) error
-	GetByID(id string) (dto.TransactionResponseDto, error)
+	GetByID(id string) (model.TransactionLeave, error)
 	GetByEmployeeID(employeeID string) ([]dto.TransactionResponseDto, error)
 	GetByName(name string) ([]dto.TransactionResponseDto, error)
 	List() ([]dto.TransactionResponseDto, error)
@@ -42,17 +43,28 @@ func (t *transactionRepository) Create(payload model.TransactionLeave) error {
 }
 
 // ]mendapatkan data transaksi cuti berdasarkan ID
-func (t *transactionRepository) GetByID(id string) (dto.TransactionResponseDto, error) {
-	var transactionResponseDto dto.TransactionResponseDto
-
-	err := t.db.Preload("Employee").Preload("LeaveType").Preload("StatusLeave").
-		Where("id = ?", id).
-		First(&transactionResponseDto).Error
-	if err != nil {
-		return dto.TransactionResponseDto{}, err
+func (t *transactionRepository) GetByID(id string) (model.TransactionLeave, error) {
+	var employee model.TransactionLeave
+	// Menggunakan GORM untuk mencari karyawan berdasarkan ID
+	if err := t.db.First(&employee, "id = $1", id).Error; err != nil {
+		// Jika data tidak ditemukan, kembalikan error dengan pesan
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return model.TransactionLeave{}, errors.New("Transaction Not Found")
+		}
+		return model.TransactionLeave{}, err
 	}
+	return employee, nil
 
-	return transactionResponseDto, nil
+	// var transactionResponseDto dto.TransactionResponseDto
+
+	// err := t.db.Preload("Employee").Preload("LeaveType").Preload("StatusLeave").
+	// 	Where("id = ?", id).
+	// 	First(&transactionResponseDto).Error
+	// if err != nil {
+	// 	return dto.TransactionResponseDto{}, err
+	// }
+
+	// return transactionResponseDto, nil
 }
 
 // mendapatkan data transaksi cuti berdasarkan ID karyawan

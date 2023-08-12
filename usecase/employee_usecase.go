@@ -11,12 +11,17 @@ type EmployeeUseCase interface {
 	FindAllEmpl() ([]model.Employee, error)
 	FindByIdEmpl(id string) (model.Employee, error)
 	UpdateEmpl(payload model.Employee) error
-	UpdateAvailableDay(id string, availableDays int) error
+	UpdateAnnualLeave(id string, availableDays int) error
+	UpdateMaternityLeave(id string, availableDays int) error
+	UpdateMarriageLeave(id string, availableDays int) error
+	UpdateMenstrualLeave(id string, availableDays int) error
+	PaternityLeave(id string, availableDays int) error
 }
 
 type employeeUseCase struct {
 	repo repository.EmployeeRepository
 }
+
 
 func (e *employeeUseCase) RegisterNewEmpl(payload model.Employee) error {
 	//pengecekan nama tidak boleh kosong
@@ -53,8 +58,29 @@ func (e *employeeUseCase) UpdateEmpl(payload model.Employee) error {
 	return nil
 }
 
-func (e *employeeUseCase) UpdateAvailableDay(id string, availableDays int) error {
-	return e.repo.UpdateAvailableDays(id, availableDays)
+
+func (e *employeeUseCase) PaternityLeave(id string, availableDays int) error {
+	return e.repo.PaternityLeave(id, availableDays)
+}
+
+
+func (e *employeeUseCase) UpdateAnnualLeave(id string, availableDays int) error {
+	return e.repo.UpdateAnnualLeave(id, availableDays)
+}
+
+
+func (e *employeeUseCase) UpdateMarriageLeave(id string, availableDays int) error {
+	return e.repo.UpdateMarriageLeave(id, availableDays)
+}
+
+
+func (e *employeeUseCase) UpdateMaternityLeave(id string, availableDays int) error {
+	return e.repo.UpdateMaternityLeave(id, availableDays)
+}
+
+
+func (e *employeeUseCase) UpdateMenstrualLeave(id string, availableDays int) error {
+	return e.repo.UpdateMenstrualLeave(id, availableDays)
 }
 
 func NewEmplUseCase(repo repository.EmployeeRepository) EmployeeUseCase {

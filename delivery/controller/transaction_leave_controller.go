@@ -89,6 +89,6 @@ func NewTransactionController(r *gin.Engine, usecase usecase.TransactionLeaveUse
 
 	rg := r.Group("/api/v1")
 	rg.POST("/transaction", middleware.AuthMiddleware(), controller.createHandler)
-	// rg.GET("/transactions", controller.listHandler)
+	rg.PUT("/decisions", controller.updateStatusHandler)
 	return &controller
 }

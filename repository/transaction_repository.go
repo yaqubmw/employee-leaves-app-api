@@ -22,7 +22,7 @@ type transactionRepository struct {
 	db *gorm.DB
 }
 
-// GetByIdTxNonDto implements TransactionRepository.
+// GetById dari model TransactionLeave (bukan dto)
 func (t *transactionRepository) GetByIdTxNonDto(id string) (model.TransactionLeave, error) {
 	var txLeave model.TransactionLeave
 	err := t.db.Where("id = $1", id).First(&txLeave).Error

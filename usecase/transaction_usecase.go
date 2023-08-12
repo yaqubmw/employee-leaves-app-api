@@ -4,6 +4,7 @@ import (
 	"employeeleave/model"
 	"employeeleave/repository"
 	"employeeleave/utils/common"
+	"employeeleave/utils/helper"
 	"fmt"
 	"time"
 )
@@ -85,38 +86,126 @@ func (tl *transactionLeaveUseCase) ApproveOrRejectLeave(trx model.TransactionLea
 	if err != nil {
 		return err
 	}
-	statusLeaveId := transaction.StatusLeaveID
+	statusLeaveTx, err := tl.statusLeaveUC.FindByIdStatusLeave(trx.StatusLeaveID)
+	if err != nil {
+		return err
+	}
+	statusLeaveName := statusLeaveTx.StatusLeaveName
+
 	leaveTypeId := transaction.LeaveTypeID
 	employeeId := transaction.EmployeeID
+	leaveDays := int(transaction.DateEnd.Sub(transaction.DateStart).Hours()/24) + 1
 
 	// If the status is "approved," update the availableLeaveDays for the employee
-	if statusLeaveId == "2" {
+	if statusLeaveName == "Approved" {
 		leaveType, err := tl.leaveTypeUC.FindByIdLeaveType(leaveTypeId)
 		if err != nil {
 			return err
 		}
+		leaveTypeName := leaveType.LeaveTypeName
 
-		// Calculate the number of leave days
-
-		leaveDays := leaveType.QuotaLeave
-
-		// leaveDays := int(transaction.DateEnd.Sub(transaction.DateStart).Hours()/24) + 1
-
-		// Update the employee's availableLeaveDays
 		employee, err := tl.employeeUC.FindByIdEmpl(employeeId)
 		if err != nil {
 			return err
 		}
-		employee.AvailableLeaveDays -= leaveDays
-		// Update the employee's available leave days in the employee repository
-		if err := tl.employeeUC.UpdateAvailableDay(employee.ID, employee.AvailableLeaveDays); err != nil {
-			return err
-		}
-	}
 
-	// Update the status in the transaction repository
-	if err := tl.transactionRepo.UpdateStatus(trx.ID, trx.StatusLeaveID); err != nil {
-		return err
+		if helper.MatchKeyword(leaveTypeName) == "annual" {
+
+			// auto reject bila sisa cuti lebih kecil dari pengajuan cuti
+			if employee.AnnualLeave < leaveDays {
+				reject, err := tl.statusLeaveUC.FindByNameStatusLeave("Rejected")
+				if err != nil {
+					return err
+				}
+				tl.transactionRepo.UpdateStatus(trx.ID, reject.ID)
+
+			} else {
+				// mengurangi sisa cuti
+				employee.AnnualLeave -= leaveDays
+				tl.employeeUC.UpdateAnnualLeave(employee.ID, employee.AnnualLeave)
+				tl.transactionRepo.UpdateStatus(trx.ID, trx.StatusLeaveID)
+
+			}
+
+		}
+
+		if helper.MatchKeyword(leaveTypeName) == "maternity" {
+
+			// auto reject bila sisa cuti lebih kecil dari pengajuan cuti
+			if employee.MaternityLeave < leaveDays {
+				reject, err := tl.statusLeaveUC.FindByNameStatusLeave("Rejected")
+				if err != nil {
+					return err
+				}
+				tl.transactionRepo.UpdateStatus(trx.ID, reject.ID)
+
+			} else {
+				// mengurangi sisa cuti
+				employee.MaternityLeave -= leaveDays
+				tl.employeeUC.UpdateMaternityLeave(employee.ID, employee.MaternityLeave)
+				tl.transactionRepo.UpdateStatus(trx.ID, trx.StatusLeaveID)
+
+			}
+		}
+
+		if helper.MatchKeyword(leaveTypeName) == "marriage" {
+
+			// auto reject bila sisa cuti lebih kecil dari pengajuan cuti
+			if employee.MarriageLeave < leaveDays {
+				reject, err := tl.statusLeaveUC.FindByNameStatusLeave("Rejected")
+				if err != nil {
+					return err
+				}
+				tl.transactionRepo.UpdateStatus(trx.ID, reject.ID)
+
+			} else {
+				// mengurangi sisa cuti
+				employee.MarriageLeave -= leaveDays
+				tl.employeeUC.UpdateMarriageLeave(employee.ID, employee.MarriageLeave)
+				tl.transactionRepo.UpdateStatus(trx.ID, trx.StatusLeaveID)
+
+			}
+		}
+
+		if helper.MatchKeyword(leaveTypeName) == "menstrual" {
+
+			// auto reject bila sisa cuti lebih kecil dari pengajuan cuti
+			if employee.MenstrualLeave < leaveDays {
+				reject, err := tl.statusLeaveUC.FindByNameStatusLeave("Rejected")
+				if err != nil {
+					return err
+				}
+				tl.transactionRepo.UpdateStatus(trx.ID, reject.ID)
+
+			} else {
+				// mengurangi sisa cuti
+				employee.MenstrualLeave -= leaveDays
+				tl.employeeUC.UpdateMenstrualLeave(employee.ID, employee.MenstrualLeave)
+				tl.transactionRepo.UpdateStatus(trx.ID, trx.StatusLeaveID)
+
+			}
+		}
+
+		if helper.MatchKeyword(leaveTypeName) == "paternity" {
+
+			// auto reject bila sisa cuti lebih kecil dari pengajuan cuti
+			if employee.PaternityLeave < leaveDays {
+				reject, err := tl.statusLeaveUC.FindByNameStatusLeave("Rejected")
+				if err != nil {
+					return err
+				}
+				tl.transactionRepo.UpdateStatus(trx.ID, reject.ID)
+
+			} else {
+				// mengurangi sisa cuti
+				employee.PaternityLeave -= leaveDays
+				tl.employeeUC.PaternityLeave(employee.ID, employee.PaternityLeave)
+				tl.transactionRepo.UpdateStatus(trx.ID, trx.StatusLeaveID)
+
+			}
+		}
+	} else {
+		tl.transactionRepo.UpdateStatus(trx.ID, trx.StatusLeaveID)
 	}
 
 	return nil

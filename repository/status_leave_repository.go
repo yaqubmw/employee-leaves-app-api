@@ -21,7 +21,7 @@ func (s *statusLeaveRepository) Create(payload model.StatusLeave) error {
 
 func (s *statusLeaveRepository) Get(id string) (model.StatusLeave, error) {
 	var statusLeave model.StatusLeave
-	err := s.db.Where("id = $1", id).First(&statusLeave).Error
+	err := s.db.Where("id = ?", id).First(&statusLeave).Error
 
 	return statusLeave, err
 }

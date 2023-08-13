@@ -87,20 +87,43 @@ func (suite *StatusLeaveRepositorySuite) TestList() {
 	assert.Equal(suite.T(), expectedStatusLeaves, result)
 }
 
-// func (suite *StatusLeaveRepositorySuite) TestUpdate() {
-// 	payload := dataDummy[0]
+func (suite *StatusLeaveRepositorySuite) TestUpdate() {
+	expectedQuery := `UPDATE "status_leave" SET "id"=\$1,"status_leave_name"=\$2 WHERE "id" = \$3`
 
-// 	expectedQuery := `UPDATE "status_leave" SET "id"=$1,"status_leave_name"=$2 WHERE "id" = $3`
+	suite.mocksql.ExpectBegin()
+	suite.mocksql.ExpectExec(expectedQuery).WithArgs(dataDummy[0].ID, dataDummy[0].StatusLeaveName, dataDummy[0].ID).WillReturnResult(sqlmock.NewResult(0, 1))
+	suite.mocksql.ExpectCommit()
 
+	err := suite.repo.Update(dataDummy[0])
+	assert.NoError(suite.T(), err)
+}
 
-// 	suite.mocksql.ExpectExec(expectedQuery).WithArgs(payload.StatusLeaveName, payload.ID).WillReturnResult(sqlmock.NewResult(1, 1))
+func (suite *StatusLeaveRepositorySuite) TestDelete() {
+    statusLeaveID := "1"
+    expectedQuery := `DELETE FROM "status_leave" WHERE id = \$1`
 
+	suite.mocksql.ExpectBegin()
+    suite.mocksql.ExpectExec(expectedQuery).WithArgs(statusLeaveID).WillReturnResult(sqlmock.NewResult(0, 1))
+	suite.mocksql.ExpectCommit()
 
-// 	err := suite.repo.Update(payload)
-// 	assert.NoError(suite.T(), err)
+    err := suite.repo.Delete(statusLeaveID)
+    assert.NoError(suite.T(), err)
+}
 
-// 	assert.NoError(suite.T(), suite.mocksql.ExpectationsWereMet())
-// }
+func (suite *StatusLeaveRepositorySuite) TestGetByNameStatus() {
+    statusLeaveName := "Pending"
+    expectedQuery := `SELECT \* FROM "status_leave" WHERE status_leave_name LIKE \$1`
+
+    rows := sqlmock.NewRows([]string{"id", "status_leave_name"}).AddRow(dataDummy[0].ID, dataDummy[0].StatusLeaveName)
+
+    suite.mocksql.ExpectQuery(expectedQuery).WithArgs("%" + statusLeaveName + "%").WillReturnRows(rows)
+
+    result, err := suite.repo.GetByNameStatus(statusLeaveName)
+    assert.NoError(suite.T(), err)
+    assert.Equal(suite.T(), dataDummy[0], result)
+
+    assert.NoError(suite.T(), suite.mocksql.ExpectationsWereMet())
+}
 
 func TestStatusLeaveRepositorySuite(t *testing.T) {
 	suite.Run(t, new(StatusLeaveRepositorySuite))

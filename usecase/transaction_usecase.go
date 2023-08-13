@@ -8,16 +8,12 @@ import (
 	"time"
 )
 
-type LeaveApplicationUseCase interface {
-	ApplyLeave(employeeID, leaveTypeID string, dateStart, dateEnd time.Time, typeOfDay, reason string) error
-	// ApproveLeave(transactionID, managerID string) error
-	ApproveOrRejectLeave(transactionID, managerID string, isApproved bool) error
-	ApproveLeaveByHC(transactionID string) error
-	// GetLeaveStatus(employeeID string) ([]dto.TransactionResponseDto, error)
-	GetLeaveStatusForEmployee(employeeID string) ([]dto.TransactionResponseDto, error)
+type TransactionLeaveUseCase interface {
+	ApplyLeave(payload model.TransactionLeave) error
+	FindByEmployeeId(employeeID string) ([]dto.TransactionResponseDto, error)
 }
 
-type leaveApplicationUseCase struct {
+type transactionLeaveUseCase struct {
 	transactionRepo repository.TransactionRepository
 	employeeUC      EmployeeUseCase
 	positionUC      PositionUseCase
@@ -25,169 +21,65 @@ type leaveApplicationUseCase struct {
 	statusLeaveUC   StatusLeaveUseCase
 }
 
-// ... (Constructor dan deklarasi struct lainnya)
-
 // Pengajuan cuti oleh karyawan
-func (uc *leaveApplicationUseCase) ApplyLeave(employeeID, leaveTypeID string, dateStart, dateEnd time.Time, typeOfDay, reason string) error {
-	employee, err := uc.employeeUC.FindByIdEmpl(employeeID)
+func (tl *transactionLeaveUseCase) ApplyLeave(trx model.TransactionLeave) error {
+
+	employee, err := tl.employeeUC.FindByIdEmpl(trx.EmployeeID)
 	if err != nil {
 		return err
 	}
 
-	leaveType, err := uc.leaveTypeUC.FindByIdLeaveType(leaveTypeID)
+	leaveType, err := tl.leaveTypeUC.FindByIdLeaveType(trx.LeaveTypeID)
 	if err != nil {
 		return err
 	}
 
-	statusLeave, err := uc.statusLeaveUC.FindByNameStatusLeave("Pending")
+	statusLeave, err := tl.statusLeaveUC.FindByIdStatusLeave(trx.StatusLeaveID)
 	if err != nil {
 		return err
 	}
+
+	trx.EmployeeID = employee.ID
+	trx.LeaveTypeID = leaveType.ID
+	trx.StatusLeaveID = statusLeave.ID
+	trx.SubmissionDate = time.Now()
+
+	err = tl.transactionRepo.Create(trx)
+	if err != nil {
+		return fmt.Errorf("failed to register new transaction %v", err)
+	}
+
+	return nil
 
 	// Validasi jumlah cuti yang tersedia
-	if leaveType.QuotaLeave > employee.AvailableLeaveDays {
-		return fmt.Errorf("jumlah cuti yang diajukan melebihi sisa cuti yang tersedia")
-	}
+	// if leaveType.QuotaLeave > employee.AvailableLeaveDays {
+	// 	return fmt.Errorf("jumlah cuti yang diajukan melebihi sisa cuti yang tersedia")
+	// }
 
-	transaction := model.TransactionLeave{
-		EmployeeID:     employeeID,
-		LeaveTypeID:    leaveTypeID,
-		StatusLeaveID:  statusLeave.ID,
-		DateStart:      dateStart,
-		DateEnd:        dateEnd,
-		TypeOfDay:      typeOfDay,
-		Reason:         reason,
-		SubmissionDate: time.Now(),
-	}
-
-	err = uc.transactionRepo.Create(transaction)
-	if err != nil {
-		return err
-	}
-
-	// // Kurangi jumlah cuti yang tersedia pada karyawan
-	// employee.AvailableLeaveDays -= leaveType.QuotaLeave
-
-	// // Update jumlah cuti yang tersedia pada repositori
-	// err = uc.employeeUC.UpdateEmpl(employee)
+	// err = uc.transactionRepo.Create(transaction)
 	// if err != nil {
 	// 	return err
 	// }
 
-	return nil
+	// Kurangi jumlah cuti yang tersedia pada karyawan
+	// employee.AvailableLeaveDays -= leaveType.QuotaLeave
+
+	// Update jumlah cuti yang tersedia pada repositori
+	// err = uc.employeeRepo.Update(employee)
+	// if err != nil {
+	// 	return err
+	// }
+
 }
 
-// Persetujuan atau penolakan cuti oleh atasan
-func (uc *leaveApplicationUseCase) ApproveOrRejectLeave(transactionID, managerID string, isApproved bool) error {
-	transaction, err := uc.transactionRepo.GetByID(transactionID)
-	if err != nil {
-		return err
-	}
-
-	manager, err := uc.positionUC.FindByIdPosition(managerID)
-	if err != nil {
-		return err
-	}
-
-	if !manager.IsManager {
-		return fmt.Errorf("pegawai yang menyetujui/mentolak bukan atasan")
-	}
-
-	var statusName string
-	if isApproved {
-		statusName = "Approved"
-	} else {
-		statusName = "Rejected"
-	}
-
-	statusLeave, err := uc.statusLeaveUC.FindByNameStatusLeave(statusName)
-	if err != nil {
-		return err
-	}
-
-	transaction.StatusLeave.ID = statusLeave.ID
-
-	err = uc.transactionRepo.UpdateStatus(transactionID, transaction.StatusLeave.ID)
-	if err != nil {
-		return err
-	}
-
-	// If leave is approved, update employee's availableLeaveDays
-	if isApproved {
-		// Calculate the number of days in the leave application
-		leaveDays := int(transaction.DateEnd.Sub(transaction.DateStart).Hours()/24) + 1
-
-		// Get the employee
-		employee, err := uc.employeeUC.FindByIdEmpl(transaction.Employee.ID)
-		if err != nil {
-			return err
-		}
-
-		// Update availableLeaveDays
-		employee.AvailableLeaveDays -= leaveDays
-
-		// Update the employee in the repository
-		err = uc.employeeUC.UpdateEmpl(employee)
-		if err != nil {
-			return err
-		}
-	}
-
-	return nil
+func (tl *transactionLeaveUseCase) FindByEmployeeId(employeeID string) ([]dto.TransactionResponseDto, error) {
+	return tl.transactionRepo.GetByEmployeeID(employeeID)
 }
 
-// Persetujuan cuti oleh HC
-func (uc *leaveApplicationUseCase) ApproveLeaveByHC(transactionID string) error {
-	transaction, err := uc.transactionRepo.GetByID(transactionID)
-	if err != nil {
-		return err
-	}
-
-	statusLeave, err := uc.statusLeaveUC.FindByNameStatusLeave("Approved")
-	if err != nil {
-		return err
-	}
-
-	transaction.StatusLeave.ID = statusLeave.ID
-
-	err = uc.transactionRepo.UpdateStatus(transactionID, transaction.StatusLeave.ID)
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-
-// Mendapatkan informasi status cuti untuk pegawai
-func (uc *leaveApplicationUseCase) GetLeaveStatusForEmployee(employeeID string) ([]dto.TransactionResponseDto, error) {
-	transactions, err := uc.transactionRepo.GetByEmployeeID(employeeID)
-	if err != nil {
-		return nil, err
-	}
-	return transactions, nil
-}
-
-// Menampilkan informasi status cuti kepada pegawai
-func DisplayLeaveStatusToEmployee(transactions []dto.TransactionResponseDto) {
-	for _, transaction := range transactions {
-		fmt.Printf("ID: %s, Tanggal Mulai: %s, Status: %s\n", transaction.ID, transaction.DateStart, transaction.StatusLeave.StatusLeaveName)
-	}
-}
-
-// Pengiriman pemberitahuan kepada pegawai tentang status cuti
-func NotifyEmployeeAboutLeaveStatus(employeeID string, uc *leaveApplicationUseCase) {
-	transactions, err := uc.GetLeaveStatusForEmployee(employeeID)
-	if err != nil {
-		return
-	}
-	DisplayLeaveStatusToEmployee(transactions)
-}
-
-func NewLeaveApplicationUseCase(transactionRepo repository.TransactionRepository, employeeUC EmployeeUseCase, positionUC PositionUseCase, leaveTypeUC LeaveTypeUseCase, statusLeaveUC StatusLeaveUseCase) LeaveApplicationUseCase {
-	return &leaveApplicationUseCase{
+func NewTransactionLeaveUseCase(transactionRepo repository.TransactionRepository, employeeUC EmployeeUseCase, leaveTypeUC LeaveTypeUseCase, statusLeaveUC StatusLeaveUseCase) TransactionLeaveUseCase {
+	return &transactionLeaveUseCase{
 		transactionRepo: transactionRepo,
 		employeeUC:      employeeUC,
-		positionUC:      positionUC,
 		leaveTypeUC:     leaveTypeUC,
 		statusLeaveUC:   statusLeaveUC,
 	}

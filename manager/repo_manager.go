@@ -1,10 +1,6 @@
 package manager
 
-import (
-	"employeeleave/repository"
-
-	"gorm.io/gorm"
-)
+import "employeeleave/repository"
 
 type RepoManager interface {
 	LeaveTypeRepo() repository.LeaveTypeRepository
@@ -12,49 +8,58 @@ type RepoManager interface {
 	StatusLeaveRepo() repository.StatusLeaveRepository
 	QuotaLeaveRepo() repository.QuotaLeaveRepository
 	RoleRepo() repository.RoleRepository
-	// HistoryRepo() repository.HistoryRepository
+	HistoryRepo() repository.HistoryRepository
 	EmployeeRepo() repository.EmployeeRepository
 	UserRepo() repository.UserRepository
+	TransactionLeaveRepo() repository.TransactionRepository
 }
 
 type repoManager struct {
-	db *gorm.DB // Use gorm.DB instead of InfraManager
+	infra InfraManager
+}
+
+// TransactionLeaveRepo implements RepoManager.
+func (r *repoManager) TransactionLeaveRepo() repository.TransactionRepository {
+	return repository.NewTransactionLeaveRepository(r.infra.Conn())
 }
 
 func (r *repoManager) UserRepo() repository.UserRepository {
-	return repository.NewUserRepository(r.db)
+	return repository.NewUserRepository(r.infra.Conn())
 }
 
 // EmployeeRepo implements RepoManager.
 func (r *repoManager) EmployeeRepo() repository.EmployeeRepository {
-	return repository.NewEmplRepository(r.db)
+	return repository.NewEmplRepository(r.infra.Conn())
 }
 
 func (r *repoManager) PositionRepo() repository.PositionRepository {
-	return repository.NewPositionRepository(r.db)
+	return repository.NewPositionRepository(r.infra.Conn())
 }
 
 func (r *repoManager) LeaveTypeRepo() repository.LeaveTypeRepository {
-	return repository.NewLeaveTypeRepository(r.db)
+	return repository.NewLeaveTypeRepository(r.infra.Conn())
 }
 
+// QuotaLeaveRepo implements RepoManager.
 func (r *repoManager) QuotaLeaveRepo() repository.QuotaLeaveRepository {
-	return repository.NewQuotaLeaveRepository(r.db)
+	return repository.NewQuotaLeaveRepository(r.infra.Conn())
 }
 
+// StatusLeaveRepo implements RepoManager.
 func (r *repoManager) StatusLeaveRepo() repository.StatusLeaveRepository {
-	return repository.NewStatusLeaveRepository(r.db)
+	return repository.NewStatusLeaveRepository(r.infra.Conn())
 }
 
+// RoleRepo implements RepoManager.
 func (r *repoManager) RoleRepo() repository.RoleRepository {
-	return repository.NewRoleRepository(r.db)
+	return repository.NewRoleRepository(r.infra.Conn())
 }
 
-// // HistoryRepo implements RepoManager.
-// func (r *repoManager) HistoryRepo() repository.HistoryRepository {
-// 	return repository.NewHistoryRepository(r.infra.Conn())
-// }
+// HistoryRepo implements RepoManager.
+func (r *repoManager) HistoryRepo() repository.HistoryRepository {
+	return repository.NewHistoryRepository(r.infra.Conn())
+}
 
-func NewRepoManager(db *gorm.DB) RepoManager {
-	return &repoManager{db: db}
+func NewRepoManager(infra InfraManager) RepoManager {
+	return &repoManager{infra: infra}
 }

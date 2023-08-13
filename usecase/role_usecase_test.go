@@ -87,7 +87,7 @@ func (suite *RoleUseCaseTestSuite) TestRegisterNewRole_Success() {
 	suite.repoMock.On("GetByName", dmRole.RoleName).Return(model.Role{}, fmt.Errorf("not found"))
 
 	// Set up the expectation for Create method
-	suite.repoMock.On("Create", dmRole).Return(nil)
+	suite.repoMock.On("Create", dmRole).Return(nil, fmt.Errorf("required fields"))
 
 	err := suite.usecase.RegisterNewRole(dmRole)
 	assert.Nil(suite.T(), err)
@@ -127,6 +127,24 @@ func (suite *RoleUseCaseTestSuite) TestFindByIdRole_Fail() {
 	actualRole, actualError := suite.usecase.FindByIdRole("1xxx")
 	assert.Equal(suite.T(), model.Role{}, actualRole)
 	assert.Error(suite.T(), actualError)
+}
+
+func (suite *RoleUseCaseTestSuite) TestFindByAllRole_Success() {
+	roles := roleDummy
+
+	suite.repoMock.On("List").Return(roles, nil)
+	foundRoles, err := suite.usecase.FindAllRole()
+
+	assert.Equal(suite.T(), roles, foundRoles)
+	assert.Nil(suite.T(), err)
+}
+
+func (suite *RoleUseCaseTestSuite) TestFindByAllRole_Fail() {
+	suite.repoMock.On("List").Return([]model.Role{}, fmt.Errorf("error fetching roles"))
+	foundRoles, err := suite.usecase.FindAllRole()
+
+	assert.Empty(suite.T(), foundRoles)
+	assert.Error(suite.T(), err)
 }
 
 func (suite *RoleUseCaseTestSuite) TestDeleteRole_Success() {

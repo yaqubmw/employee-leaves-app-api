@@ -5,6 +5,7 @@ type UserCredential struct {
 	Username string `json:"username"`
 	Password string `json:"password"`
 	RoleId   string `json:"roleId"`
+	Role     Role   `gorm:"foreignkey:RoleId"`
 }
 
 func (UserCredential) TableName() string {

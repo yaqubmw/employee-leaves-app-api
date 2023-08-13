@@ -12,6 +12,11 @@ type EmployeeRepository interface {
 	Get(id string) (model.Employee, error)
 	GetByName(name string) (model.Employee, error)
 	Update(employee model.Employee) error
+	UpdateAnnualLeave(id string, availableDays int) error
+	UpdateMaternityLeave(id string, availableDays int) error
+	UpdateMarriageLeave(id string, availableDays int) error
+	UpdateMenstrualLeave(id string, availableDays int) error
+	PaternityLeave(id string, availableDays int) error
 }
 
 type employeeRepository struct {
@@ -44,6 +49,31 @@ func (e *employeeRepository) GetByName(name string) (model.Employee, error) {
 
 func (e *employeeRepository) Update(employee model.Employee) error {
 	err := e.db.Model(&employee).Updates(employee).Error
+	return err
+}
+
+func (e *employeeRepository) PaternityLeave(id string, availableDays int) error {
+	err := e.db.Model(&model.Employee{}).Where("id = ?", id).Update("paternity_leave", availableDays).Error
+	return err
+}
+
+func (e *employeeRepository) UpdateAnnualLeave(id string, availableDays int) error {
+	err := e.db.Model(&model.Employee{}).Where("id = ?", id).Update("annual_leave", availableDays).Error
+	return err
+}
+
+func (e *employeeRepository) UpdateMarriageLeave(id string, availableDays int) error {
+	err := e.db.Model(&model.Employee{}).Where("id = ?", id).Update("marriage_leave", availableDays).Error
+	return err
+}
+
+func (e *employeeRepository) UpdateMaternityLeave(id string, availableDays int) error {
+	err := e.db.Model(&model.Employee{}).Where("id = ?", id).Update("maternity_leave", availableDays).Error
+	return err
+}
+
+func (e *employeeRepository) UpdateMenstrualLeave(id string, availableDays int) error {
+	err := e.db.Model(&model.Employee{}).Where("id = ?", id).Update("menstrual_leave", availableDays).Error
 	return err
 }
 

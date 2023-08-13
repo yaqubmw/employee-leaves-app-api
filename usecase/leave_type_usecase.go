@@ -13,10 +13,12 @@ type LeaveTypeUseCase interface {
 	UpdateLeaveType(payload model.LeaveType) error
 	DeleteLeaveType(id string) error
 	GetByName(name string) (model.LeaveType, error)
+	FindRoleNameId(id string) (model.Role, error)
 }
 
 type leaveTypeUseCase struct {
-	repo repository.LeaveTypeRepository
+	repo   repository.LeaveTypeRepository
+	roleUC RoleUseCase
 }
 
 func (lt *leaveTypeUseCase) RegisterNewLeaveType(payload model.LeaveType) error {
@@ -51,8 +53,16 @@ func (lt *leaveTypeUseCase) DeleteLeaveType(id string) error {
 	return lt.repo.Delete(id)
 }
 
-func (p *leaveTypeUseCase) GetByName(name string) (model.LeaveType, error) {
-	return p.repo.GetByName(name)
+func (lt *leaveTypeUseCase) GetByName(name string) (model.LeaveType, error) {
+	return lt.repo.GetByName(name)
+}
+
+func (lt *leaveTypeUseCase) FindRoleNameId(roleName string) (model.Role, error) {
+	role, err := lt.roleUC.FindByRolename(roleName)
+	if err != nil {
+		return model.Role{}, err
+	}
+	return role, nil
 }
 
 func NewLeaveTypeUseCase(repo repository.LeaveTypeRepository) LeaveTypeUseCase {

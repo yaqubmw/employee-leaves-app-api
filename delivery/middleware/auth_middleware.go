@@ -13,7 +13,7 @@ type authHeader struct {
 	AuthorizationHeader string `header:"Authorization"`
 }
 
-func AuthMiddleware() gin.HandlerFunc {
+func AuthMiddleware(requiredRole string) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var h authHeader
 		if err := c.ShouldBindHeader(&h); err != nil {
@@ -39,6 +39,13 @@ func AuthMiddleware() gin.HandlerFunc {
 			return
 		}
 		if token != nil {
+			if role, ok := token["role"].(string); !ok || role != requiredRole {
+				c.JSON(http.StatusForbidden, gin.H{"message": "forbidden"})
+				c.Abort()
+				return
+			}
+
+			c.Set("token", token) // Set claims in the context for further use if needed
 			c.Next()
 		} else {
 			c.JSON(http.StatusUnauthorized, gin.H{"message": "unauthorized"})

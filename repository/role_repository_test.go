@@ -87,20 +87,43 @@ func (suite *RoleRepositorySuite) TestList() {
 	assert.Equal(suite.T(), expectedRoles, result)
 }
 
-// func (suite *RoleRepositorySuite) TestUpdate() {
-// 	payload := dataDummy[0]
+func (suite *RoleRepositorySuite) TestGetByName() {
+	roleName := "Pending"
+	expectedQuery := `SELECT \* FROM "role" WHERE role_name LIKE \$1`
 
-// 	expectedQuery := `UPDATE "role" SET "id"=$1,"role_name"=$2 WHERE "id" = $3`
+	rows := sqlmock.NewRows([]string{"id", "role_name"}).AddRow(dataDummy[0].Id, dataDummy[0].RoleName)
 
+	suite.mocksql.ExpectQuery(expectedQuery).WithArgs("%" + roleName + "%").WillReturnRows(rows)
 
-// 	suite.mocksql.ExpectExec(expectedQuery).WithArgs(payload.RoleName, payload.Id).WillReturnResult(sqlmock.NewResult(1, 1))
+	result, err := suite.repo.GetByName(roleName)
+	assert.NoError(suite.T(), err)
+	assert.Equal(suite.T(), dataDummy[0], result)
 
+	assert.NoError(suite.T(), suite.mocksql.ExpectationsWereMet())
+}
 
-// 	err := suite.repo.Update(payload)
-// 	assert.NoError(suite.T(), err)
+func (suite *RoleRepositorySuite) TestUpdate() {
+	expectedQuery := `UPDATE "role" SET "id"=\$1,"role_name"=\$2 WHERE "id" = \$3`
 
-// 	assert.NoError(suite.T(), suite.mocksql.ExpectationsWereMet())
-// }
+	suite.mocksql.ExpectBegin()
+	suite.mocksql.ExpectExec(expectedQuery).WithArgs(dataDummy[0].Id, dataDummy[0].RoleName, dataDummy[0].Id).WillReturnResult(sqlmock.NewResult(0, 1))
+	suite.mocksql.ExpectCommit()
+
+	err := suite.repo.Update(dataDummy[0])
+	assert.NoError(suite.T(), err)
+}
+
+func (suite *RoleRepositorySuite) TestDelete() {
+    roleId := "1"
+    expectedQuery := `DELETE FROM "role" WHERE id = \$1`
+
+	suite.mocksql.ExpectBegin()
+    suite.mocksql.ExpectExec(expectedQuery).WithArgs(roleId).WillReturnResult(sqlmock.NewResult(0, 1))
+	suite.mocksql.ExpectCommit()
+
+    err := suite.repo.Delete(roleId)
+    assert.NoError(suite.T(), err)
+}
 
 func TestRoleRepositorySuite(t *testing.T) {
 	suite.Run(t, new(RoleRepositorySuite))

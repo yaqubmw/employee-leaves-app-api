@@ -4,6 +4,7 @@ import (
 	"employeeleave/model"
 	"employeeleave/model/dto"
 	"employeeleave/repository"
+	"employeeleave/utils/common"
 	"fmt"
 	"time"
 )
@@ -16,9 +17,9 @@ type TransactionLeaveUseCase interface {
 type transactionLeaveUseCase struct {
 	transactionRepo repository.TransactionRepository
 	employeeUC      EmployeeUseCase
-	positionUC      PositionUseCase
-	leaveTypeUC     LeaveTypeUseCase
-	statusLeaveUC   StatusLeaveUseCase
+	// positionUC      PositionUseCase
+	leaveTypeUC   LeaveTypeUseCase
+	statusLeaveUC StatusLeaveUseCase
 }
 
 // Pengajuan cuti oleh karyawan
@@ -34,15 +35,21 @@ func (tl *transactionLeaveUseCase) ApplyLeave(trx model.TransactionLeave) error 
 		return err
 	}
 
-	statusLeave, err := tl.statusLeaveUC.FindByIdStatusLeave(trx.StatusLeaveID)
+	statusLeave, err := tl.statusLeaveUC.FindByNameStatusLeave("Pending")
 	if err != nil {
 		return err
 	}
+
+	historyLeaves := trx.HistoryLeaves
+	historyLeaves.Id = common.GenerateID()
+	historyLeaves.TransactionLeaveId = trx.ID
+	historyLeaves.DateEvent = time.Now()
 
 	trx.EmployeeID = employee.ID
 	trx.LeaveTypeID = leaveType.ID
 	trx.StatusLeaveID = statusLeave.ID
 	trx.SubmissionDate = time.Now()
+	trx.HistoryLeaves = historyLeaves
 
 	err = tl.transactionRepo.Create(trx)
 	if err != nil {

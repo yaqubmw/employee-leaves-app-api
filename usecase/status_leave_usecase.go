@@ -12,6 +12,7 @@ type StatusLeaveUseCase interface {
 	FindByIdStatusLeave(id string) (model.StatusLeave, error)
 	UpdateStatusLeave(payload model.StatusLeave) error
 	DeleteStatusLeave(id string) error
+	FindByNameStatusLeave(statusName string) (model.StatusLeave, error)
 }
 
 type statusLeaveUseCase struct {
@@ -33,6 +34,10 @@ func (s *statusLeaveUseCase) RegisterNewStatusLeave(payload model.StatusLeave) e
 		return fmt.Errorf("failed to create new status: %v", err)
 	}
 	return nil
+}
+
+func (s *statusLeaveUseCase) FindByNameStatusLeave(statusName string) (model.StatusLeave, error) {
+	return s.repo.GetByNameStatus(statusName)
 }
 
 func (s *statusLeaveUseCase) FindAllStatusLeave() ([]model.StatusLeave, error) {

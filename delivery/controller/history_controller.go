@@ -1,13 +1,10 @@
 package controller
 
 import (
-	"employeeleave/model"
 	"employeeleave/model/dto"
 	"employeeleave/usecase"
-	"employeeleave/utils/common"
 	"net/http"
 	"strconv"
-	"time"
 
 	"github.com/gin-gonic/gin"
 )
@@ -15,30 +12,6 @@ import (
 type HistoryController struct {
 	router    *gin.Engine
 	historyUC usecase.HistoryUseCase
-}
-
-func (h *HistoryController) createHandler(c *gin.Context) {
-	var historyRequest dto.HistoryResponseDto
-	if err := c.ShouldBindJSON(&historyRequest); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"err": err.Error()})
-		return
-	}
-
-	var newHistory model.HistoryLeave
-	historyRequest.Id = common.GenerateID()
-	newHistory.Id = historyRequest.Id
-	newHistory.EmployeeId = historyRequest.EmployeeId
-	newHistory.TransactionId = historyRequest.TransactionId
-	newHistory.DateStart = time.Now()
-	newHistory.DateEnd = time.Now()
-	newHistory.LeaveDuration = historyRequest.LeaveDuration
-	newHistory.StatusLeave = historyRequest.StatusLeave
-	if err := h.historyUC.RegisterNewHistory(newHistory); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"err": newHistory})
-		return
-	}
-
-	c.JSON(http.StatusOK, historyRequest)
 }
 
 func (h *HistoryController) getHandler(c *gin.Context) {
@@ -88,7 +61,6 @@ func NewHistoryController(r *gin.Engine, usecase usecase.HistoryUseCase) *Histor
 	}
 
 	rg := r.Group("/api/v1")
-	rg.POST("/histories", controller.createHandler)
 	rg.GET("/histories/:id", controller.getHandler)
 	rg.GET("/histories", controller.listHandler)
 	return &controller

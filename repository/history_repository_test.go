@@ -72,45 +72,36 @@ func (suite *HistoryRepositorySuite) TestGet() {
 	assert.Equal(suite.T(), expectedHistory, result)
 }
 
-// func (suite *HistoryRepositorySuite) TestList(requestPaging dto.PaginationParam) ([]model.HistoryLeave, dto.Paging, error) {
-// 	expectedHistories := dataDummyHistory
-// 	expectedPaging := dto.Paging{
-// 		Page:        1,
-// 		RowsPerPage: 5,
-// 		TotalRows:   5,
-// 		TotalPages:  1,
-// 	}
-// 	requestPaging := dto.PaginationParam{
-// 		Page:   1,
-// 		Limit:  5,
-// 	}
+// TEST FAIL : Error loading .env file
+// func (suite *HistoryRepositorySuite) TestPaging() {
+// 	// err := godotenv.Load("../.env") // Adjust the path to your .env file
+// 	// if err != nil {
+// 	// 	suite.T().Fatal("Error loading .env file:", err)
+// 	// }
 
+// 	page := 1
+// 	perPage := 10
+// 	expectedHistories := dataDummyHistory
+
+// 	// Mock data for pagination
 // 	rows := sqlmock.NewRows([]string{"id", "transaction_leave_id", "date_event"})
 // 	for _, history := range expectedHistories {
 // 		rows.AddRow(history.Id, history.TransactionLeaveId, history.DateEvent)
 // 	}
+// 	expectedQuery := `SELECT \* FROM "history_leave" LIMIT \$1 OFFSET \$2`
+// 	suite.mocksql.ExpectQuery(expectedQuery).WithArgs(perPage, (page-1)*perPage).WillReturnRows(rows)
 
-// 	expectedQuery := `SELECT \* FROM "history_leave"`
-// 	suite.mocksql.ExpectQuery(expectedQuery).WillReturnRows(rows)
+// 	// Create a PaginationParam
+// 	paginationParam := dto.PaginationParam{
+// 		Page:   page,
+// 		Offset: (page - 1) * perPage,
+// 		Limit:  perPage,
+// 	}
 
-// 	result, err := suite.repo.Paging("Paging", requestPaging)
+// 	// Call the Paging method and assert the results
+// 	results, _, err := suite.repo.Paging(paginationParam)
 // 	assert.NoError(suite.T(), err)
-// 	assert.Equal(suite.T(), expectedHistories, result)
-// }
-
-// func (suite *HistoryRepositorySuite) TestUpdate() {
-// 	payload := dataDummy[0]
-
-// 	expectedQuery := `UPDATE "role" SET "id"=$1,"role_name"=$2 WHERE "id" = $3`
-
-
-// 	suite.mocksql.ExpectExec(expectedQuery).WithArgs(payload.TransactionLeaveId, payload.Id).WillReturnResult(sqlmock.NewResult(1, 1))
-
-
-// 	err := suite.repo.Update(payload)
-// 	assert.NoError(suite.T(), err)
-
-// 	assert.NoError(suite.T(), suite.mocksql.ExpectationsWereMet())
+// 	assert.Equal(suite.T(), expectedHistories, results)
 // }
 
 func TestHistoryRepositorySuite(t *testing.T) {

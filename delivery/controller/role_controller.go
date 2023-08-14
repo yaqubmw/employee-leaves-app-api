@@ -1,10 +1,8 @@
 package controller
 
 import (
-	"employeeleave/delivery/middleware"
 	"employeeleave/model"
 	"employeeleave/usecase"
-	"employeeleave/utils/common"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -22,7 +20,6 @@ func (r *RoleController) createHandler(c *gin.Context) {
 		return
 	}
 
-	role.Id = common.GenerateID()
 	if err := r.roleUC.RegisterNewRole(role); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"err": err.Error()})
 		return
@@ -33,7 +30,7 @@ func (r *RoleController) createHandler(c *gin.Context) {
 		"role_name": role.RoleName,
 	}
 
-	c.JSON(http.StatusOK, roleResponse)
+	c.JSON(http.StatusCreated, roleResponse)
 }
 
 func (r *RoleController) getHandler(c *gin.Context) {
@@ -101,10 +98,10 @@ func NewRoleController(r *gin.Engine, usecase usecase.RoleUseCase) *RoleControll
 	}
 
 	rg := r.Group("/api/v1")
-	rg.POST("/roles", middleware.AuthMiddleware(), controller.createHandler)
-	rg.GET("/roles", middleware.AuthMiddleware(), controller.listHandler)
-	rg.GET("/roles/:id", middleware.AuthMiddleware(), controller.getHandler)
-	rg.PUT("/roles", middleware.AuthMiddleware(), controller.updateHandler)
-	rg.DELETE("/roles/:id", middleware.AuthMiddleware(), controller.deleteHandler)
+	rg.POST("/roles", controller.createHandler)
+	rg.GET("/roles", controller.listHandler)
+	rg.GET("/roles/:id", controller.getHandler)
+	rg.PUT("/roles", controller.updateHandler)
+	rg.DELETE("/roles/:id", controller.deleteHandler)
 	return &controller
 }

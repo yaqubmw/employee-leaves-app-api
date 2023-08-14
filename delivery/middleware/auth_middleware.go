@@ -45,6 +45,12 @@ func AuthMiddleware(requiredRole string) gin.HandlerFunc {
 				return
 			}
 
+			if isActive, ok := token["isActive"].(bool); !ok || !isActive {
+				c.JSON(http.StatusForbidden, gin.H{"message": "inactive user"})
+				c.Abort()
+				return
+			}
+
 			c.Set("token", token) // Set claims in the context for further use if needed
 			c.Next()
 		} else {

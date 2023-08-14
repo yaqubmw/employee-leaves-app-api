@@ -10,6 +10,7 @@ type EmployeeUseCase interface {
 	RegisterNewEmpl(payload model.Employee) error
 	FindAllEmpl() ([]model.Employee, error)
 	FindByIdEmpl(id string) (model.Employee, error)
+	FindByIdUser(userCredentialID string) (model.Employee, error)
 	UpdateEmpl(payload model.Employee) error
 	UpdateAnnualLeave(id string, availableDays int) error
 	UpdateMaternityLeave(id string, availableDays int) error
@@ -43,6 +44,10 @@ func (e *employeeUseCase) RegisterNewEmpl(payload model.Employee) error {
 
 func (e *employeeUseCase) FindAllEmpl() ([]model.Employee, error) {
 	return e.repo.List()
+}
+
+func (e *employeeUseCase) FindByIdUser(userCredentialID string) (model.Employee, error) {
+	return e.repo.Get(userCredentialID)
 }
 
 func (e *employeeUseCase) FindByIdEmpl(id string) (model.Employee, error) {

@@ -6,4 +6,5 @@ type TokenClaims struct {
 	jwt.RegisteredClaims
 	Username string `json:"username"`
 	Role     string `json:"role"`
+	IsActive bool   `json:"isActive"`
 }

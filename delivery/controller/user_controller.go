@@ -31,9 +31,10 @@ func (u *UserController) createHandler(c *gin.Context) {
 	}
 
 	userResponse := map[string]any{
-		"id":       user.ID,
-		"username": user.Username,
-		"role_id":  user.RoleId,
+		"id":        user.ID,
+		"username":  user.Username,
+		"role_id":   user.RoleId,
+		"is_active": user.IsActive,
 	}
 
 	c.JSON(http.StatusOK, userResponse)
@@ -52,9 +53,10 @@ func (u *UserController) updateHandler(c *gin.Context) {
 	}
 
 	userResponse := map[string]any{
-		"id":       user.ID,
-		"username": user.Username,
-		"role_id":  user.RoleId,
+		"id":        user.ID,
+		"username":  user.Username,
+		"role_id":   user.RoleId,
+		"is_active": user.IsActive,
 	}
 
 	c.JSON(http.StatusOK, userResponse)
@@ -107,7 +109,7 @@ func NewUserController(r *gin.Engine, usecase usecase.UserUseCase) *UserControll
 	}
 
 	rg := r.Group("/api/v1")
-	rg.POST("/users", middleware.AuthMiddleware("Admin"), controller.createHandler)
+	rg.POST("/users", middleware.AuthMiddleware("1"), controller.createHandler)
 	rg.GET("/users", controller.listHandler)
 	rg.GET("/users/:id", controller.getHandler)
 	rg.PUT("/users", controller.updateHandler)

@@ -16,7 +16,7 @@ type authUseCase struct {
 func (a *authUseCase) Login(username, password string) (string, error) {
 	user, err := a.usecase.FindByUsernamePassword(username, password)
 	if err != nil {
-		return "", fmt.Errorf("invalid username and password")
+		return "", fmt.Errorf("invalid username and password or user is not active")
 	}
 
 	// mekanisme jika user itu ada akan membalikan sebuah token

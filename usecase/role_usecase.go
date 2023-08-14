@@ -62,7 +62,7 @@ func (r *roleUseCase) UpdateRole(payload model.Role) error {
 
 	err := r.repo.Update(payload)
 	if err != nil {
-		return fmt.Errorf("failed to update uom: %v", err)
+		return fmt.Errorf("failed to update role: %v", err)
 	}
 
 	return nil
@@ -70,14 +70,14 @@ func (r *roleUseCase) UpdateRole(payload model.Role) error {
 
 func (r *roleUseCase) DeleteRole(id string) error {
 	// cek idnya ada atau tidak
-	uom, err := r.FindByIdRole(id)
+	role, err := r.FindByIdRole(id)
 	if err != nil {
 		return fmt.Errorf("data with id %s not found", id)
 	}
 
-	err = r.repo.Delete(uom.Id)
+	err = r.repo.Delete(role.Id)
 	if err != nil {
-		return fmt.Errorf("failed to delete uom: %v", err)
+		return fmt.Errorf("failed to delete role: %v", err)
 	}
 	return nil
 }

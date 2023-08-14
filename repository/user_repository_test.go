@@ -7,6 +7,7 @@ import (
 	"github.com/DATA-DOG/go-sqlmock"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
+	"golang.org/x/crypto/bcrypt"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
@@ -40,15 +41,23 @@ var dataDummy = []model.UserCredential{
 		ID:       "1",
 		Username: "agung",
 		Password: "password",
-		RoleId:   "R1",
+		RoleId:   "",
 		IsActive: true,
+		Role: model.Role{
+			Id:       "",
+			RoleName: "",
+		},
 	},
 	{
-		ID:       "1",
+		ID:       "2",
 		Username: "panji",
 		Password: "password",
 		RoleId:   "R2",
 		IsActive: true,
+		Role: model.Role{
+			Id:       "R2",
+			RoleName: "Employee",
+		},
 	},
 }
 
@@ -63,7 +72,7 @@ func (suite *UserCredentialRepositorySuite) TestCreate() {
 	assert.NoError(suite.T(), err)
 }
 
-func (suite *UserCredentialRepositorySuite) TestGet() {
+func (suite *UserCredentialRepositorySuite) TestGetSuccess() {
 	userID := "1"
 	expectedUser := dataDummy[0]
 
@@ -93,43 +102,59 @@ func (suite *UserCredentialRepositorySuite) TestGet() {
 // 	assert.Equal(suite.T(), expectedStatusLeaves, result)
 // }
 
-// func (suite *UserCredentialRepositorySuite) TestUpdate() {
-// 	expectedQuery := `UPDATE "status_leave" SET "id"=\$1,"status_leave_name"=\$2 WHERE "id" = \$3`
+func (suite *UserCredentialRepositorySuite) TestUpdateSuccess() {
+	expectedQuery := `UPDATE "user_credential" SET "id"=\$1,"username"=\$2,"password"=\$3,"is_active"=\$4 WHERE "id" = \$5`
 
-// 	suite.mocksql.ExpectBegin()
-// 	suite.mocksql.ExpectExec(expectedQuery).WithArgs(dataDummy[0].ID, dataDummy[0].StatusLeaveName, dataDummy[0].ID).WillReturnResult(sqlmock.NewResult(0, 1))
-// 	suite.mocksql.ExpectCommit()
+	suite.mocksql.ExpectBegin()
+	suite.mocksql.ExpectExec(expectedQuery).WithArgs(dataDummy[0].ID, dataDummy[0].Username, dataDummy[0].Password, dataDummy[0].IsActive, dataDummy[0].ID).WillReturnResult(sqlmock.NewResult(0, 1))
+	suite.mocksql.ExpectCommit()
 
-// 	err := suite.repo.Update(dataDummy[0])
-// 	assert.NoError(suite.T(), err)
-// }
+	err := suite.repo.Update(dataDummy[0])
+	assert.NoError(suite.T(), err)
+}
 
-// func (suite *UserCredentialRepositorySuite) TestDelete() {
-// 	statusLeaveID := "1"
-// 	expectedQuery := `DELETE FROM "status_leave" WHERE id = \$1`
+func (suite *UserCredentialRepositorySuite) TestGetByUsernameSuccess() {
+	username := "agung"
+	expectedQuery := `SELECT \* FROM "user_credential" WHERE username = \$1`
 
-// 	suite.mocksql.ExpectBegin()
-// 	suite.mocksql.ExpectExec(expectedQuery).WithArgs(statusLeaveID).WillReturnResult(sqlmock.NewResult(0, 1))
-// 	suite.mocksql.ExpectCommit()
+	rows := sqlmock.NewRows([]string{"id", "username", "password", "roleId", "is_active"}).
+		AddRow(dataDummy[0].ID, dataDummy[0].Username, dataDummy[0].Password, dataDummy[0].RoleId, dataDummy[0].IsActive)
 
-// 	err := suite.repo.Delete(statusLeaveID)
-// 	assert.NoError(suite.T(), err)
-// }
+	suite.mocksql.ExpectQuery(expectedQuery).WithArgs(username).WillReturnRows(rows)
 
-// func (suite *UserCredentialRepositorySuite) TestGetByNameStatus() {
-// 	statusLeaveName := "Pending"
-// 	expectedQuery := `SELECT \* FROM "status_leave" WHERE status_leave_name LIKE \$1`
+	result, err := suite.repo.GetByUsername(username)
+	assert.NoError(suite.T(), err)
+	assert.Equal(suite.T(), dataDummy[0], result)
 
-// 	rows := sqlmock.NewRows([]string{"id", "status_leave_name"}).AddRow(dataDummy[0].ID, dataDummy[0].StatusLeaveName)
+	assert.NoError(suite.T(), suite.mocksql.ExpectationsWereMet())
+}
 
-// 	suite.mocksql.ExpectQuery(expectedQuery).WithArgs("%" + statusLeaveName + "%").WillReturnRows(rows)
+func (suite *UserCredentialRepositorySuite) TestGetByUsernamePasswordSuccess() {
+	// Data dummy
+	username := "agung"
+	password := "password"
+	hashedPassword, _ := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
+	expectedUser := model.UserCredential{
+		// Isi dengan data yang diharapkan dari database
+		Password: string(hashedPassword),
+	}
 
-// 	result, err := suite.repo.GetByNameStatus(statusLeaveName)
-// 	assert.NoError(suite.T(), err)
-// 	assert.Equal(suite.T(), dataDummy[0], result)
+	// Ekspektasi query GetByUsername
+	suite.mocksql.ExpectQuery("^SELECT (.+) FROM \"user_credential\"*").
+		WithArgs(username).
+		WillReturnRows(suite.mocksql.NewRows([]string{"id", "username", "password", "roleId", "is_active"}).
+			AddRow(expectedUser.ID, expectedUser.Username, expectedUser.Password, expectedUser.RoleId, expectedUser.IsActive))
 
-// 	assert.NoError(suite.T(), suite.mocksql.ExpectationsWereMet())
-// }
+	// Panggil fungsi GetByUsernamePassword
+	user, err := suite.repo.GetByUsernamePassword(username, password)
+
+	// Assertion
+	assert.NoError(suite.T(), err)
+	assert.Equal(suite.T(), expectedUser, user)
+
+	// Verifikasi panggilan query
+	assert.NoError(suite.T(), suite.mocksql.ExpectationsWereMet())
+}
 
 func TestUserCredentialRepositorySuite(t *testing.T) {
 	suite.Run(t, new(UserCredentialRepositorySuite))

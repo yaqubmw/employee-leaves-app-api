@@ -7,13 +7,16 @@ import (
 )
 
 type EmployeeRepository interface {
-	BaseRepository[model.Employee]
+	Create(payload model.Employee) error
+	List() ([]model.Employee, error)
+	Get(id string) (model.Employee, error)
 	GetByName(name string) (model.Employee, error)
+	Update(payload model.Employee) error
 	UpdateAnnualLeave(id string, availableDays int) error
 	UpdateMaternityLeave(id string, availableDays int) error
 	UpdateMarriageLeave(id string, availableDays int) error
 	UpdateMenstrualLeave(id string, availableDays int) error
-	PaternityLeave(id string, availableDays int) error
+	UpdatePaternityLeave(id string, availableDays int) error
 }
 
 type employeeRepository struct {
@@ -32,10 +35,8 @@ func (e *employeeRepository) List() ([]model.Employee, error) {
 
 func (e *employeeRepository) Get(id string) (model.Employee, error) {
 	var employee model.Employee
-	if err := e.db.Where("id = ?", id).First(&employee).Error; err != nil {
-		return employee, err
-	}
-	return employee, nil
+	err := e.db.Where("id = ?", id).First(&employee).Error
+	return employee, err
 }
 
 func (e *employeeRepository) GetByName(name string) (model.Employee, error) {
@@ -43,20 +44,12 @@ func (e *employeeRepository) GetByName(name string) (model.Employee, error) {
 	err := e.db.Where("name LIKE $1", "%"+name+"%").Find(&employees).Error
 	return employees, err
 }
-func (e *employeeRepository) Update(employee model.Employee) error {
-	err := e.db.Model(&employee).Updates(employee).Error
+func (e *employeeRepository) Update(payload model.Employee) error {
+	err := e.db.Model(&payload).Updates(payload).Error
 	return err
 }
 
-func (e *employeeRepository) Delete(id string) error {
-	result := e.db.Delete(&model.Employee{}, id)
-	if result.Error != nil {
-		return result.Error
-	}
-	return nil
-}
-
-func (e *employeeRepository) PaternityLeave(id string, availableDays int) error {
+func (e *employeeRepository) UpdatePaternityLeave(id string, availableDays int) error {
 	err := e.db.Model(&model.Employee{}).Where("id = ?", id).Update("paternity_leave", availableDays).Error
 	return err
 }

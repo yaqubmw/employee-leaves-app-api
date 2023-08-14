@@ -11,7 +11,6 @@ type EmployeeUseCase interface {
 	FindAllEmpl() ([]model.Employee, error)
 	FindByIdEmpl(id string) (model.Employee, error)
 	UpdateEmpl(payload model.Employee) error
-	DeleteEmpl(id string) error
 	UpdateAnnualLeave(id string, availableDays int) error
 	UpdateMaternityLeave(id string, availableDays int) error
 	UpdateMarriageLeave(id string, availableDays int) error
@@ -58,12 +57,8 @@ func (e *employeeUseCase) UpdateEmpl(payload model.Employee) error {
 	return nil
 }
 
-func (e *employeeUseCase) DeleteEmpl(id string) error {
-	return e.repo.Delete(id)
-}
-
 func (e *employeeUseCase) PaternityLeave(id string, availableDays int) error {
-	return e.repo.PaternityLeave(id, availableDays)
+	return e.repo.UpdatePaternityLeave(id, availableDays)
 }
 
 func (e *employeeUseCase) UpdateAnnualLeave(id string, availableDays int) error {

@@ -31,7 +31,7 @@ func (s *Server) Run() {
 func (s *Server) setupControllers() {
 	s.engine.Use(middleware.LogRequestMiddleware(s.log))
 	// semua controller disini
-	controller.NewEmplController(s.useCaseManager.EmployeeUseCase(), s.engine)
+	controller.NewEmplController(s.engine, s.useCaseManager.EmployeeUseCase())
 	controller.NewTransactionController(s.engine, s.useCaseManager.TransactionUseCase())
 
 }

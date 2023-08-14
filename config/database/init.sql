@@ -45,10 +45,6 @@ CREATE TABLE leave_type (
     quota_leave int
 );
 
-CREATE TABLE quota_leave (
-    id varchar(100) PRIMARY KEY,
-    remaining_quota int
-);
 
 CREATE TABLE status_leave (
     id varchar(100) PRIMARY KEY,

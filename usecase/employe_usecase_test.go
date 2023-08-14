@@ -39,11 +39,6 @@ func (m *EmployeeRepoMock) Update(payload model.Employee) error {
 	return args.Error(0)
 }
 
-func (m *EmployeeRepoMock) Delete(id string) error {
-	args := m.Called(id)
-	return args.Error(0)
-}
-
 func (m *EmployeeRepoMock) UpdateAnnualLeave(id string, availableDays int) error {
 	args := m.Called(id, availableDays)
 	return args.Error(0)
@@ -64,7 +59,7 @@ func (m *EmployeeRepoMock) UpdateMenstrualLeave(id string, availableDays int) er
 	return args.Error(0)
 }
 
-func (m *EmployeeRepoMock) PaternityLeave(id string, availableDays int) error {
+func (m *EmployeeRepoMock) UpdatePaternityLeave(id string, availableDays int) error {
 	args := m.Called(id, availableDays)
 	return args.Error(0)
 }
@@ -80,14 +75,25 @@ func (suite *EmployeeUseCaseSuite) SetupTest() {
 	suite.useCase = NewEmplUseCase(suite.repoMock)
 }
 
-func (suite *EmployeeUseCaseSuite) TestRegisterNewEmpl_Success() {
-	payload := model.Employee{
+var employeeDummy = []model.Employee{
+	{
 		ID:          "1",
 		Name:        "imron",
 		PhoneNumber: "081281164811",
 		Email:       "iyaron@gmail.com",
 		Address:     "Jakarta",
-	}
+	},
+	{
+		ID:          "2",
+		Name:        "imam",
+		PhoneNumber: "081281164811",
+		Email:       "imam@gmail.com",
+		Address:     "tanggerang",
+	},
+}
+
+func (suite *EmployeeUseCaseSuite) TestRegisterNewEmpl_Success() {
+	payload := employeeDummy[0]
 	suite.repoMock.On("GetByName", payload.Name).Return(model.Employee{}, nil)
 	suite.repoMock.On("Create", payload).Return(nil)
 
@@ -105,19 +111,9 @@ func (suite *EmployeeUseCaseSuite) TestRegisterNewEmpl_EmptyField() {
 
 func (suite *EmployeeUseCaseSuite) TestRegisterNewEmpl_EmployeeNameExists() {
 	payload := model.Employee{
-		ID:          "1",
-		Name:        "imron", //name exists
-		PhoneNumber: "081281164811",
-		Email:       "iyaron@gmail.com",
-		Address:     "Jakarta",
+		Name: "imron", //name exists
 	}
-	existingEmployee := model.Employee{
-		ID:          "1",
-		Name:        "imron", //name exists
-		PhoneNumber: "081245151",
-		Email:       "iyain@gmail.com",
-		Address:     "bandung",
-	}
+	existingEmployee := employeeDummy[0]
 
 	suite.repoMock.On("GetByName", payload.Name).Return(existingEmployee, nil)
 
@@ -144,22 +140,8 @@ func (suite *EmployeeUseCaseSuite) TestRegisterNewEmpl_CreateError() {
 }
 
 func (suite *EmployeeUseCaseSuite) TestFindAllEmpl_Success() {
-	expectedEmployees := []model.Employee{
-		{
-			ID:          "1",
-			Name:        "imron",
-			PhoneNumber: "081281164811",
-			Email:       "iyaron@gmail.com",
-			Address:     "Jakarta",
-		},
-		{
-			ID:          "2",
-			Name:        "imam",
-			PhoneNumber: "08125524141",
-			Email:       "iyamam@gmail.com",
-			Address:     "tanggerang",
-		},
-	}
+	expectedEmployees := employeeDummy
+
 	suite.repoMock.On("List").Return(expectedEmployees, nil)
 
 	result, err := suite.useCase.FindAllEmpl()
@@ -169,11 +151,8 @@ func (suite *EmployeeUseCaseSuite) TestFindAllEmpl_Success() {
 
 func (suite *EmployeeUseCaseSuite) TestFindByIdEmpl_Success() {
 	expectedEmployee := model.Employee{
-		ID:          "1",
-		Name:        "imron",
-		PhoneNumber: "081281164811",
-		Email:       "iyaron@gmail.com",
-		Address:     "Jakarta",
+		ID:   "1",
+		Name: "imron",
 	}
 	suite.repoMock.On("Get", "1").Return(expectedEmployee, nil)
 
@@ -183,13 +162,7 @@ func (suite *EmployeeUseCaseSuite) TestFindByIdEmpl_Success() {
 }
 
 func (suite *EmployeeUseCaseSuite) TestUpdateEmpl_Success() {
-	payload := model.Employee{
-		ID:          "1",
-		Name:        "imron",
-		PhoneNumber: "081281164811",
-		Email:       "iyaron@gmail.com",
-		Address:     "Jakarta",
-	}
+	payload := employeeDummy[0]
 	suite.repoMock.On("Update", payload).Return(nil)
 
 	err := suite.useCase.UpdateEmpl(payload)
@@ -197,37 +170,13 @@ func (suite *EmployeeUseCaseSuite) TestUpdateEmpl_Success() {
 }
 
 func (suite *EmployeeUseCaseSuite) TestUpdateEmpl_UpdateError() {
-	payload := model.Employee{
-		ID:          "1",
-		Name:        "imron",
-		PhoneNumber: "081281164811",
-		Email:       "iyaron@gmail.com",
-		Address:     "Jakarta",
-	}
+	payload := employeeDummy[0]
 	expectedError := fmt.Errorf("update error")
 	suite.repoMock.On("Update", payload).Return(expectedError)
 
 	err := suite.useCase.UpdateEmpl(payload)
 	assert.Error(suite.T(), err)
 	assert.Equal(suite.T(), fmt.Sprintf("failed to update employee: %v", expectedError), err.Error())
-}
-
-func (suite *EmployeeUseCaseSuite) TestDeleteEmpl_Success() {
-	id := "1"
-	suite.repoMock.On("Delete", id).Return(nil)
-	err := suite.useCase.DeleteEmpl(id)
-	assert.NoError(suite.T(), err)
-}
-
-func (suite *EmployeeUseCaseSuite) TestDeleteEmpl_DeleteError() {
-
-	id := "1"
-	expectedError := fmt.Errorf("delete error")
-	suite.repoMock.On("Delete", id).Return(expectedError)
-
-	err := suite.useCase.DeleteEmpl(id)
-
-	assert.Error(suite.T(), err)
 }
 
 func (suite *EmployeeUseCaseSuite) TestPaternityLeave_Success() {

@@ -95,7 +95,7 @@ func (t *transactionRepository) Paging(requestPaging dto.PaginationParam) ([]dto
 // mengubah status transaksi cuti
 func (t *transactionRepository) UpdateStatus(transactionID, statusID string) error {
 	err := t.db.Model(&model.TransactionLeave{}).
-		Where("id = ?", transactionID).
+		Where("id = $1", transactionID).
 		Update("status_leave_id", statusID).
 		Error
 	return err

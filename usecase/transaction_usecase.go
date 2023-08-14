@@ -21,9 +21,8 @@ type TransactionLeaveUseCase interface {
 type transactionLeaveUseCase struct {
 	transactionRepo repository.TransactionRepository
 	employeeUC      EmployeeUseCase
-	// positionUC      PositionUseCase
-	leaveTypeUC   LeaveTypeUseCase
-	statusLeaveUC StatusLeaveUseCase
+	leaveTypeUC     LeaveTypeUseCase
+	statusLeaveUC   StatusLeaveUseCase
 }
 
 // Pengajuan cuti oleh karyawan

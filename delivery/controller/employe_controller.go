@@ -73,16 +73,7 @@ func (e *EmployeeController) updateHandler(c *gin.Context) {
 	c.JSON(200, employe)
 }
 
-func (e *EmployeeController) deleteHandler(c *gin.Context) {
-	id := c.Param("id")
-	if err := e.emplUC.DeleteEmpl(id); err != nil {
-		c.JSON(500, gin.H{"err": err.Error()})
-		return
-	}
-	c.String(204, "")
-}
-
-func NewEmplController(usecase usecase.EmployeeUseCase, r *gin.Engine) *EmployeeController {
+func NewEmplController(r *gin.Engine, usecase usecase.EmployeeUseCase) *EmployeeController {
 	controller := EmployeeController{
 		router: r,
 		emplUC: usecase,
@@ -93,6 +84,5 @@ func NewEmplController(usecase usecase.EmployeeUseCase, r *gin.Engine) *Employee
 	rg.GET("/employee", controller.listHandler)
 	rg.GET("/employee/:id", controller.getHandler)
 	rg.PUT("/employee", controller.updateHandler)
-	rg.DELETE("/employee/:id", controller.deleteHandler)
 	return &controller
 }

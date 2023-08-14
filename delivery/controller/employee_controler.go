@@ -61,6 +61,19 @@ func (e *EmployeeController) getHandler(c *gin.Context) {
 	})
 }
 
+func (e *EmployeeController) updateHandler(c *gin.Context) {
+	var employe model.Employee
+	if err := c.ShouldBindJSON(&employe); err != nil {
+		c.JSON(400, gin.H{"err": err.Error()})
+		return
+	}
+	if err := e.emplUC.UpdateEmpl(employe); err != nil {
+		c.JSON(500, gin.H{"err": err.Error()})
+		return
+	}
+	c.JSON(200, employe)
+}
+
 func NewEmplController(usecase usecase.EmployeeUseCase, r *gin.Engine) *EmployeeController {
 	controller := EmployeeController{
 		router: r,
@@ -71,5 +84,6 @@ func NewEmplController(usecase usecase.EmployeeUseCase, r *gin.Engine) *Employee
 	rg.POST("/employee", middleware.AuthMiddleware("1"), controller.createHandler)
 	rg.GET("/employee", middleware.AuthMiddleware("1"), controller.listHandler)
 	rg.GET("/employee/:id", middleware.AuthMiddleware("1"), controller.getHandler)
+	rg.PUT("/employee", middleware.AuthMiddleware("2"), controller.updateHandler)
 	return &controller
 }

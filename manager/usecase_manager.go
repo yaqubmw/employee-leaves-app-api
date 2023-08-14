@@ -6,7 +6,6 @@ type UseCaseManager interface {
 	LeaveTypeUseCase() usecase.LeaveTypeUseCase
 	PositionUseCase() usecase.PositionUseCase
 	StatusLeaveUseCase() usecase.StatusLeaveUseCase
-	QuotaLeaveUseCase() usecase.QuotaLeaveUseCase
 	RoleUseCase() usecase.RoleUseCase
 	HistoryUseCase() usecase.HistoryUseCase
 	EmployeeUseCase() usecase.EmployeeUseCase
@@ -38,11 +37,6 @@ func (u *useCaseManager) PositionUseCase() usecase.PositionUseCase {
 
 func (u *useCaseManager) LeaveTypeUseCase() usecase.LeaveTypeUseCase {
 	return usecase.NewLeaveTypeUseCase(u.repoManager.LeaveTypeRepo())
-}
-
-// QuotaLeaveUseCase implements UseCaseManager.
-func (r *useCaseManager) QuotaLeaveUseCase() usecase.QuotaLeaveUseCase {
-	return usecase.NewQuotaLeaveUseCase(r.repoManager.QuotaLeaveRepo())
 }
 
 // StatusLeaveUseCase implements UseCaseManager.

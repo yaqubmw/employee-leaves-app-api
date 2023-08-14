@@ -9,6 +9,9 @@ type TransactionLeave struct {
 	EmployeeID     string       `json:"employee_id"`
 	LeaveTypeID    string       `json:"leave_type_id"`
 	StatusLeaveID  string       `json:"status_leave_id"`
+	Employee       Employee     `gorm:"foreignkey:EmployeeID"`
+	LeaveType      LeaveType    `gorm:"foreignkey:LeaveTypeID"`
+	StatusLeave    StatusLeave  `gorm:"foreignkey:StatusLeaveID"`
 	DateStart      time.Time    `json:"date_start"`
 	DateEnd        time.Time    `json:"date_end"`
 	Reason         string       `json:"reason"`

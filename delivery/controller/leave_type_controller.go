@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"employeeleave/delivery/middleware"
 	"employeeleave/model"
 	"employeeleave/usecase"
 	"employeeleave/utils/common"
@@ -82,18 +83,19 @@ func (lt *LeaveTypeController) deleteHandler(c *gin.Context) {
 	c.String(204, "")
 }
 
-func NewLeaveTypeController(usecase usecase.LeaveTypeUseCase, r *gin.Engine) *LeaveTypeController {
+func NewLeaveTypeController(ltUC usecase.LeaveTypeUseCase, r *gin.Engine) *LeaveTypeController {
 	controller := LeaveTypeController{
 		router:      r,
-		leaveTypeUC: usecase,
+		leaveTypeUC: ltUC,
 	}
 	// daftarkan semua url path disini
 	// /leavetype -> GET, POST, PUT, DELETE
+
 	rg := r.Group("/api/v1")
-	rg.POST("/leavetypes", controller.createHandler)
-	rg.GET("/leavetypes", controller.listHandler)
-	rg.GET("/leavetypes/:id", controller.getHandler)
-	rg.PUT("/leavetypes", controller.updateHandler)
-	rg.DELETE("/leavetypes/:id", controller.deleteHandler)
+	rg.POST("/leavetypes", middleware.AuthMiddleware("1"), controller.createHandler)
+	rg.GET("/leavetypes", middleware.AuthMiddleware("1"), controller.listHandler)
+	rg.GET("/leavetypes/:id", middleware.AuthMiddleware("1"), controller.getHandler)
+	rg.PUT("/leavetypes", middleware.AuthMiddleware("1"), controller.updateHandler)
+	rg.DELETE("/leavetypes/:id", middleware.AuthMiddleware("1"), controller.deleteHandler)
 	return &controller
 }

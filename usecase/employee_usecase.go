@@ -58,26 +58,21 @@ func (e *employeeUseCase) UpdateEmpl(payload model.Employee) error {
 	return nil
 }
 
-
 func (e *employeeUseCase) PaternityLeave(id string, availableDays int) error {
 	return e.repo.PaternityLeave(id, availableDays)
 }
-
 
 func (e *employeeUseCase) UpdateAnnualLeave(id string, availableDays int) error {
 	return e.repo.UpdateAnnualLeave(id, availableDays)
 }
 
-
 func (e *employeeUseCase) UpdateMarriageLeave(id string, availableDays int) error {
 	return e.repo.UpdateMarriageLeave(id, availableDays)
 }
 
-
 func (e *employeeUseCase) UpdateMaternityLeave(id string, availableDays int) error {
 	return e.repo.UpdateMaternityLeave(id, availableDays)
 }
-
 
 func (e *employeeUseCase) UpdateMenstrualLeave(id string, availableDays int) error {
 	return e.repo.UpdateMenstrualLeave(id, availableDays)

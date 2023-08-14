@@ -11,6 +11,8 @@ import (
 
 type UserRepository interface {
 	Create(payload model.UserCredential) error
+	Get(id string) (model.UserCredential, error)
+	Update(payload model.UserCredential) error
 	GetByUsername(username string) (model.UserCredential, error)
 	GetByUsernamePassword(username, password string) (model.UserCredential, error)
 	Paging(requestPaging dto.PaginationParam) ([]model.UserCredential, dto.Paging, error)
@@ -23,6 +25,19 @@ type userRepository struct {
 // Create implements UserRepository.
 func (u *userRepository) Create(payload model.UserCredential) error {
 	return u.db.Create(&payload).Error
+}
+
+// Get implements UserRepository.
+func (u *userRepository) Get(id string) (model.UserCredential, error) {
+	user := model.UserCredential{}
+	err := u.db.Preload("Role").Where("id = $1", id).First(&user).Error
+	return user, err
+}
+
+// Update implements UserRepository.
+func (u *userRepository) Update(payload model.UserCredential) error {
+	err := u.db.Model(&payload).Updates(payload).Error
+	return err
 }
 
 // GetByUsername implements UserRepository.
@@ -57,7 +72,7 @@ func (u *userRepository) Paging(requestPaging dto.PaginationParam) ([]model.User
 		return nil, dto.Paging{}, result.Error
 	}
 
-	query := u.db.Model(&model.UserCredential{}).Limit(pagination.Take).Offset(pagination.Skip)
+	query := u.db.Model(&model.UserCredential{}).Preload("Role").Limit(pagination.Take).Offset(pagination.Skip)
 	result = query.Find(&users)
 	if result.Error != nil {
 		return nil, dto.Paging{}, result.Error

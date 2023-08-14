@@ -24,6 +24,7 @@ func CreateAccessToken(user model.UserCredential) (string, error) {
 			ExpiresAt: jwt.NewNumericDate(end),
 		},
 		Username: user.Username,
+		Role:     user.RoleId,
 	}
 
 	token := jwt.NewWithClaims(cfg.JwtSigningMethod, claims)

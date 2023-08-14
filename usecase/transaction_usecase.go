@@ -2,6 +2,7 @@ package usecase
 
 import (
 	"employeeleave/model"
+	"employeeleave/model/dto"
 	"employeeleave/repository"
 	"employeeleave/utils/common"
 	"employeeleave/utils/helper"
@@ -10,8 +11,11 @@ import (
 )
 
 type TransactionLeaveUseCase interface {
-	ApproveOrRejectLeave(payload model.TransactionLeave) error
 	ApplyLeave(payload model.TransactionLeave) error
+	FindById(id string) (model.TransactionLeave, error)
+	FindByIdEmpl(id string) ([]model.TransactionLeave, error)
+	FindAllEmpl(requesPaging dto.PaginationParam) ([]dto.TransactionResponseDto, dto.Paging, error)
+	ApproveOrRejectLeave(payload model.TransactionLeave) error
 }
 
 type transactionLeaveUseCase struct {
@@ -58,25 +62,18 @@ func (tl *transactionLeaveUseCase) ApplyLeave(trx model.TransactionLeave) error 
 
 	return nil
 
-	// Validasi jumlah cuti yang tersedia
-	// if leaveType.QuotaLeave > employee.AvailableLeaveDays {
-	// 	return fmt.Errorf("jumlah cuti yang diajukan melebihi sisa cuti yang tersedia")
-	// }
+}
 
-	// err = uc.transactionRepo.Create(transaction)
-	// if err != nil {
-	// 	return err
-	// }
+func (t *transactionLeaveUseCase) FindAllEmpl(requesPaging dto.PaginationParam) ([]dto.TransactionResponseDto, dto.Paging, error) {
+	return t.transactionRepo.Paging(requesPaging)
+}
 
-	// Kurangi jumlah cuti yang tersedia pada karyawan
-	// employee.AvailableLeaveDays -= leaveType.QuotaLeave
+func (t *transactionLeaveUseCase) FindById(id string) (model.TransactionLeave, error) {
+	return t.transactionRepo.GetByID(id)
+}
 
-	// Update jumlah cuti yang tersedia pada repositori
-	// err = uc.employeeRepo.Update(employee)
-	// if err != nil {
-	// 	return err
-	// }
-
+func (t *transactionLeaveUseCase) FindByIdEmpl(id string) ([]model.TransactionLeave, error) {
+	return t.transactionRepo.GetByEmployeeID(id)
 }
 
 func (tl *transactionLeaveUseCase) ApproveOrRejectLeave(trx model.TransactionLeave) error {
@@ -108,7 +105,6 @@ func (tl *transactionLeaveUseCase) ApproveOrRejectLeave(trx model.TransactionLea
 		if err != nil {
 			return err
 		}
-
 		if helper.MatchKeyword(leaveTypeName) == "annual" {
 
 			// auto reject bila sisa cuti lebih kecil dari pengajuan cuti
@@ -128,7 +124,6 @@ func (tl *transactionLeaveUseCase) ApproveOrRejectLeave(trx model.TransactionLea
 			}
 
 		}
-
 		if helper.MatchKeyword(leaveTypeName) == "maternity" {
 
 			// auto reject bila sisa cuti lebih kecil dari pengajuan cuti
@@ -147,7 +142,6 @@ func (tl *transactionLeaveUseCase) ApproveOrRejectLeave(trx model.TransactionLea
 
 			}
 		}
-
 		if helper.MatchKeyword(leaveTypeName) == "marriage" {
 
 			// auto reject bila sisa cuti lebih kecil dari pengajuan cuti
@@ -166,7 +160,6 @@ func (tl *transactionLeaveUseCase) ApproveOrRejectLeave(trx model.TransactionLea
 
 			}
 		}
-
 		if helper.MatchKeyword(leaveTypeName) == "menstrual" {
 
 			// auto reject bila sisa cuti lebih kecil dari pengajuan cuti

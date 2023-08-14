@@ -3,31 +3,22 @@ package repository
 import (
 	"employeeleave/model"
 	"employeeleave/model/dto"
+	"employeeleave/utils/common"
 
 	"gorm.io/gorm"
 )
 
 type TransactionRepository interface {
 	Create(payload model.TransactionLeave) error
-	GetByID(id string) (dto.TransactionResponseDto, error)
-	GetByIdTxNonDto(id string) (model.TransactionLeave, error)
-	GetByEmployeeID(employeeID string) ([]dto.TransactionResponseDto, error)
-	GetByName(name string) ([]dto.TransactionResponseDto, error)
-	List() ([]dto.TransactionResponseDto, error)
+	GetByID(id string) (model.TransactionLeave, error)
+	GetByEmployeeID(employeeID string) ([]model.TransactionLeave, error)
 	UpdateStatus(transactionID, statusID string) error
-	DeleteByID(id string) error
+	GetByIdTxNonDto(id string) (model.TransactionLeave, error)
+	BaseRepositoryPaging[dto.TransactionResponseDto]
 }
 
 type transactionRepository struct {
 	db *gorm.DB
-}
-
-// GetById dari model TransactionLeave (bukan dto)
-func (t *transactionRepository) GetByIdTxNonDto(id string) (model.TransactionLeave, error) {
-	var txLeave model.TransactionLeave
-	err := t.db.Where("id = $1", id).First(&txLeave).Error
-
-	return txLeave, err
 }
 
 // membuat data transaksi cuti baru
@@ -51,59 +42,54 @@ func (t *transactionRepository) Create(payload model.TransactionLeave) error {
 }
 
 // ]mendapatkan data transaksi cuti berdasarkan ID
-func (t *transactionRepository) GetByID(id string) (dto.TransactionResponseDto, error) {
-	var transactionResponseDto dto.TransactionResponseDto
+func (t *transactionRepository) GetByID(id string) (model.TransactionLeave, error) {
+	var transactionResponse model.TransactionLeave
 
 	err := t.db.Preload("Employee").Preload("LeaveType").Preload("StatusLeave").
 		Where("id = ?", id).
-		First(&transactionResponseDto).Error
+		First(&transactionResponse).Error
 	if err != nil {
-		return dto.TransactionResponseDto{}, err
+		return model.TransactionLeave{}, err
 	}
 
-	return transactionResponseDto, nil
+	return transactionResponse, nil
 }
 
 // mendapatkan data transaksi cuti berdasarkan ID karyawan
-func (t *transactionRepository) GetByEmployeeID(employeeID string) ([]dto.TransactionResponseDto, error) {
-	var transactions []dto.TransactionResponseDto
+func (t *transactionRepository) GetByEmployeeID(employeeID string) ([]model.TransactionLeave, error) {
+	var transactions []model.TransactionLeave
 
 	err := t.db.Preload("Employee").Preload("LeaveType").Preload("StatusLeave").
 		Where("employee_id = ?", employeeID).
 		Find(&transactions).Error
 	if err != nil {
-		return nil, err
+		return []model.TransactionLeave{}, err
 	}
 
 	return transactions, nil
 }
 
-// mendapatkan daftar transaksi cuti berdasarkan nama karyawan
-func (t *transactionRepository) GetByName(name string) ([]dto.TransactionResponseDto, error) {
-	var transactionList []dto.TransactionResponseDto
+func (t *transactionRepository) Paging(requestPaging dto.PaginationParam) ([]dto.TransactionResponseDto, dto.Paging, error) {
+	var employees []dto.TransactionResponseDto
+	var totalRows int64
 
-	err := t.db.Preload("Employee").Preload("LeaveType").Preload("StatusLeave").
-		Joins("JOIN employee ON transaction_leave.employee_id = employee.id").
-		Where("employee.name LIKE ?", "%"+name+"%").
-		Find(&transactionList).Error
-	if err != nil {
-		return nil, err
+	// Dapatkan parameter paginasi
+	paginationQuery := common.GetPaginationParams(requestPaging)
+	// Ambil data karyawan berdasarkan paginasi menggunakan GORM
+	result := t.db.Model(&dto.TransactionResponseDto{}).Count(&totalRows)
+	if result.Error != nil {
+		return nil, dto.Paging{}, result.Error
 	}
 
-	return transactionList, nil
-}
-
-// mendapatkan daftar semua transaksi cuti
-func (t *transactionRepository) List() ([]dto.TransactionResponseDto, error) {
-	var transactionList []dto.TransactionResponseDto
-
-	err := t.db.Preload("Employee").Preload("LeaveType").Preload("StatusLeave").
-		Find(&transactionList).Error
-	if err != nil {
-		return nil, err
+	// Hitung total baris data karyawan
+	query := t.db.Model(&dto.TransactionResponseDto{}).Limit(paginationQuery.Take).Offset(paginationQuery.Skip)
+	result = query.Find(&employees)
+	if result.Error != nil {
+		return nil, dto.Paging{}, result.Error
 	}
 
-	return transactionList, nil
+	// Kembalikan data karyawan dan informasi paginasi, konversi totalRows menjadi int
+	return employees, common.Paginate(paginationQuery.Page, paginationQuery.Take, int(totalRows)), nil
 }
 
 // mengubah status transaksi cuti
@@ -115,13 +101,12 @@ func (t *transactionRepository) UpdateStatus(transactionID, statusID string) err
 	return err
 }
 
-// menghapus data transaksi cuti berdasarkan ID
-func (t *transactionRepository) DeleteByID(id string) error {
-	err := t.db.Where("id = ?", id).Delete(&model.TransactionLeave{}).Error
-	if err != nil {
-		return err
-	}
-	return nil
+// GetById dari model TransactionLeave (bukan dto)
+func (t *transactionRepository) GetByIdTxNonDto(id string) (model.TransactionLeave, error) {
+	var txLeave model.TransactionLeave
+	err := t.db.Where("id = $1", id).First(&txLeave).Error
+
+	return txLeave, err
 }
 
 func NewTransactionLeaveRepository(db *gorm.DB) TransactionRepository {

@@ -40,6 +40,7 @@ func (s *Server) initController() {
 	controller.NewUserController(s.engine, s.useCaseManager.UserUseCase())
 	controller.NewAuthController(s.engine, s.useCaseManager.AuthUseCase())
 	controller.NewTransactionController(s.engine, s.useCaseManager.TransactionUseCase())
+	controller.NewHistoryController(s.engine, s.useCaseManager.HistoryUseCase())
 }
 
 func NewServer() *Server {

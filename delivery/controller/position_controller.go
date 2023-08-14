@@ -4,7 +4,6 @@ import (
 	"employeeleave/delivery/middleware"
 	"employeeleave/model"
 	"employeeleave/usecase"
-	"employeeleave/utils/common"
 
 	"github.com/gin-gonic/gin"
 )
@@ -20,7 +19,6 @@ func (p *PositionController) createHandler(c *gin.Context) {
 		c.JSON(400, gin.H{"err": err.Error()})
 		return
 	}
-	position.ID = common.GenerateID()
 	if err := p.positionUC.RegisterNewPosition(position); err != nil {
 		c.JSON(500, gin.H{"err": err.Error()})
 		return

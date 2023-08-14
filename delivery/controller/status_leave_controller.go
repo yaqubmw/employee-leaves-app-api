@@ -1,31 +1,30 @@
 package controller
 
 import (
+	"employeeleave/delivery/middleware"
 	"employeeleave/model"
 	"employeeleave/usecase"
-	"employeeleave/utils/common"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
 )
 
 type StatusLeaveController struct {
-	router *gin.Engine
+	router        *gin.Engine
 	statusLeaveUC usecase.StatusLeaveUseCase
 }
 
 func (s *StatusLeaveController) createHandler(c *gin.Context) {
 	var statusLeave model.StatusLeave
-	
+
 	if err := c.ShouldBindJSON(&statusLeave); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"err": err.Error()})
-		return 
+		return
 	}
-	
-	statusLeave.ID = common.GenerateID()
+
 	if err := s.statusLeaveUC.RegisterNewStatusLeave(statusLeave); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"err": err.Error()})
-		return 
+		return
 	}
 
 	c.JSON(http.StatusCreated, statusLeave)
@@ -103,11 +102,11 @@ func NewStatusLeaveController(r *gin.Engine, usecase usecase.StatusLeaveUseCase)
 	}
 
 	rg := r.Group("/api/v1")
-	rg.POST("/statusleaves", controller.createHandler)
-	rg.GET("/statusleaves", controller.listHandler)
-	rg.GET("/statusleaves/:id", controller.getHandler)
-	rg.PUT("/statusleaves", controller.updateHandler)
-	rg.DELETE("/statusleaves/:id", controller.deleteHandler)
+	rg.POST("/statusleaves", middleware.AuthMiddleware("1"), controller.createHandler)
+	rg.GET("/statusleaves", middleware.AuthMiddleware("1"), controller.listHandler)
+	rg.GET("/statusleaves/:id", middleware.AuthMiddleware("1"), controller.getHandler)
+	rg.PUT("/statusleaves", middleware.AuthMiddleware("1"), controller.updateHandler)
+	rg.DELETE("/statusleaves/:id", middleware.AuthMiddleware("1"), controller.deleteHandler)
 
 	return &controller
 }

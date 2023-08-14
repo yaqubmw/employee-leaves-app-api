@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"employeeleave/delivery/middleware"
 	"employeeleave/model"
 	"employeeleave/usecase"
 	"employeeleave/utils/common"
@@ -67,8 +68,8 @@ func NewEmplController(usecase usecase.EmployeeUseCase, r *gin.Engine) *Employee
 	}
 
 	rg := r.Group("/api/v1")
-	rg.POST("/employee", controller.createHandler)
-	rg.GET("/employee", controller.listHandler)
-	rg.GET("/employee/:id", controller.getHandler)
+	rg.POST("/employee", middleware.AuthMiddleware("1"), controller.createHandler)
+	rg.GET("/employee", middleware.AuthMiddleware("1"), controller.listHandler)
+	rg.GET("/employee/:id", middleware.AuthMiddleware("1"), controller.getHandler)
 	return &controller
 }

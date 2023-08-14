@@ -124,11 +124,11 @@ func NewTransactionController(r *gin.Engine, usecase usecase.TransactionLeaveUse
 	}
 
 	rg := r.Group("/api/v1")
-	rg.POST("/transaction", middleware.AuthMiddleware("1"), controller.createHandler)
-	rg.GET("/transaction", middleware.AuthMiddleware("1"), controller.listHandler)
-	rg.GET("employee/transaction/:id", middleware.AuthMiddleware("1"), controller.getByEmployeeIdHandler)
-	rg.GET("/transaction/:id", middleware.AuthMiddleware("1"), controller.getByIdHandler)
-	rg.PUT("/transaction", controller.updateStatusHandler)
+	rg.POST("/transaction", middleware.AuthMiddleware("2"), controller.createHandler)
+	rg.GET("/transaction", middleware.AuthMiddleware("4"), controller.listHandler)
+	rg.GET("employee/transaction/:id", middleware.AuthMiddleware("2"), controller.getByEmployeeIdHandler)
+	rg.GET("/transaction/:id", middleware.AuthMiddleware("4"), controller.getByIdHandler)
+	rg.PUT("/transaction", middleware.AuthMiddleware("3"), controller.updateStatusHandler)
 	// rg.GET("/transactions", controller.listHandler)
 	return &controller
 }

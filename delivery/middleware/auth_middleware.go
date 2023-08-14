@@ -13,31 +13,44 @@ type authHeader struct {
 	AuthorizationHeader string `header:"Authorization"`
 }
 
-func AuthMiddleware() gin.HandlerFunc {
+func AuthMiddleware(requiredRole string) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var h authHeader
 		if err := c.ShouldBindHeader(&h); err != nil {
-			c.JSON(http.StatusUnauthorized, gin.H{"message": "Unauthorized"})
-			// untuk menghentikan proses di bawahnya atau lanjutan dan proses ini akan dikembalikan dalam response http ke client
+			c.JSON(http.StatusUnauthorized, gin.H{"message": "unauthorized"})
+			// untuk menghentikan proses lanjutan dan proses ini akan dikembalikan dalam response http ke client
 			c.Abort()
 			return
 		}
 
-		tokenHeader := strings.Replace(h.AuthorizationHeader, "Bearer ", "", 1)
+		tokenHeader := strings.Replace(h.AuthorizationHeader, "Bearer ", "", -1)
+		fmt.Println("tokenHeader:", tokenHeader)
+
 		if tokenHeader == "" {
-			c.JSON(http.StatusUnauthorized, gin.H{"message": "Unauthorized"})
+			c.JSON(http.StatusUnauthorized, gin.H{"message": "unauthorized"})
 			c.Abort()
 			return
 		}
 
-		claims, err := security.VerifyAccessToken(tokenHeader)
+		token, err := security.VerifyAccessToken(tokenHeader)
 		if err != nil {
-			c.JSON(http.StatusUnauthorized, gin.H{"message": "Unauthorized"})
+			c.JSON(http.StatusUnauthorized, gin.H{"message": "unauthorized"})
 			c.Abort()
 			return
 		}
-		fmt.Println("claims:", claims["username"])
-		c.Set("claims", claims)
-		c.Next()
+		if token != nil {
+			if role, ok := token["role"].(string); !ok || role != requiredRole {
+				c.JSON(http.StatusForbidden, gin.H{"message": "forbidden"})
+				c.Abort()
+				return
+			}
+
+			c.Set("token", token) // Set claims in the context for further use if needed
+			c.Next()
+		} else {
+			c.JSON(http.StatusUnauthorized, gin.H{"message": "unauthorized"})
+			c.Abort()
+			return
+		}
 	}
 }

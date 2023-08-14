@@ -26,9 +26,15 @@ CREATE TABLE employee (
     id varchar(100) PRIMARY KEY,
     position_id varchar(100) REFERENCES position(id),
     manager_id varchar(100) REFERENCES employee(id),
+    leave_type_id varchar(100) REFERENCES leave_type_id(id),
     name varchar(100),
     phone_number varchar(15) UNIQUE,
     email varchar(100) UNIQUE,
+    annual_leave INTEGER DEFAULT 12,
+	maternity_leave INTEGER DEFAULT 84,
+	marriage_leave INTEGER DEFAULT 3,
+	menstrual_leave INTEGER DEFAULT 2,
+	paternity_leave INTEGER DEFAULT 2;
     address text
 );
 

@@ -2,15 +2,21 @@ package usecase
 
 import (
 	"employeeleave/model"
-	"employeeleave/model/dto"
 	"employeeleave/repository"
 	"fmt"
 )
 
 type EmployeeUseCase interface {
 	RegisterNewEmpl(payload model.Employee) error
-	FindAllEmpl(requesPaging dto.PaginationParam) ([]model.Employee, dto.Paging, error)
+	FindAllEmpl() ([]model.Employee, error)
 	FindByIdEmpl(id string) (model.Employee, error)
+	UpdateEmpl(payload model.Employee) error
+	DeleteEmpl(id string) error
+	UpdateAnnualLeave(id string, availableDays int) error
+	UpdateMaternityLeave(id string, availableDays int) error
+	UpdateMarriageLeave(id string, availableDays int) error
+	UpdateMenstrualLeave(id string, availableDays int) error
+	PaternityLeave(id string, availableDays int) error
 }
 
 type employeeUseCase struct {
@@ -36,14 +42,46 @@ func (e *employeeUseCase) RegisterNewEmpl(payload model.Employee) error {
 	return nil
 }
 
-func (p *employeeUseCase) FindAllEmpl(requesPaging dto.PaginationParam) ([]model.Employee, dto.Paging, error) {
-	return p.repo.Paging(requesPaging)
+func (e *employeeUseCase) FindAllEmpl() ([]model.Employee, error) {
+	return e.repo.List()
 }
 
 func (e *employeeUseCase) FindByIdEmpl(id string) (model.Employee, error) {
 	return e.repo.Get(id)
 }
 
-func NewEmployeeUseCase(repo repository.EmployeeRepository) EmployeeUseCase {
+func (e *employeeUseCase) UpdateEmpl(payload model.Employee) error {
+	err := e.repo.Update(payload)
+	if err != nil {
+		return fmt.Errorf("failed to update employee: %v", err)
+	}
+	return nil
+}
+
+func (e *employeeUseCase) DeleteEmpl(id string) error {
+	return e.repo.Delete(id)
+}
+
+func (e *employeeUseCase) PaternityLeave(id string, availableDays int) error {
+	return e.repo.PaternityLeave(id, availableDays)
+}
+
+func (e *employeeUseCase) UpdateAnnualLeave(id string, availableDays int) error {
+	return e.repo.UpdateAnnualLeave(id, availableDays)
+}
+
+func (e *employeeUseCase) UpdateMarriageLeave(id string, availableDays int) error {
+	return e.repo.UpdateMarriageLeave(id, availableDays)
+}
+
+func (e *employeeUseCase) UpdateMaternityLeave(id string, availableDays int) error {
+	return e.repo.UpdateMaternityLeave(id, availableDays)
+}
+
+func (e *employeeUseCase) UpdateMenstrualLeave(id string, availableDays int) error {
+	return e.repo.UpdateMenstrualLeave(id, availableDays)
+}
+
+func NewEmplUseCase(repo repository.EmployeeRepository) EmployeeUseCase {
 	return &employeeUseCase{repo: repo}
 }

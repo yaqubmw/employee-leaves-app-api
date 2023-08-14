@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"employeeleave/delivery/middleware"
 	"employeeleave/model"
 	"employeeleave/model/dto"
 	"employeeleave/usecase"
@@ -43,28 +44,21 @@ func (tl *TransactionLeaveController) createHandler(c *gin.Context) {
 	c.JSON(http.StatusOK, userResponse)
 }
 
-// func (tl *TransactionLeaveController) listHandler(c *gin.Context) {
-// 	page, _ := strconv.Atoi(c.Query("page"))
-// 	limit, _ := strconv.Atoi(c.Query("limit"))
-// 	paginationParam := dto.PaginationParam{
-// 		Page:  page,
-// 		Limit: limit,
-// 	}
-// 	users, paging, err := tl.txUC.FindAllUser(paginationParam)
-// 	if err != nil {
-// 		c.JSON(http.StatusInternalServerError, gin.H{"err": err.Error()})
-// 		return
-// 	}
-// 	status := map[string]any{
-// 		"code":        200,
-// 		"description": "Successfully Get All Data",
-// 	}
-// 	c.JSON(200, gin.H{
-// 		"status": status,
-// 		"data":   users,
-// 		"paging": paging,
-// 	})
-// }
+func (tl *TransactionLeaveController) updateStatusHandler(c *gin.Context) {
+	var transactionLeave model.TransactionLeave
+
+	if err := c.ShouldBindJSON(&transactionLeave); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"err": err.Error()})
+		return
+	}
+
+	if err := tl.txUC.ApproveOrRejectLeave(transactionLeave); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"err": err.Error()})
+		return
+	}
+
+	c.JSON(200, transactionLeave)
+}
 
 func (t *TransactionLeaveController) listHandler(c *gin.Context) {
 	page, _ := strconv.Atoi(c.Query("page"))
@@ -89,22 +83,40 @@ func (t *TransactionLeaveController) listHandler(c *gin.Context) {
 	})
 }
 
-func (t *TransactionLeaveController) getHandler(c *gin.Context) {
+func (t *TransactionLeaveController) getByIdHandler(c *gin.Context) {
 	id := c.Param("id")
-	empl, err := t.txUC.FindByIdEmpl(id)
+	result, err := t.txUC.FindById(id)
 	if err != nil {
 		c.JSON(500, gin.H{"err": err.Error()})
 		return
 	}
 	status := map[string]any{
 		"code":        200,
-		"description": "Get By Id Data Successfully",
+		"description": "Successfully Get By ID Data",
 	}
 	c.JSON(200, gin.H{
 		"status": status,
-		"data":   empl,
+		"data":   result,
 	})
 }
+
+func (t *TransactionLeaveController) getByEmployeeIdHandler(c *gin.Context) {
+	id := c.Param("id")
+	result, err := t.txUC.FindByIdEmpl(id)
+	if err != nil {
+		c.JSON(500, gin.H{"err": err.Error()})
+		return
+	}
+	status := map[string]any{
+		"code":        200,
+		"description": "Successfully Get By ID Data",
+	}
+	c.JSON(200, gin.H{
+		"status": status,
+		"data":   result,
+	})
+}
+
 func NewTransactionController(r *gin.Engine, usecase usecase.TransactionLeaveUseCase) *TransactionLeaveController {
 	controller := TransactionLeaveController{
 		router: r,
@@ -112,8 +124,11 @@ func NewTransactionController(r *gin.Engine, usecase usecase.TransactionLeaveUse
 	}
 
 	rg := r.Group("/api/v1")
-	rg.POST("/transaction", controller.createHandler)
-	rg.GET("/transaction", controller.listHandler)
-	rg.GET("/transaction/:id", controller.getHandler)
+	rg.POST("/transaction", middleware.AuthMiddleware("1"), controller.createHandler)
+	rg.GET("/transaction", middleware.AuthMiddleware("1"), controller.listHandler)
+	rg.GET("employee/transaction/:id", middleware.AuthMiddleware("1"), controller.getByEmployeeIdHandler)
+	rg.GET("/transaction/:id", middleware.AuthMiddleware("1"), controller.getByIdHandler)
+	rg.PUT("/transaction", controller.updateStatusHandler)
+	// rg.GET("/transactions", controller.listHandler)
 	return &controller
 }

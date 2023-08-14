@@ -5,3 +5,7 @@ type LeaveType struct {
 	LeaveTypeName string
 	QuotaLeave    int
 }
+
+func (LeaveType) TableName() string {
+	return "leave_type"
+}

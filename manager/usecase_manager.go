@@ -15,7 +15,7 @@ type useCaseManager struct {
 
 // EmployeeUseCase implements UseCaseManager.
 func (u *useCaseManager) EmployeeUseCase() usecase.EmployeeUseCase {
-	return usecase.NewEmployeeUseCase(u.repoManager.EmployeeRepo())
+	return usecase.NewEmplUseCase(u.repoManager.EmployeeRepo())
 }
 
 func (u *useCaseManager) TransactionUseCase() usecase.TransactionLeaveUseCase {

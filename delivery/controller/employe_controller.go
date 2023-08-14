@@ -2,11 +2,8 @@ package controller
 
 import (
 	"employeeleave/model"
-	"employeeleave/model/dto"
 	"employeeleave/usecase"
 	"employeeleave/utils/common"
-	"net/http"
-	"strconv"
 
 	"github.com/gin-gonic/gin"
 )
@@ -31,25 +28,18 @@ func (e *EmployeeController) createHandler(c *gin.Context) {
 }
 
 func (e *EmployeeController) listHandler(c *gin.Context) {
-	page, _ := strconv.Atoi(c.Query("page"))
-	limit, _ := strconv.Atoi(c.Query("limit"))
-	paginationParam := dto.PaginationParam{
-		Page:  page,
-		Limit: limit,
-	}
-	employees, paging, err := e.emplUC.FindAllEmpl(paginationParam)
+	empls, err := e.emplUC.FindAllEmpl()
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"err": err.Error()})
+		c.JSON(500, gin.H{"err": err.Error()})
 		return
 	}
 	status := map[string]any{
 		"code":        200,
 		"description": "Get All Data Successfully",
 	}
-	c.JSON(http.StatusOK, gin.H{
+	c.JSON(200, gin.H{
 		"status": status,
-		"data":   employees,
-		"paging": paging,
+		"data":   empls,
 	})
 }
 
@@ -70,6 +60,28 @@ func (e *EmployeeController) getHandler(c *gin.Context) {
 	})
 }
 
+func (e *EmployeeController) updateHandler(c *gin.Context) {
+	var employe model.Employee
+	if err := c.ShouldBindJSON(&employe); err != nil {
+		c.JSON(400, gin.H{"err": err.Error()})
+		return
+	}
+	if err := e.emplUC.UpdateEmpl(employe); err != nil {
+		c.JSON(500, gin.H{"err": err.Error()})
+		return
+	}
+	c.JSON(200, employe)
+}
+
+func (e *EmployeeController) deleteHandler(c *gin.Context) {
+	id := c.Param("id")
+	if err := e.emplUC.DeleteEmpl(id); err != nil {
+		c.JSON(500, gin.H{"err": err.Error()})
+		return
+	}
+	c.String(204, "")
+}
+
 func NewEmplController(usecase usecase.EmployeeUseCase, r *gin.Engine) *EmployeeController {
 	controller := EmployeeController{
 		router: r,
@@ -80,5 +92,7 @@ func NewEmplController(usecase usecase.EmployeeUseCase, r *gin.Engine) *Employee
 	rg.POST("/employee", controller.createHandler)
 	rg.GET("/employee", controller.listHandler)
 	rg.GET("/employee/:id", controller.getHandler)
+	rg.PUT("/employee", controller.updateHandler)
+	rg.DELETE("/employee/:id", controller.deleteHandler)
 	return &controller
 }

@@ -18,8 +18,7 @@ CREATE TABLE "user_credential" (
 
 CREATE TABLE position (
     id varchar(100) PRIMARY KEY,
-    name varchar(100),
-    is_manager boolean
+    name varchar(100)
 );
 
 CREATE TABLE employee (

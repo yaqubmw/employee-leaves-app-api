@@ -64,12 +64,8 @@ func (lt *leaveTypeRepository) Update(payload model.LeaveType) error {
 }
 
 func (lt *leaveTypeRepository) Delete(id string) error {
-	result := lt.db.Delete(&model.LeaveType{}, id)
-	if result.Error != nil {
-		return result.Error
-	}
-
-	return nil
+	err := lt.db.Where("id = $1", id).Delete(model.LeaveType{}).Error
+	return err
 }
 
 func NewLeaveTypeRepository(db *gorm.DB) LeaveTypeRepository {

@@ -61,6 +61,23 @@ func (p *PositionController) getHandler(c *gin.Context) {
 	})
 }
 
+func (p *PositionController) getByNameHandler(c *gin.Context) {
+	name := c.Param("name")
+	position, err := p.positionUC.GetByName(name)
+	if err != nil {
+		c.JSON(500, gin.H{"err": err.Error()})
+		return
+	}
+	status := map[string]any{
+		"code":        200,
+		"description": "Get By Name Data Successfully",
+	}
+	c.JSON(200, gin.H{
+		"status": status,
+		"data":   position,
+	})
+}
+
 func (p *PositionController) updateHandler(c *gin.Context) {
 	var position model.Position
 	if err := c.ShouldBindJSON(&position); err != nil {
@@ -93,8 +110,9 @@ func NewPositionController(usecase usecase.PositionUseCase, r *gin.Engine) *Posi
 	rg := r.Group("/api/v1")
 	rg.POST("/positions", middleware.AuthMiddleware(), controller.createHandler)
 	rg.GET("/positions", middleware.AuthMiddleware(), controller.listHandler)
-	rg.GET("/positions/:id", middleware.AuthMiddleware(), controller.getHandler)
+	rg.GET("/positions/id/:id", middleware.AuthMiddleware(), controller.getHandler)
+	rg.GET("/positions/name/:name", middleware.AuthMiddleware(), controller.getByNameHandler)
 	rg.PUT("/positions", middleware.AuthMiddleware(), controller.updateHandler)
-	rg.DELETE("/positions/:id", middleware.AuthMiddleware(), controller.deleteHandler)
+	rg.DELETE("/positions/id/:id", middleware.AuthMiddleware(), controller.deleteHandler)
 	return &controller
 }

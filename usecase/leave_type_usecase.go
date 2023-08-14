@@ -29,7 +29,7 @@ func (lt *leaveTypeUseCase) RegisterNewLeaveType(payload model.LeaveType) error 
 	}
 	err := lt.repo.Create(payload)
 	if err != nil {
-		return fmt.Errorf("failed to create new position: %v", err)
+		return fmt.Errorf("failed to create new leave type: %v", err)
 	}
 	return nil
 }

@@ -61,7 +61,7 @@ func (suite *StatusLeaveUseCaseSuite) SetupTest() {
 	suite.useCase = NewStatusLeaveUseCase(suite.repoMock)
 }
 
-var dataDummy = []model.StatusLeave{
+var statusDummy = []model.StatusLeave{
 	{
 		ID:              "1",
 		StatusLeaveName: "Pending",
@@ -73,7 +73,7 @@ var dataDummy = []model.StatusLeave{
 }
 
 func (suite *StatusLeaveUseCaseSuite) TestRegisterNewStatusLeave_Success() {
-	payload := dataDummy[0]
+	payload := statusDummy[0]
 	suite.repoMock.On("GetByNameStatus", payload.StatusLeaveName).Return(model.StatusLeave{}, nil)
 	suite.repoMock.On("Create", payload).Return(nil)
 
@@ -92,7 +92,7 @@ func (suite *StatusLeaveUseCaseSuite) TestRegisterNewStatusLeave_StatusExists() 
 	payload := model.StatusLeave{
 		StatusLeaveName: "Pending",
 	}
-	existingStatus := dataDummy[0]
+	existingStatus := statusDummy[0]
 
 	suite.repoMock.On("GetByNameStatus", payload.StatusLeaveName).Return(existingStatus, nil)
 
@@ -117,7 +117,7 @@ func (suite *StatusLeaveUseCaseSuite) TestRegisterNewStatusLeave_CreateError() {
 
 func (suite *StatusLeaveUseCaseSuite) TestFindByNameStatusLeave_Success() {
 	statusName := "Pending"
-	expectedStatus := dataDummy[0]
+	expectedStatus := statusDummy[0]
 	suite.repoMock.On("GetByNameStatus", statusName).Return(expectedStatus, nil)
 
 	result, err := suite.useCase.FindByNameStatusLeave(statusName)
@@ -127,7 +127,7 @@ func (suite *StatusLeaveUseCaseSuite) TestFindByNameStatusLeave_Success() {
 }
 
 func (suite *StatusLeaveUseCaseSuite) TestFindAllStatusLeave_Success() {
-	expectedStatuses := dataDummy
+	expectedStatuses := statusDummy
 
 	suite.repoMock.On("List").Return(expectedStatuses, nil)
 
@@ -152,7 +152,7 @@ func (suite *StatusLeaveUseCaseSuite) TestFindByIdStatusLeave_Success() {
 }
 
 func (suite *StatusLeaveUseCaseSuite) TestUpdateStatusLeave_Success() {
-	payload := dataDummy[0]
+	payload := statusDummy[0]
 	suite.repoMock.On("GetByNameStatus", payload.StatusLeaveName).Return(model.StatusLeave{}, nil)
 	suite.repoMock.On("Update", payload).Return(nil)
 
@@ -176,7 +176,7 @@ func (suite *StatusLeaveUseCaseSuite) TestUpdateStatusLeave_StatusExists() {
 	payload := model.StatusLeave{
 		StatusLeaveName: "Pending",
 	}
-	existingStatus := dataDummy[0]
+	existingStatus := statusDummy[0]
 
 	suite.repoMock.On("GetByNameStatus", payload.StatusLeaveName).Return(existingStatus, nil)
 
@@ -187,7 +187,7 @@ func (suite *StatusLeaveUseCaseSuite) TestUpdateStatusLeave_StatusExists() {
 }
 
 func (suite *StatusLeaveUseCaseSuite) TestUpdateStatusLeave_UpdateError() {
-	payload := dataDummy[0]
+	payload := statusDummy[0]
 
 	suite.repoMock.On("GetByNameStatus", payload.StatusLeaveName).Return(model.StatusLeave{}, nil)
 	suite.repoMock.On("Update", payload).Return(fmt.Errorf("update error"))
@@ -225,7 +225,7 @@ func (suite *StatusLeaveUseCaseSuite) TestDeleteStatusLeave_NotFound() {
 
 func (suite *StatusLeaveUseCaseSuite) TestDeleteStatusLeave_DeleteError() {
 	statusID := "1"
-	status := dataDummy[0]
+	status := statusDummy[0]
 
 	suite.repoMock.On("Get", statusID).Return(status, nil)
 	suite.repoMock.On("Delete", statusID).Return(fmt.Errorf("delete error"))

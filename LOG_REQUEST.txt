@@ -237,3 +237,5 @@ time="2023-08-12T20:27:14+07:00" level=info msg="{2023-08-12 20:27:14.256840603 
 time="2023-08-12T20:27:46+07:00" level=info msg="{2023-08-12 20:27:46.459111073 +0700 WIB m=+42.812610404 5.571679ms 200 127.0.0.1 GET /api/v1/employee PostmanRuntime/7.32.1}"
 time="2023-08-12T20:28:24+07:00" level=info msg="{2023-08-12 20:28:24.16079588 +0700 WIB m=+80.514295192 24.148801ms 200 127.0.0.1 PUT /api/v1/decisions PostmanRuntime/7.32.1}"
 time="2023-08-12T20:28:46+07:00" level=info msg="{2023-08-12 20:28:46.239700806 +0700 WIB m=+102.593200131 3.606558ms 200 127.0.0.1 GET /api/v1/employee PostmanRuntime/7.32.1}"
+time="2023-08-13T12:00:30+07:00" level=info msg="{2023-08-13 12:00:30.428998916 +0700 WIB m=+5.281265811 26.011015ms 200 127.0.0.1 GET /api/v1/employee PostmanRuntime/7.32.1}"
+time="2023-08-13T12:00:40+07:00" level=info msg="{2023-08-13 12:00:40.777439005 +0700 WIB m=+15.629705857 41.688767ms 200 127.0.0.1 PUT /api/v1/decisions PostmanRuntime/7.32.1}"

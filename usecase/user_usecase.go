@@ -5,8 +5,6 @@ import (
 	"employeeleave/model/dto"
 	"employeeleave/repository"
 	"fmt"
-
-	"golang.org/x/crypto/bcrypt"
 )
 
 type UserUseCase interface {
@@ -25,8 +23,8 @@ type userUseCase struct {
 // RegisterNewUser implements UserUseCase.
 func (u *userUseCase) RegisterNewUser(payload model.UserCredential) error {
 	// buat hash
-	bytes, _ := bcrypt.GenerateFromPassword([]byte(payload.Password), bcrypt.DefaultCost)
-	payload.Password = string(bytes)
+	// bytes, _ := bcrypt.GenerateFromPassword([]byte(payload.Password), bcrypt.DefaultCost)
+	// payload.Password = string(bytes)
 	err := u.repo.Create(payload)
 	if err != nil {
 		return fmt.Errorf("failed to create user: %v", err)
@@ -37,8 +35,8 @@ func (u *userUseCase) RegisterNewUser(payload model.UserCredential) error {
 // UpdateUser implements UserUseCase.
 func (u *userUseCase) UpdateUser(payload model.UserCredential) error {
 	// buat hash
-	bytes, _ := bcrypt.GenerateFromPassword([]byte(payload.Password), bcrypt.DefaultCost)
-	payload.Password = string(bytes)
+	// bytes, _ := bcrypt.GenerateFromPassword([]byte(payload.Password), bcrypt.DefaultCost)
+	// payload.Password = string(bytes)
 	err := u.repo.Update(payload)
 	if err != nil {
 		return fmt.Errorf("failed to create user: %v", err)

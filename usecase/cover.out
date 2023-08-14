@@ -1,0 +1,18 @@
+mode: set
+employeeleave/usecase/user_usecase.go:24.75,29.16 2 1
+employeeleave/usecase/user_usecase.go:32.2,32.12 1 1
+employeeleave/usecase/user_usecase.go:29.16,31.3 1 0
+employeeleave/usecase/user_usecase.go:36.70,41.16 2 1
+employeeleave/usecase/user_usecase.go:44.2,44.12 1 1
+employeeleave/usecase/user_usecase.go:41.16,43.3 1 0
+employeeleave/usecase/user_usecase.go:48.113,50.2 1 1
+employeeleave/usecase/user_usecase.go:53.77,55.2 1 1
+employeeleave/usecase/user_usecase.go:58.85,60.2 1 1
+employeeleave/usecase/user_usecase.go:63.110,65.2 1 1
+employeeleave/usecase/user_usecase.go:67.65,69.2 1 1
+employeeleave/usecase/auth_usecase.go:16.72,18.16 2 0
+employeeleave/usecase/auth_usecase.go:23.2,24.16 2 0
+employeeleave/usecase/auth_usecase.go:27.2,27.19 1 0
+employeeleave/usecase/auth_usecase.go:18.16,20.3 1 0
+employeeleave/usecase/auth_usecase.go:24.16,26.3 1 0
+employeeleave/usecase/auth_usecase.go:30.54,32.2 1 0

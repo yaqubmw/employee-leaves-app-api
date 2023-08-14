@@ -1,241 +1,176 @@
 package usecase
 
-// import (
-// 	"employeeleave/model"
-// 	"fmt"
-// 	"testing"
+import (
+	"employeeleave/model"
+	"employeeleave/model/dto"
+	"testing"
 
-// 	"github.com/stretchr/testify/assert"
-// 	"github.com/stretchr/testify/mock"
-// 	"github.com/stretchr/testify/suite"
-// )
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/mock"
+	"github.com/stretchr/testify/suite"
+)
 
-// type RepoMock struct {
-// 	mock.Mock
-// }
+var dataDummy = []model.UserCredential{
+	{
+		ID:       "1",
+		Username: "agung",
+		Password: "123",
+		RoleId:   "",
+		IsActive: true,
+		Role: model.Role{
+			Id:       "",
+			RoleName: "",
+		},
+	},
+	{
+		ID:       "2",
+		Username: "panji",
+		Password: "123",
+		RoleId:   "",
+		IsActive: true,
+		Role: model.Role{
+			Id:       "",
+			RoleName: "",
+		},
+	},
+}
 
-// // Create implements repository.StatusLeaveRepository.
-// func (m *RepoMock) Create(payload model.StatusLeave) error {
-// 	args := m.Called(payload)
-// 	return args.Error(0)
-// }
+type RepoMock struct {
+	mock.Mock
+}
 
-// // Delete implements repository.StatusLeaveRepository.
-// func (m *RepoMock) Delete(id string) error {
-// 	args := m.Called(id)
-// 	return args.Error(0)
-// }
+func (m *RepoMock) Create(payload model.UserCredential) error {
+	args := m.Called(payload)
+	return args.Error(0)
+}
 
-// // Get implements repository.StatusLeaveRepository.
-// func (m *RepoMock) Get(id string) (model.StatusLeave, error) {
-// 	args := m.Called(id)
-// 	return args.Get(0).(model.StatusLeave), args.Error(1)
-// }
+func (m *RepoMock) Get(id string) (model.UserCredential, error) {
+	args := m.Called(id)
+	return args.Get(0).(model.UserCredential), args.Error(1)
+}
 
-// // GetByNameStatus implements repository.StatusLeaveRepository.
-// func (m *RepoMock) GetByNameStatus(statusLeaveName string) (model.StatusLeave, error) {
-// 	args := m.Called(statusLeaveName)
-// 	return args.Get(0).(model.StatusLeave), args.Error(1)
-// }
+func (m *RepoMock) GetByUsername(username string) (model.UserCredential, error) {
+	args := m.Called(username)
+	return args.Get(0).(model.UserCredential), args.Error(1)
+}
 
-// // List implements repository.StatusLeaveRepository.
-// func (m *RepoMock) List() ([]model.StatusLeave, error) {
-// 	args := m.Called()
-// 	return args.Get(0).([]model.StatusLeave), args.Error(1)
-// }
+func (m *RepoMock) GetByUsernamePassword(username string, password string) (model.UserCredential, error) {
+	args := m.Called(username, password)
+	return args.Get(0).(model.UserCredential), args.Error(1)
+}
 
-// // Update implements repository.StatusLeaveRepository.
-// func (m *RepoMock) Update(payload model.StatusLeave) error {
-// 	args := m.Called(payload)
-// 	return args.Error(0)
-// }
+func (m *RepoMock) Paging(requestPaging dto.PaginationParam) ([]model.UserCredential, dto.Paging, error) {
+	args := m.Called(requestPaging)
+	return args.Get(0).([]model.UserCredential), args.Get(1).(dto.Paging), args.Error(2)
+}
 
-// type StatusLeaveUseCaseSuite struct {
-// 	suite.Suite
-// 	repoMock *RepoMock
-// 	useCase  StatusLeaveUseCase
-// }
+// Update implements repository.StatusLeaveRepository.
+func (m *RepoMock) Update(payload model.UserCredential) error {
+	args := m.Called(payload)
+	return args.Error(0)
+}
 
-// func (suite *StatusLeaveUseCaseSuite) SetupTest() {
-// 	suite.repoMock = new(RepoMock)
-// 	suite.useCase = NewStatusLeaveUseCase(suite.repoMock)
-// }
+type UserUseCaseSuite struct {
+	suite.Suite
+	repoMock *RepoMock
+	useCase  UserUseCase
+}
 
-// var dataDummy = []model.StatusLeave{
-// 	{
-// 		ID:              "1",
-// 		StatusLeaveName: "Pending",
-// 	},
-// 	{
-// 		ID:              "2",
-// 		StatusLeaveName: "Approved",
-// 	},
-// }
+func (suite *UserUseCaseSuite) SetupTest() {
+	suite.repoMock = new(RepoMock)
+	suite.useCase = NewUserUseCase(suite.repoMock)
+}
 
-// func (suite *StatusLeaveUseCaseSuite) TestRegisterNewStatusLeave_Success() {
-// 	payload := dataDummy[0]
-// 	suite.repoMock.On("GetByNameStatus", payload.StatusLeaveName).Return(model.StatusLeave{}, nil)
-// 	suite.repoMock.On("Create", payload).Return(nil)
+func (suite *UserUseCaseSuite) TestRegisterNewUser_Success() {
+	dummy := dataDummy[0]
+	suite.repoMock.On("Create", dummy).Return(nil)
+	err := suite.useCase.RegisterNewUser(dummy)
+	assert.Nil(suite.T(), err)
+}
 
-// 	err := suite.useCase.RegisterNewStatusLeave(payload)
-// 	assert.NoError(suite.T(), err)
-// }
+func (suite *UserUseCaseSuite) TestUpdateUser_Success() {
+	dummy := dataDummy[0]
+	dummy.Username = "anto"
+	suite.repoMock.On("Update", dummy).Return(nil)
+	err := suite.useCase.UpdateUser(dummy)
+	assert.Nil(suite.T(), err)
+}
 
-// func (suite *StatusLeaveUseCaseSuite) TestRegisterNewStatusLeave_EmptyField() {
-// 	payload := model.StatusLeave{}
-// 	suite.repoMock.On("Create", payload).Return(fmt.Errorf("error"))
-// 	err := suite.useCase.RegisterNewStatusLeave(model.StatusLeave{})
-// 	assert.Error(suite.T(), err)
-// }
+func (suite *UserUseCaseSuite) TestFindByUsername_Success() {
+	username := "agung"
+	expectedUsername := dataDummy[0]
+	suite.repoMock.On("GetByUsername", username).Return(expectedUsername, nil)
 
-// func (suite *StatusLeaveUseCaseSuite) TestRegisterNewStatusLeave_StatusExists() {
-// 	payload := model.StatusLeave{
-// 		StatusLeaveName: "Pending",
-// 	}
-// 	existingStatus := dataDummy[0]
+	result, err := suite.useCase.FindByUsername(username)
+	assert.NoError(suite.T(), err)
+	assert.Equal(suite.T(), expectedUsername, result)
+}
 
-// 	suite.repoMock.On("GetByNameStatus", payload.StatusLeaveName).Return(existingStatus, nil)
+func (suite *UserUseCaseSuite) TestFindByIdUser_Success() {
+	userID := "1"
+	expectedStatus := dataDummy[0]
+	suite.repoMock.On("Get", userID).Return(expectedStatus, nil)
 
-// 	err := suite.useCase.RegisterNewStatusLeave(payload)
-// 	assert.Error(suite.T(), err)
-// 	assert.Equal(suite.T(), "status with name Pending exists", err.Error())
-// }
+	result, err := suite.useCase.FindByIdUser(userID)
+	assert.NoError(suite.T(), err)
+	assert.Equal(suite.T(), expectedStatus, result)
+}
 
-// func (suite *StatusLeaveUseCaseSuite) TestRegisterNewStatusLeave_CreateError() {
-// 	payload := model.StatusLeave{
-// 		StatusLeaveName: "Pending",
-// 	}
+func (suite *UserUseCaseSuite) TestFindByUsernamePassword_Success() {
+	expectedUser := dataDummy[0]
+	mockUsername := "agung"
+	mockPassword := "password"
 
-// 	suite.repoMock.On("GetByNameStatus", payload.StatusLeaveName).Return(model.StatusLeave{}, nil)
-// 	suite.repoMock.On("Create", payload).Return(fmt.Errorf("create error"))
+	suite.repoMock.On("GetByUsernamePassword", mockUsername, mockPassword).Return(expectedUser, nil)
 
-// 	err := suite.useCase.RegisterNewStatusLeave(payload)
-// 	assert.Error(suite.T(), err)
-// 	assert.Equal(suite.T(), "failed to create new status: create error", err.Error())
+	resultUser, err := suite.useCase.FindByUsernamePassword(mockUsername, mockPassword)
 
-// }
+	assert.NoError(suite.T(), err)
+	assert.Equal(suite.T(), expectedUser, resultUser)
+}
 
-// func (suite *StatusLeaveUseCaseSuite) TestFindByNameStatusLeave_Success() {
-// 	statusName := "Pending"
-// 	expectedStatus := dataDummy[0]
-// 	suite.repoMock.On("GetByNameStatus", statusName).Return(expectedStatus, nil)
+func (suite *UserUseCaseSuite) TestFindAllEmpl_Success() {
+	expectedData := []model.UserCredential{
+		{
+			ID:       "1",
+			Username: "agung",
+			Password: "password",
+			RoleId:   "",
+			IsActive: true,
+			Role: model.Role{
+				Id:       "",
+				RoleName: "",
+			},
+		},
+		{
+			ID:       "2",
+			Username: "panji",
+			Password: "password",
+			RoleId:   "",
+			IsActive: true,
+			Role: model.Role{
+				Id:       "",
+				RoleName: "",
+			},
+		},
+	}
+	expectedPaging := dto.Paging{
+		Page:        1,
+		RowsPerPage: 10,
+		TotalRows:   len(expectedData),
+		TotalPages:  1,
+	}
 
-// 	result, err := suite.useCase.FindByNameStatusLeave(statusName)
-// 	assert.NoError(suite.T(), err)
-// 	assert.Equal(suite.T(), expectedStatus, result)
+	mockParam := dto.PaginationParam{Page: 1, Limit: 10}
+	suite.repoMock.On("Paging", mockParam).Return(expectedData, expectedPaging, nil)
 
-// }
+	resultData, resultPaging, err := suite.useCase.FindAllUser(mockParam)
 
-// func (suite *StatusLeaveUseCaseSuite) TestFindAllStatusLeave_Success() {
-// 	expectedStatuses := dataDummy
+	assert.NoError(suite.T(), err)
+	assert.Equal(suite.T(), expectedData, resultData)
+	assert.Equal(suite.T(), expectedPaging, resultPaging)
+}
 
-// 	suite.repoMock.On("List").Return(expectedStatuses, nil)
-
-// 	result, err := suite.useCase.FindAllStatusLeave()
-// 	assert.NoError(suite.T(), err)
-// 	assert.Equal(suite.T(), expectedStatuses, result)
-
-// }
-
-// func (suite *StatusLeaveUseCaseSuite) TestFindByIdStatusLeave_Success() {
-// 	statusID := "1"
-// 	expectedStatus := model.StatusLeave{
-// 		ID:              statusID,
-// 		StatusLeaveName: "Pending",
-// 	}
-// 	suite.repoMock.On("Get", statusID).Return(expectedStatus, nil)
-
-// 	result, err := suite.useCase.FindByIdStatusLeave(statusID)
-// 	assert.NoError(suite.T(), err)
-// 	assert.Equal(suite.T(), expectedStatus, result)
-
-// }
-
-// func (suite *StatusLeaveUseCaseSuite) TestUpdateStatusLeave_Success() {
-// 	payload := dataDummy[0]
-// 	suite.repoMock.On("GetByNameStatus", payload.StatusLeaveName).Return(model.StatusLeave{}, nil)
-// 	suite.repoMock.On("Update", payload).Return(nil)
-
-// 	err := suite.useCase.UpdateStatusLeave(payload)
-// 	assert.NoError(suite.T(), err)
-
-// }
-
-// func (suite *StatusLeaveUseCaseSuite) TestUpdateStatusLeave_EmptyField() {
-// 	payload := model.StatusLeave{
-// 		StatusLeaveName: "",
-// 	}
-
-// 	err := suite.useCase.UpdateStatusLeave(payload)
-// 	assert.Error(suite.T(), err)
-// 	assert.Equal(suite.T(), "status-leave-name required field", err.Error())
-
-// }
-
-// func (suite *StatusLeaveUseCaseSuite) TestUpdateStatusLeave_StatusExists() {
-// 	payload := model.StatusLeave{
-// 		StatusLeaveName: "Pending",
-// 	}
-// 	existingStatus := dataDummy[0]
-
-// 	suite.repoMock.On("GetByNameStatus", payload.StatusLeaveName).Return(existingStatus, nil)
-
-// 	err := suite.useCase.UpdateStatusLeave(payload)
-// 	assert.Error(suite.T(), err)
-// 	assert.Equal(suite.T(), "status with name Pending exists", err.Error())
-
-// }
-
-// func (suite *StatusLeaveUseCaseSuite) TestUpdateStatusLeave_UpdateError() {
-// 	payload := dataDummy[0]
-
-// 	suite.repoMock.On("GetByNameStatus", payload.StatusLeaveName).Return(model.StatusLeave{}, nil)
-// 	suite.repoMock.On("Update", payload).Return(fmt.Errorf("update error"))
-
-// 	err := suite.useCase.UpdateStatusLeave(payload)
-// 	assert.Error(suite.T(), err)
-// 	assert.Equal(suite.T(), "failed to update status: update error", err.Error())
-
-// }
-
-// func (suite *StatusLeaveUseCaseSuite) TestDeleteStatusLeave_Success() {
-// 	statusID := "1"
-// 	expectedStatus := model.StatusLeave{
-// 		ID:              statusID,
-// 		StatusLeaveName: "Pending",
-// 	}
-// 	suite.repoMock.On("Get", statusID).Return(expectedStatus, nil)
-// 	suite.repoMock.On("Delete", statusID).Return(nil)
-
-// 	err := suite.useCase.DeleteStatusLeave(statusID)
-// 	assert.NoError(suite.T(), err)
-
-// }
-
-// func (suite *StatusLeaveUseCaseSuite) TestDeleteStatusLeave_NotFound() {
-// 	statusID := "1"
-
-// 	suite.repoMock.On("Get", statusID).Return(model.StatusLeave{}, fmt.Errorf("not found"))
-
-// 	err := suite.useCase.DeleteStatusLeave(statusID)
-// 	assert.Error(suite.T(), err)
-// 	assert.Equal(suite.T(), "data with ID 1 not found", err.Error())
-
-// }
-
-// func (suite *StatusLeaveUseCaseSuite) TestDeleteStatusLeave_DeleteError() {
-// 	statusID := "1"
-// 	status := dataDummy[0]
-
-// 	suite.repoMock.On("Get", statusID).Return(status, nil)
-// 	suite.repoMock.On("Delete", statusID).Return(fmt.Errorf("delete error"))
-
-// 	err := suite.useCase.DeleteStatusLeave(statusID)
-// 	assert.Error(suite.T(), err)
-// 	assert.Equal(suite.T(), "failed to delete statusLeave: delete error", err.Error())
-
-// }
-
-// func TestStatusLeaveUseCaseSuite(t *testing.T) {
-// 	suite.Run(t, new(StatusLeaveUseCaseSuite))
-// }
+func TestUserUseCaseSuite(t *testing.T) {
+	suite.Run(t, new(UserUseCaseSuite))
+}

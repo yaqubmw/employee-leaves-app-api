@@ -31,12 +31,52 @@ func (u *UserController) createHandler(c *gin.Context) {
 	}
 
 	userResponse := map[string]any{
-		"id":       user.ID,
-		"username": user.Username,
-		"role_id":  user.RoleId,
+		"id":        user.ID,
+		"username":  user.Username,
+		"role_id":   user.RoleId,
+		"is_active": user.IsActive,
 	}
 
 	c.JSON(http.StatusOK, userResponse)
+}
+
+func (u *UserController) updateHandler(c *gin.Context) {
+	var user model.UserCredential
+	if err := c.ShouldBindJSON(&user); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"err": err.Error()})
+		return
+	}
+
+	if err := u.userUC.UpdateUser(user); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"err": err.Error()})
+		return
+	}
+
+	userResponse := map[string]any{
+		"id":        user.ID,
+		"username":  user.Username,
+		"role_id":   user.RoleId,
+		"is_active": user.IsActive,
+	}
+
+	c.JSON(http.StatusOK, userResponse)
+}
+
+func (u *UserController) getHandler(c *gin.Context) {
+	id := c.Param("id")
+	user, err := u.userUC.FindByIdUser(id)
+	if err != nil {
+		c.JSON(500, gin.H{"err": err.Error()})
+		return
+	}
+	status := map[string]any{
+		"code":        200,
+		"description": "Get Data By Id Success",
+	}
+	c.JSON(200, gin.H{
+		"status": status,
+		"data":   user,
+	})
 }
 
 func (u *UserController) listHandler(c *gin.Context) {
@@ -69,7 +109,9 @@ func NewUserController(r *gin.Engine, usecase usecase.UserUseCase) *UserControll
 	}
 
 	rg := r.Group("/api/v1")
-	rg.POST("/users", middleware.AuthMiddleware(), controller.createHandler)
-	rg.GET("/users", middleware.AuthMiddleware(), controller.listHandler)
+	rg.POST("/users", middleware.AuthMiddleware("1"), controller.createHandler)
+	rg.GET("/users", controller.listHandler)
+	rg.GET("/users/:id", controller.getHandler)
+	rg.PUT("/users", controller.updateHandler)
 	return &controller
 }

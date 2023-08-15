@@ -1,7 +1,10 @@
 package repository
 
 import (
+	"database/sql"
 	"employeeleave/model"
+	"employeeleave/model/dto"
+	"fmt"
 	"testing"
 
 	"github.com/DATA-DOG/go-sqlmock"
@@ -154,6 +157,35 @@ func (suite *UserCredentialRepositorySuite) TestGetByUsernamePasswordSuccess() {
 
 	// Verifikasi panggilan query
 	assert.NoError(suite.T(), suite.mocksql.ExpectationsWereMet())
+}
+
+func (suite *UserCredentialRepositorySuite) TestGetByUsernameFailure() {
+	// Data dummy
+	username := "agung"
+	password := "incorrect_password"
+
+	// Ekspektasi query GetByUsername
+	suite.mocksql.ExpectQuery("^SELECT (.+) FROM \"user_credential\"*").
+		WithArgs(username).
+		WillReturnError(sql.ErrNoRows) // Simulasi error ketika tidak ada data yang ditemukan
+
+	// Panggil fungsi GetByUsernamePassword
+	_, err := suite.repo.GetByUsernamePassword(username, password)
+
+	// Assertion
+	assert.Error(suite.T(), err)
+	assert.Equal(suite.T(), sql.ErrNoRows, err)
+
+	// Verifikasi panggilan query
+	assert.NoError(suite.T(), suite.mocksql.ExpectationsWereMet())
+}
+
+func (suite *UserCredentialRepositorySuite) TestPagingUser_QueryPagingError() {
+	suite.mocksql.ExpectQuery("^SELECT (.+) FROM \"user_credential\"*").WillReturnError(fmt.Errorf("error"))
+	actualUser, actualPaging, actualError := suite.repo.Paging(dto.PaginationParam{})
+	assert.Error(suite.T(), actualError)
+	assert.Nil(suite.T(), actualUser)
+	assert.Equal(suite.T(), actualPaging.TotalRows, 0)
 }
 
 func TestUserCredentialRepositorySuite(t *testing.T) {

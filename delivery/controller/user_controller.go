@@ -1,7 +1,6 @@
 package controller
 
 import (
-	"employeeleave/delivery/middleware"
 	"employeeleave/model"
 	"employeeleave/model/dto"
 	"employeeleave/usecase"
@@ -109,7 +108,7 @@ func NewUserController(r *gin.Engine, usecase usecase.UserUseCase) *UserControll
 	}
 
 	rg := r.Group("/api/v1")
-	rg.POST("/users", middleware.AuthMiddleware("1"), controller.createHandler)
+	rg.POST("/users", controller.createHandler)
 	rg.GET("/users", controller.listHandler)
 	rg.GET("/users/:id", controller.getHandler)
 	rg.PUT("/users", controller.updateHandler)

@@ -1,0 +1,24 @@
+mode: set
+employeeleave/delivery/controller/auth_controller.go:16.55,18.51 2 0
+employeeleave/delivery/controller/auth_controller.go:23.2,24.16 2 0
+employeeleave/delivery/controller/auth_controller.go:28.2,28.51 1 0
+employeeleave/delivery/controller/auth_controller.go:18.51,21.3 2 0
+employeeleave/delivery/controller/auth_controller.go:24.16,27.3 2 0
+employeeleave/delivery/controller/auth_controller.go:31.84,39.2 4 0
+employeeleave/delivery/controller/user_controller.go:19.56,21.48 2 1
+employeeleave/delivery/controller/user_controller.go:26.2,27.55 2 1
+employeeleave/delivery/controller/user_controller.go:32.2,39.37 2 1
+employeeleave/delivery/controller/user_controller.go:21.48,24.3 2 1
+employeeleave/delivery/controller/user_controller.go:27.55,30.3 2 1
+employeeleave/delivery/controller/user_controller.go:42.56,44.48 2 1
+employeeleave/delivery/controller/user_controller.go:49.2,49.50 1 1
+employeeleave/delivery/controller/user_controller.go:54.2,61.37 2 1
+employeeleave/delivery/controller/user_controller.go:44.48,47.3 2 1
+employeeleave/delivery/controller/user_controller.go:49.50,52.3 2 1
+employeeleave/delivery/controller/user_controller.go:64.53,67.16 3 1
+employeeleave/delivery/controller/user_controller.go:71.2,78.4 2 1
+employeeleave/delivery/controller/user_controller.go:67.16,70.3 2 1
+employeeleave/delivery/controller/user_controller.go:81.54,89.16 5 0
+employeeleave/delivery/controller/user_controller.go:93.2,101.4 2 0
+employeeleave/delivery/controller/user_controller.go:89.16,92.3 2 0
+employeeleave/delivery/controller/user_controller.go:104.84,116.2 7 1

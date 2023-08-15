@@ -12,7 +12,10 @@ type TransactionResponseDto struct {
 	DayType        string            `json:"dayType"`
 	Reason         string            `json:"reason"`
 	SubmissionDate time.Time         `json:"submissionDate"`
-	Employee       model.Employee    `json:"employee"`
-	LeaveType      model.LeaveType   `json:"leaveType"`
-	StatusLeave    model.StatusLeave `json:"statusLeave"`
+	Employee       model.Employee    `json:"employee" gorm:"foreignKey:EmployeeID"`
+	EmployeeID     string            `json:"-"`
+	LeaveType      model.LeaveType   `json:"leaveType" gorm:"foreignKey:LeaveTypeID"`
+	LeaveTypeID    string            `json:"-"`
+	StatusLeave    model.StatusLeave `json:"statusLeave" gorm:"foreignKey:StatusLeaveID"`
+	StatusLeaveID  string            `json:"-"`
 }

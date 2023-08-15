@@ -1,7 +1,6 @@
 package controller
 
 import (
-	"employeeleave/delivery/middleware"
 	"employeeleave/model/dto"
 	"employeeleave/usecase"
 	"net/http"
@@ -62,7 +61,7 @@ func NewHistoryController(r *gin.Engine, usecase usecase.HistoryUseCase) *Histor
 	}
 
 	rg := r.Group("/api/v1")
-	rg.GET("/histories/:id", middleware.AuthMiddleware(), controller.getHandler)
-	rg.GET("/histories", middleware.AuthMiddleware(), controller.listHandler)
+	rg.GET("/histories/:id", controller.getHandler)
+	rg.GET("/histories", controller.listHandler)
 	return &controller
 }

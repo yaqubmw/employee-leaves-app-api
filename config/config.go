@@ -1,12 +1,19 @@
 package config
 
 import (
+	"employeeleave/utils/common"
 	"fmt"
-	"log"
 	"os"
+	"strconv"
+	"time"
 
-	"github.com/joho/godotenv"
+	"github.com/golang-jwt/jwt/v5"
 )
+
+type ApiConfig struct {
+	ApiHost string
+	ApiPort string
+}
 
 type DbConfig struct {
 	Host     string
@@ -17,15 +24,29 @@ type DbConfig struct {
 	Driver   string
 }
 
+type TokenConfig struct {
+	ApplicationName     string
+	JwtSignatureKey     []byte
+	JwtSigningMethod    *jwt.SigningMethodHMAC
+	AccessTokenLifeTime time.Duration
+}
+
 type Config struct {
+	ApiConfig
 	DbConfig
+	TokenConfig
+	FileConfig
+}
+
+type FileConfig struct {
+	FilePath string
 }
 
 // Method
 func (c *Config) ReadConfig() error {
-	err := godotenv.Load()
+	err := common.LoadEnv()
 	if err != nil {
-		log.Fatal("Error loading .env file")
+		return err
 	}
 
 	c.DbConfig = DbConfig{
@@ -36,8 +57,32 @@ func (c *Config) ReadConfig() error {
 		Password: os.Getenv("DB_PASSWORD"),
 		Driver:   os.Getenv("DB_DRIVER"),
 	}
+
+	c.ApiConfig = ApiConfig{
+		ApiHost: os.Getenv("API_HOST"),
+		ApiPort: os.Getenv("API_PORT"),
+	}
+
+	c.FileConfig = FileConfig{
+		FilePath: os.Getenv("FILE_PATH"),
+	}
+
+	appTokenExpire, err := strconv.Atoi(os.Getenv("APP_TOKEN_EXPIRE"))
+	if err != nil {
+		return err
+	}
+	accessTokenLifeTime := time.Duration(appTokenExpire) * time.Minute
+
+	c.TokenConfig = TokenConfig{
+		ApplicationName:     os.Getenv("APP_TOKEN_NAME"),
+		JwtSignatureKey:     []byte(os.Getenv("APP_TOKEN_KEY")),
+		JwtSigningMethod:    jwt.SigningMethodHS256,
+		AccessTokenLifeTime: accessTokenLifeTime,
+	}
+
 	if c.DbConfig.Host == "" || c.DbConfig.Port == "" || c.DbConfig.Name == "" ||
-		c.DbConfig.User == "" || c.DbConfig.Password == "" || c.DbConfig.Driver == "" {
+		c.DbConfig.User == "" || c.DbConfig.Password == "" || c.DbConfig.Driver == "" ||
+		c.ApiConfig.ApiHost == "" || c.ApiConfig.ApiPort == "" || c.FileConfig.FilePath == "" {
 		return fmt.Errorf("missing required environment variables")
 	}
 	return nil

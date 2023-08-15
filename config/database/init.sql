@@ -32,6 +32,7 @@ CREATE TABLE employee (
     address text
 );
 
+
 CREATE TABLE leave_type (
     id varchar(100) PRIMARY KEY,
     leave_type_name varchar(100),

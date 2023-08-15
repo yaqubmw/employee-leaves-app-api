@@ -2,6 +2,7 @@ package repository
 
 import (
 	"employeeleave/model"
+	"employeeleave/model/dto"
 	"fmt"
 	"testing"
 	"time"
@@ -58,6 +59,17 @@ var dataDummyHistory = []model.HistoryLeave{
 	},
 }
 
+func (suite *HistoryRepositorySuite) TestCreate() {
+	payload := dataDummyHistory[0]
+
+	suite.mocksql.ExpectBegin()
+	suite.mocksql.ExpectExec("INSERT INTO \"history_leave\" (.+)").WithArgs(payload.Id, payload.TransactionLeaveId, payload.DateEvent).WillReturnResult(sqlmock.NewResult(1, 1))
+	suite.mocksql.ExpectCommit()
+
+	err := suite.repo.Create(payload)
+	assert.NoError(suite.T(), err)
+}
+
 func (suite *HistoryRepositorySuite) TestGet() {
 	historyId := "1"
 	expectedHistory := dataDummyHistory[0]
@@ -73,36 +85,13 @@ func (suite *HistoryRepositorySuite) TestGet() {
 }
 
 // TEST FAIL : Error loading .env file
-// func (suite *HistoryRepositorySuite) TestPaging() {
-// 	// err := godotenv.Load("../.env") // Adjust the path to your .env file
-// 	// if err != nil {
-// 	// 	suite.T().Fatal("Error loading .env file:", err)
-// 	// }
-
-// 	page := 1
-// 	perPage := 10
-// 	expectedHistories := dataDummyHistory
-
-// 	// Mock data for pagination
-// 	rows := sqlmock.NewRows([]string{"id", "transaction_leave_id", "date_event"})
-// 	for _, history := range expectedHistories {
-// 		rows.AddRow(history.Id, history.TransactionLeaveId, history.DateEvent)
-// 	}
-// 	expectedQuery := `SELECT \* FROM "history_leave" LIMIT \$1 OFFSET \$2`
-// 	suite.mocksql.ExpectQuery(expectedQuery).WithArgs(perPage, (page-1)*perPage).WillReturnRows(rows)
-
-// 	// Create a PaginationParam
-// 	paginationParam := dto.PaginationParam{
-// 		Page:   page,
-// 		Offset: (page - 1) * perPage,
-// 		Limit:  perPage,
-// 	}
-
-// 	// Call the Paging method and assert the results
-// 	results, _, err := suite.repo.Paging(paginationParam)
-// 	assert.NoError(suite.T(), err)
-// 	assert.Equal(suite.T(), expectedHistories, results)
-// }
+func (suite *HistoryRepositorySuite) TestPagingHistory_QueryPagingError() {
+	suite.mocksql.ExpectQuery("^SELECT (.+) FROM \"history_leave\"*").WillReturnError(fmt.Errorf("error"))
+	actualHistory, actualPaging, actualError := suite.repo.Paging(dto.PaginationParam{})
+	assert.Error(suite.T(), actualError)
+	assert.Nil(suite.T(), actualHistory)
+	assert.Equal(suite.T(), actualPaging.TotalRows, 0)
+}
 
 func TestHistoryRepositorySuite(t *testing.T) {
 	suite.Run(t, new(HistoryRepositorySuite))

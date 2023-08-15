@@ -35,7 +35,7 @@ func (suite *RoleRepositorySuite) TearDownTest() {
 	assert.NoError(suite.T(), suite.mocksql.ExpectationsWereMet())
 }
 
-var dataDummy = []model.Role{
+var dataDummyRole = []model.Role{
 	{
 		Id:              "1",
 		RoleName: "Pending",
@@ -47,7 +47,7 @@ var dataDummy = []model.Role{
 }
 
 func (suite *RoleRepositorySuite) TestCreate() {
-	payload := dataDummy[0]
+	payload := dataDummyRole[0]
 
 	suite.mocksql.ExpectBegin()
 	suite.mocksql.ExpectExec("INSERT INTO \"role\" (.+)").WithArgs(payload.Id, payload.RoleName).WillReturnResult(sqlmock.NewResult(1, 1))
@@ -59,7 +59,7 @@ func (suite *RoleRepositorySuite) TestCreate() {
 
 func (suite *RoleRepositorySuite) TestGet() {
 	roleId := "1"
-	expectedRole := dataDummy[0]
+	expectedRole := dataDummyRole[0]
 
 	rows := sqlmock.NewRows([]string{"id", "role_name"})
 	rows.AddRow(expectedRole.Id, expectedRole.RoleName)
@@ -72,7 +72,7 @@ func (suite *RoleRepositorySuite) TestGet() {
 }
 
 func (suite *RoleRepositorySuite) TestList() {
-	expectedRoles := dataDummy
+	expectedRoles := dataDummyRole
 
 	rows := sqlmock.NewRows([]string{"id", "role_name"})
 	for _, role := range expectedRoles {
@@ -91,13 +91,13 @@ func (suite *RoleRepositorySuite) TestGetByName() {
 	roleName := "Pending"
 	expectedQuery := `SELECT \* FROM "role" WHERE role_name LIKE \$1`
 
-	rows := sqlmock.NewRows([]string{"id", "role_name"}).AddRow(dataDummy[0].Id, dataDummy[0].RoleName)
+	rows := sqlmock.NewRows([]string{"id", "role_name"}).AddRow(dataDummyRole[0].Id, dataDummyRole[0].RoleName)
 
 	suite.mocksql.ExpectQuery(expectedQuery).WithArgs("%" + roleName + "%").WillReturnRows(rows)
 
 	result, err := suite.repo.GetByName(roleName)
 	assert.NoError(suite.T(), err)
-	assert.Equal(suite.T(), dataDummy[0], result)
+	assert.Equal(suite.T(), dataDummyRole[0], result)
 
 	assert.NoError(suite.T(), suite.mocksql.ExpectationsWereMet())
 }
@@ -106,10 +106,10 @@ func (suite *RoleRepositorySuite) TestUpdate() {
 	expectedQuery := `UPDATE "role" SET "id"=\$1,"role_name"=\$2 WHERE "id" = \$3`
 
 	suite.mocksql.ExpectBegin()
-	suite.mocksql.ExpectExec(expectedQuery).WithArgs(dataDummy[0].Id, dataDummy[0].RoleName, dataDummy[0].Id).WillReturnResult(sqlmock.NewResult(0, 1))
+	suite.mocksql.ExpectExec(expectedQuery).WithArgs(dataDummyRole[0].Id, dataDummyRole[0].RoleName, dataDummyRole[0].Id).WillReturnResult(sqlmock.NewResult(0, 1))
 	suite.mocksql.ExpectCommit()
 
-	err := suite.repo.Update(dataDummy[0])
+	err := suite.repo.Update(dataDummyRole[0])
 	assert.NoError(suite.T(), err)
 }
 

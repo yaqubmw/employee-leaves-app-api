@@ -99,7 +99,8 @@ func NewRoleController(r *gin.Engine, usecase usecase.RoleUseCase) *RoleControll
 		roleUC: usecase,
 	}
 
-	rg := r.Group("/api/v1")
+	rg := r.Group("/api/v1/admin")
+	// path for admin
 	rg.POST("/roles", middleware.AuthMiddleware("1"), controller.createHandler)
 	rg.GET("/roles", middleware.AuthMiddleware("1"), controller.listHandler)
 	rg.GET("/roles/:id", middleware.AuthMiddleware("1"), controller.getHandler)

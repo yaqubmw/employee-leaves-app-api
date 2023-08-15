@@ -109,9 +109,19 @@ func NewUserController(r *gin.Engine, usecase usecase.UserUseCase) *UserControll
 	}
 
 	rg := r.Group("/api/v1")
+	// path for admin
 	rg.POST("/users", controller.createHandler)
-	rg.GET("/users", middleware.AuthMiddleware("1"), controller.listHandler)
-	rg.GET("/users/:id", middleware.AuthMiddleware("1"), controller.getHandler)
-	rg.PUT("/users", middleware.AuthMiddleware("1"), controller.updateHandler)
+	rg.GET("/admin/users", middleware.AuthMiddleware("1"), controller.listHandler)
+	rg.GET("/admin/users/:id", middleware.AuthMiddleware("1"), controller.getHandler)
+	rg.PUT("/admin/users", middleware.AuthMiddleware("1"), controller.updateHandler)
+	// path for employee
+	rg.GET("/employee/users/:id", middleware.AuthMiddleware("2"), controller.getHandler)
+	rg.PUT("/employee/users", middleware.AuthMiddleware("2"), controller.updateHandler)
+	// path for manager
+	rg.GET("/manager/users/:id", middleware.AuthMiddleware("3"), controller.getHandler)
+	rg.PUT("/manager/users", middleware.AuthMiddleware("3"), controller.updateHandler)
+	// path for hc
+	rg.GET("/hc/users/:id", middleware.AuthMiddleware("4"), controller.getHandler)
+	rg.PUT("/hc/users", middleware.AuthMiddleware("4"), controller.updateHandler)
 	return &controller
 }

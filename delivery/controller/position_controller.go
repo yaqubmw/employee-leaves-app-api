@@ -88,7 +88,8 @@ func NewPositionController(usecase usecase.PositionUseCase, r *gin.Engine) *Posi
 	}
 	// daftarkan semua url path disini
 	// /position -> GET, POST, PUT, DELETE
-	rg := r.Group("/api/v1")
+	rg := r.Group("/api/v1/admin")
+	// path for admin
 	rg.POST("/positions", middleware.AuthMiddleware("1"), controller.createHandler)
 	rg.GET("/positions", middleware.AuthMiddleware("1"), controller.listHandler)
 	rg.GET("/positions/:id", middleware.AuthMiddleware("1"), controller.getHandler)

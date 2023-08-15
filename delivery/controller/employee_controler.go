@@ -81,9 +81,19 @@ func NewEmplController(usecase usecase.EmployeeUseCase, r *gin.Engine) *Employee
 	}
 
 	rg := r.Group("/api/v1")
-	rg.POST("/employee", middleware.AuthMiddleware("1"), controller.createHandler)
-	rg.GET("/employee", middleware.AuthMiddleware("1"), controller.listHandler)
-	rg.GET("/employee/:id", middleware.AuthMiddleware("1"), controller.getHandler)
-	rg.PUT("/employee", middleware.AuthMiddleware("2"), controller.updateHandler)
+	// path for admin
+	rg.POST("/admin/profile", middleware.AuthMiddleware("1"), controller.createHandler)
+	rg.GET("/admin/profile", middleware.AuthMiddleware("1"), controller.listHandler)
+	rg.GET("/admin/profile/:id", middleware.AuthMiddleware("1"), controller.getHandler)
+	rg.PUT("/admin/profile", middleware.AuthMiddleware("1"), controller.updateHandler)
+	// path for employee
+	rg.GET("/employee/profile/:id", middleware.AuthMiddleware("2"), controller.getHandler)
+	rg.PUT("/employee/profile", middleware.AuthMiddleware("2"), controller.updateHandler)
+	// path for manager
+	rg.GET("/manager/profile/:id", middleware.AuthMiddleware("3"), controller.getHandler)
+	rg.PUT("/manager/profile", middleware.AuthMiddleware("3"), controller.updateHandler)
+	// path for hc
+	rg.GET("/hc/profile/:id", middleware.AuthMiddleware("4"), controller.getHandler)
+	rg.PUT("/hc/profile", middleware.AuthMiddleware("4"), controller.updateHandler)
 	return &controller
 }

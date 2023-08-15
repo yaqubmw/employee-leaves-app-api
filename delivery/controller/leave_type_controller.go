@@ -90,10 +90,15 @@ func NewLeaveTypeController(ltUC usecase.LeaveTypeUseCase, r *gin.Engine) *Leave
 	// /leavetype -> GET, POST, PUT, DELETE
 
 	rg := r.Group("/api/v1")
-	rg.POST("/leavetypes", middleware.AuthMiddleware("1"), controller.createHandler)
-	rg.GET("/leavetypes", middleware.AuthMiddleware("1"), controller.listHandler)
-	rg.GET("/leavetypes/:id", middleware.AuthMiddleware("1"), controller.getHandler)
-	rg.PUT("/leavetypes", middleware.AuthMiddleware("1"), controller.updateHandler)
-	rg.DELETE("/leavetypes/:id", middleware.AuthMiddleware("1"), controller.deleteHandler)
+	// path for admin
+	rg.POST("/admin/leavetypes", middleware.AuthMiddleware("1"), controller.createHandler)
+	rg.GET("/admin/leavetypes", middleware.AuthMiddleware("1"), controller.listHandler)
+	rg.GET("/admin/leavetypes/:id", middleware.AuthMiddleware("1"), controller.getHandler)
+	rg.PUT("/admin/leavetypes", middleware.AuthMiddleware("1"), controller.updateHandler)
+	rg.DELETE("/admin/leavetypes/:id", middleware.AuthMiddleware("1"), controller.deleteHandler)
+	// path for employee
+	rg.GET("/employee/leavetypes", middleware.AuthMiddleware("2"), controller.listHandler)
+	rg.GET("/employee/leavetypes/:id", middleware.AuthMiddleware("2"), controller.getHandler)
+
 	return &controller
 }

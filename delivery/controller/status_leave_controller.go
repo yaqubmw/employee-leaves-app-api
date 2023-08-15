@@ -102,11 +102,15 @@ func NewStatusLeaveController(r *gin.Engine, usecase usecase.StatusLeaveUseCase)
 	}
 
 	rg := r.Group("/api/v1")
-	rg.POST("/statusleaves", middleware.AuthMiddleware("1"), controller.createHandler)
-	rg.GET("/statusleaves", middleware.AuthMiddleware("1"), controller.listHandler)
-	rg.GET("/statusleaves/:id", middleware.AuthMiddleware("1"), controller.getHandler)
-	rg.PUT("/statusleaves", middleware.AuthMiddleware("1"), controller.updateHandler)
-	rg.DELETE("/statusleaves/:id", middleware.AuthMiddleware("1"), controller.deleteHandler)
+	// path for admin
+	rg.POST("/admin/statusleaves", middleware.AuthMiddleware("1"), controller.createHandler)
+	rg.GET("/admin/statusleaves", middleware.AuthMiddleware("1"), controller.listHandler)
+	rg.GET("/admin/statusleaves/:id", middleware.AuthMiddleware("1"), controller.getHandler)
+	rg.PUT("/admin/statusleaves", middleware.AuthMiddleware("1"), controller.updateHandler)
+	rg.DELETE("/admin/statusleaves/:id", middleware.AuthMiddleware("1"), controller.deleteHandler)
+	// path for manager
+	rg.GET("/manager/statusleaves", middleware.AuthMiddleware("3"), controller.listHandler)
+	rg.GET("/manager/statusleaves/:id", middleware.AuthMiddleware("3"), controller.getHandler)
 
 	return &controller
 }

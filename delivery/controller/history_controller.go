@@ -61,7 +61,8 @@ func NewHistoryController(r *gin.Engine, usecase usecase.HistoryUseCase) *Histor
 		historyUC: usecase,
 	}
 
-	rg := r.Group("/api/v1")
+	rg := r.Group("/api/v1/admin")
+	// path for admin
 	rg.GET("/histories/:id", middleware.AuthMiddleware("1"), controller.getHandler)
 	rg.GET("/histories", middleware.AuthMiddleware("1"), controller.listHandler)
 	return &controller
